@@ -1,0 +1,10 @@
+name: ClashOfClubs
+version: '0.0.1'
+author: Niko
+main: net.fununity.clashofclans.ClashOfClans
+api-version: 1.16
+depend:
+  - FunUnityAPI
+  - DatabaseHandler
+  - TranslationHandler
+  - NPCSystem

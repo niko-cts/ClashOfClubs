@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>net.fununity.games</groupId>
+    <artifactId>ClashOfClubs</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <repositories>
+        <repository>
+            <id>marco-hajek</id>
+            <name>FunUnity</name>
+            <url>https://artifactory.marco-hajek.me/artifactory/FunUnity</url>
+        </repository>
+    </repositories>
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.16.5-R0.1-20210211.193333-1</version>
+        </dependency>
+        <dependency>
+            <groupId>net.fununity.misc</groupId>
+            <artifactId>DatabaseHandler</artifactId>
+            <version>MASTER</version>
+        </dependency>
+        <dependency>
+            <groupId>net.fununity.main</groupId>
+            <artifactId>FunUnityAPI</artifactId>
+            <version>MC16</version>
+        </dependency>
+        <dependency>
+            <groupId>net.fununity.misc</groupId>
+            <artifactId>NPCSystem</artifactId>
+            <version>MC16</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <distributionManagement>
+        <repository>
+            <id>marco-hajek</id>
+            <name>Artifactory-releases</name>
+            <url>https://artifactory.marco-hajek.me/artifactory/FunUnity</url>
+        </repository>
+    </distributionManagement>
+
+</project>
