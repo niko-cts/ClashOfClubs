@@ -2,8 +2,9 @@ package net.fununity.clashofclans.buildings.classes;
 
 import net.fununity.clashofclans.buildings.BuildingsManager;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
+import net.fununity.clashofclans.buildings.interfaces.IDifferentVersionBuildings;
+import net.fununity.clashofclans.buildings.interfaces.IUpgradeDetails;
 import net.fununity.clashofclans.language.TranslationKeys;
-import net.fununity.clashofclans.player.PlayerManager;
 import net.fununity.main.api.inventory.ClickAction;
 import net.fununity.main.api.inventory.CustomInventory;
 import net.fununity.main.api.item.ItemBuilder;
@@ -14,9 +15,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * The general building class.
@@ -27,21 +26,25 @@ public class GeneralBuilding {
 
     private final UUID uuid;
     private final IBuilding building;
+    private byte rotation;
     private Location coordinate;
     private int level;
     private int currentHP;
 
     /**
      * Instantiates the class.
+     * @param uuid UUID - uuid of owner.
      * @param building IBuilding - the building class.
      * @param coordinate Location - the location of the building.
+     * @param rotation byte - the rotation of the building.
      * @param level int - the level of the building.
      * @since 0.0.1
      */
-    public GeneralBuilding(UUID uuid, IBuilding building, Location coordinate, int level) {
+    public GeneralBuilding(UUID uuid, IBuilding building, Location coordinate, byte rotation, int level) {
         this.uuid = uuid;
         this.building = building;
         this.coordinate = coordinate;
+        this.rotation = rotation;
         this.level = level;
         this.currentHP = getMaxHP();
     }
@@ -53,28 +56,38 @@ public class GeneralBuilding {
      * @since 0.0.1
      */
     public CustomInventory getInventory(Language language) {
-        CustomInventory menu = new CustomInventory(language.getTranslation(getBuilding().getNameKey()) + " - " + getLevel(), 9*3);
+        CustomInventory menu = new CustomInventory(getBuildingTitle(language), 9*3);
         menu.setSpecialHolder(getId() + "-" + getCoordinate().toString());
-        menu.fill(UsefulItems.BACKGROUND_BLACK);
+        menu.fill(UsefulItems.BACKGROUND_GRAY);
         menu.setItem(11, new ItemBuilder(Material.WRITABLE_BOOK).setName(language.getTranslation(getBuilding().getNameKey())).setLore(language.getTranslation(getBuilding().getDescriptionKey()).split(";")).craft());
-        menu.setItem(12, new ItemBuilder(Material.HEART_OF_THE_SEA).setName(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_HP_NAME)).setLore(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_HP_LORE, Arrays.asList("${max}", "${current}"), Arrays.asList(getMaxHP()+"", getCurrentHP()+"")).split(";")).craft());
+
+        if (getLevel() != 0)
+            menu.setItem(12, new ItemBuilder(Material.HEART_OF_THE_SEA).setName(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_HP_NAME)).setLore(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_HP_LORE, Arrays.asList("${max}", "${current}"), Arrays.asList(getMaxHP()+"", getCurrentHP()+"")).split(";")).craft());
+
         if (getUpgradeCost() != -1) {
-            menu.setItem(14, new ItemBuilder(UsefulItems.UP_ARROW).setName(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_UPGRADE_NAME))
-                    .setLore(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_UPGRADE_LORE, "${cost}", ""+getUpgradeCost() + " " + language.getTranslation(getBuilding().getResourceType().getNameKey())).split(";")).craft(), new ClickAction() {
+
+            List<String> upgradeLore = new ArrayList<>(Arrays.asList(language.getTranslation(getLevel() == 0 ? TranslationKeys.COC_GUI_BUILDING_REPAIR_LORE : TranslationKeys.COC_GUI_BUILDING_UPGRADE_LORE, "${cost}", "" + getBuilding().getResourceType().getChatColor() + getUpgradeCost() + " " + language.getTranslation(getBuilding().getResourceType().getNameKey())).split(";")));
+            if (building instanceof IUpgradeDetails)
+                upgradeLore.addAll(((IUpgradeDetails) building).getLoreDetails(building.getBuildingLevelData()[getLevel()], language));
+
+            menu.setItem(14, new ItemBuilder(UsefulItems.UP_ARROW)
+                    .setName(language.getTranslation(getLevel() == 0 ? TranslationKeys.COC_GUI_BUILDING_REPAIR_NAME : TranslationKeys.COC_GUI_BUILDING_UPGRADE_NAME))
+                    .setLore(upgradeLore).craft(), new ClickAction() {
                 @Override
                 public void onClick(APIPlayer apiPlayer, ItemStack itemStack, int i) {
-                    if(getUpgradeCost() > PlayerManager.getInstance().getPlayer(getUuid()).getResource(getBuilding().getResourceType())) return;
-                    BuildingsManager.getInstance().upgrade(getUuid(), GeneralBuilding.this);
-                    setCloseInventory(true);
+                    if (BuildingsManager.getInstance().upgrade(GeneralBuilding.this))
+                        setCloseInventory(true);
                 }
             });
         }
-        menu.setItem(15, new ItemBuilder(Material.PISTON).setName(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_MOVING_NAME)).setLore(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_MOVING_LORE)).craft(), new ClickAction(true) {
-            @Override
-            public void onClick(APIPlayer apiPlayer, ItemStack itemStack, int i) {
-                BuildingsManager.getInstance().enterMovingMode(apiPlayer, GeneralBuilding.this);
-            }
-        });
+
+        if(getLevel() != 0)
+            menu.setItem(15, new ItemBuilder(Material.PISTON).setName(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_MOVING_NAME)).setLore(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_MOVING_LORE)).craft(), new ClickAction(true) {
+                @Override
+                public void onClick(APIPlayer apiPlayer, ItemStack itemStack, int i) {
+                    BuildingsManager.getInstance().enterMovingMode(apiPlayer, GeneralBuilding.this);
+                }
+            });
 
         return menu;
     }
@@ -94,6 +107,8 @@ public class GeneralBuilding {
      * @since 0.0.1
      */
     public int getMaxHP() {
+        if (level == 0)
+            return 1;
         return getBuilding().getBuildingLevelData().length > level - 1 ? getBuilding().getBuildingLevelData()[level - 1].getMaxHP() : -1;
     }
 
@@ -112,8 +127,17 @@ public class GeneralBuilding {
      * @return int - the upgrade cost.
      * @since 0.0.1
      */
-    public int getBuildTime() {
-        return getBuilding().getBuildingLevelData().length > level - 1 ? getBuilding().getBuildingLevelData()[level - 1].getBuildTime() : -1;
+    public int getMaxBuildingDuration() {
+        return getBuilding().getBuildingLevelData().length > level ? getBuilding().getBuildingLevelData()[level].getBuildTime() : -1;
+    }
+
+    /**
+     * Get the xp the player gets, when achieving this building.
+     * @return int - getting xp.
+     * @since 0.0.1
+     */
+    public int getExp() {
+        return getBuilding().getBuildingLevelData().length > level ? getBuilding().getBuildingLevelData()[level].getBuildTime() : -1;
     }
 
     /**
@@ -140,7 +164,7 @@ public class GeneralBuilding {
      * @since 0.0.1
      */
     public Location getCoordinate() {
-        return coordinate;
+        return coordinate.clone();
     }
 
     /**
@@ -150,6 +174,24 @@ public class GeneralBuilding {
      */
     public void setCoordinate(Location coordinate) {
         this.coordinate = coordinate;
+    }
+
+    /**
+     * Get the rotation of the building (0 - 3)
+     * @return int - rotation of the building.
+     * @since 0.0.1
+     */
+    public byte getRotation() {
+        return rotation;
+    }
+
+    /**
+     * Sets the rotation of the building.
+     * @param rotation byte - the rotation of the building.
+     * @since 0.0.1
+     */
+    public void setRotation(byte rotation) {
+        this.rotation = rotation;
     }
 
     /**
@@ -170,6 +212,10 @@ public class GeneralBuilding {
         return level;
     }
 
+    protected String getBuildingTitle(Language language) {
+        return language.getTranslation(TranslationKeys.COC_GUI_BUILDING_NAME, Arrays.asList("${name}", "${level}"), Arrays.asList(language.getTranslation(getBuilding().getNameKey()), getLevel() + ""));
+    }
+
     /**
      * Get the owner of this building.
      * @return UUID - uuid of player.
@@ -179,8 +225,14 @@ public class GeneralBuilding {
         return uuid;
     }
 
+    /**
+     * Get the id of the building. name-level(-version)
+     * @return String - the building id.
+     * @since 0.0.1
+     */
     public String getId() {
-        return new StringBuilder().append(building.name()).append("-").append(level).toString();
+        return new StringBuilder().append(building.name()).append("-").append(level)
+                .append(this instanceof IDifferentVersionBuildings ? "-" + ((IDifferentVersionBuildings) this).getCurrentBuildingVersion() : "").toString();
     }
 
     @Override
@@ -194,6 +246,14 @@ public class GeneralBuilding {
     @Override
     public int hashCode() {
         return Objects.hash(building, coordinate, level);
+    }
+
+    @Override
+    public String toString() {
+        return "GeneralBuilding{" +
+                "building=" + building +
+                ", coordinate=" + coordinate.getBlockX() + ":" + coordinate.getBlockZ() +
+                '}';
     }
 
 }

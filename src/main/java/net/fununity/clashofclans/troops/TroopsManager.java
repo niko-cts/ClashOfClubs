@@ -1,5 +1,7 @@
 package net.fununity.clashofclans.troops;
 
+import net.fununity.clashofclans.ClashOfClans;
+import net.fununity.clashofclans.buildings.BuildingsManager;
 import net.fununity.clashofclans.buildings.DatabaseBuildings;
 import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
 import net.fununity.clashofclans.buildings.classes.TroopsBuilding;
@@ -7,11 +9,13 @@ import net.fununity.clashofclans.buildings.classes.TroopsCreateBuilding;
 import net.fununity.clashofclans.buildings.list.TroopBuildings;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.player.PlayerManager;
+import org.bukkit.Location;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 /**
@@ -48,13 +52,13 @@ public class TroopsManager {
         Troop troop = building.getTroopsQueue().poll();
         if (troop == null) return;
 
-        List<TroopsBuilding> buildings = PlayerManager.getInstance().getTroopBuildings(building.getUuid());
+        List<TroopsBuilding> buildings = getTroopBuildings(building.getUuid());
         buildings.removeIf(list -> list instanceof TroopsCreateBuilding);
         TroopsBuilding troopsBuilding = getBuildingWhichFitTroop(buildings, troop.getTroop());
         if (troopsBuilding == null)
             troopsBuilding = building;
 
-        troopsBuilding.getTroopAmount().put(troop.getTroop(), building.getTroopAmount().getOrDefault(troop.getTroop(), 0) + 1);
+        troopsBuilding.addTroopAmount(troop.getTroop(), 1);
         DatabaseBuildings.getInstance().updateTroopsData(troopsBuilding.getCoordinate(), troop.getTroop(), building.getTroopAmount().get(troop.getTroop()));
     }
 
@@ -78,11 +82,11 @@ public class TroopsManager {
                             break;
                         changedBuildings.add((TroopsBuilding) building);
                         changedBuildings.add(fitAbleTroop);
-                        fitAbleTroop.getTroopAmount().put(entry.getKey(), fitAbleTroop.getTroopAmount().getOrDefault(entry.getKey(), 0) + 1);
+                        fitAbleTroop.addTroopAmount(entry.getKey(), 1);
                         removed++;
                     }
                     if(removed != 0)
-                        ((TroopsCreateBuilding) building).getTroopAmount().put(entry.getKey(), ((TroopsCreateBuilding) building).getTroopAmount().get(entry.getKey()) - removed);
+                        ((TroopsCreateBuilding) building).addTroopAmount(entry.getKey(), -removed);
                 }
             }
         }
@@ -104,5 +108,51 @@ public class TroopsManager {
                 return playerBuilding;
         }
         return null;
+    }
+
+    /**
+     * Returns a list of all {@link TroopsBuilding} the player has.
+     *
+     * @param uuid UUID - uuid of player.
+     * @return List<TroopsBuilding> - A list of the buildings the player has.
+     * @since 0.0.1
+     */
+    public List<TroopsBuilding> getTroopBuildings(UUID uuid) {
+        if (PlayerManager.getInstance().isCached(uuid)) {
+            return PlayerManager.getInstance().getPlayer(uuid).getBuildings().stream().filter(b -> b instanceof TroopsBuilding).map(list -> (TroopsBuilding) list).collect(Collectors.toList());
+        }
+        Map<Location, ConcurrentMap<ITroop, Integer>> troopLocations = new HashMap<>();
+        try (ResultSet dataTroopsSet = DatabaseBuildings.getInstance().getTroopsDataBuildings(uuid)) {
+            while (dataTroopsSet != null && dataTroopsSet.next()) {
+                int x = dataTroopsSet.getInt("x");
+                int z = dataTroopsSet.getInt("z");
+
+                ConcurrentMap<ITroop, Integer> troops = new ConcurrentHashMap<>();
+                for (Troops troop : Troops.values())
+                    troops.put(troop, dataTroopsSet.getInt(troop.name().toLowerCase()));
+
+                troopLocations.put(new Location(ClashOfClans.getInstance().getPlayWorld(), x, ClashOfClans.getBaseYCoordinate(), z), troops);
+            }
+        } catch (SQLException exception) {
+            ClashOfClans.getInstance().getLogger().warning(exception.getMessage());
+        }
+
+        List<TroopsBuilding> buildings = new ArrayList<>();
+        try (ResultSet building = DatabaseBuildings.getInstance().getBuilding(troopLocations.keySet())) {
+            while (building != null && building.next()) {
+                int x = building.getInt("x");
+                int z = building.getInt("z");
+                Location location = new Location(ClashOfClans.getInstance().getPlayWorld(), x, ClashOfClans.getBaseYCoordinate(), z);
+                TroopsBuilding troopsBuilding = new TroopsBuilding(uuid, BuildingsManager.getInstance().getBuildingById(building.getString("buildingID")),
+                        location, building.getByte("rotation"), building.getInt("level"));
+                troopsBuilding.setTroopAmount(troopLocations.get(location));
+
+                buildings.add(troopsBuilding);
+            }
+        } catch (SQLException exception) {
+            ClashOfClans.getInstance().getLogger().warning(exception.getMessage());
+        }
+
+        return buildings;
     }
 }

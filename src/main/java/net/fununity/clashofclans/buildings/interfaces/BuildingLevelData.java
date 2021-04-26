@@ -18,6 +18,7 @@ public class BuildingLevelData {
      * @param maxHP int - the maximum hp.
      * @param minTownHall int - the minimum town hall level.
      * @param upgradeCost int - the upgrade cost.
+     * @param buildSeconds int - the seconds to build the building.
      * @since 0.0.1
      */
     public BuildingLevelData(int maxHP, int minTownHall, int upgradeCost, int buildSeconds) {

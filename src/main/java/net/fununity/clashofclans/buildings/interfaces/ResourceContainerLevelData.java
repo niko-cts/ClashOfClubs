@@ -1,7 +1,5 @@
 package net.fununity.clashofclans.buildings.interfaces;
 
-import net.fununity.clashofclans.ResourceTypes;
-
 /**
  * Level data class for resource containers.
  * @see BuildingLevelData
@@ -10,7 +8,6 @@ import net.fununity.clashofclans.ResourceTypes;
  */
 public class ResourceContainerLevelData extends BuildingLevelData {
 
-    private final ResourceTypes resourceTypes;
     private final int maximumResource;
 
     /**
@@ -22,19 +19,9 @@ public class ResourceContainerLevelData extends BuildingLevelData {
      * @param maximumResource int - the maximum amount of resource.
      * @since 0.0.1
      */
-    public ResourceContainerLevelData(int maxHP, int minTownHall, int upgradeCost, int buildSeconds, ResourceTypes resourceTypes, int maximumResource) {
+    public ResourceContainerLevelData(int maxHP, int minTownHall, int upgradeCost, int buildSeconds, int maximumResource) {
         super(maxHP, minTownHall, upgradeCost, buildSeconds);
-        this.resourceTypes = resourceTypes;
         this.maximumResource = maximumResource;
-    }
-
-    /**
-     * Get the resource type containing.
-     * @return ResourceTypes - the type of resource.
-     * @since 0.0.1
-     */
-    public ResourceTypes getResourceTypes() {
-        return resourceTypes;
     }
 
     /**

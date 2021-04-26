@@ -1,34 +1,34 @@
 package net.fununity.clashofclans.buildings.list;
 
 import net.fununity.clashofclans.ResourceTypes;
+import net.fununity.clashofclans.buildings.classes.DecorativeBuilding;
 import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
-import net.fununity.clashofclans.buildings.classes.TroopsCreateBuilding;
-import net.fununity.clashofclans.buildings.interfaces.ITroopCreateBuilding;
-import net.fununity.clashofclans.buildings.interfaces.TroopsCreateLevelData;
-import net.fununity.clashofclans.buildings.interfaces.TroopsLevelData;
-import net.fununity.clashofclans.language.TranslationKeys;
-import net.fununity.clashofclans.troops.TroopType;
+import net.fununity.clashofclans.buildings.interfaces.BuildingLevelData;
+import net.fununity.clashofclans.buildings.interfaces.IDestroyableBuilding;
 import org.bukkit.Material;
 
-public enum TroopCreationBuildings implements ITroopCreateBuilding {
-    BARRACKS(TranslationKeys.COC_BUILDING_TROOPS_CREATION_BARRACKS_NORMAL_NAME, TranslationKeys.COC_BUILDING_TROOPS_CREATION_BARRACKS_NORMAL_DESCRIPTION, new int[]{4, 4}, ResourceTypes.FOOD, Material.IRON_HELMET,
-            new TroopsCreateLevelData[]{new TroopsCreateLevelData(250, 1, 50, 10, 10, TroopType.LAND)});
+public enum DecorativeBuildings implements IDestroyableBuilding {
+
+    ;
 
     private final String nameKey;
     private final String descriptionKey;
     private final int[] size;
     private final ResourceTypes resourceType;
     private final Material material;
-    private final TroopsCreateLevelData[] buildingLevelData;
+    private final int gems;
+    private final BuildingLevelData[] buildingLevelData;
 
-    TroopCreationBuildings(String nameKey, String descriptionKey, int[] size, ResourceTypes resourceType, Material material, TroopsCreateLevelData[] buildingLevelData) {
+    DecorativeBuildings(String nameKey, String descriptionKey, int[] size, ResourceTypes resourceType, Material material, int gems, BuildingLevelData[] buildingLevelData) {
         this.nameKey = nameKey;
         this.descriptionKey = descriptionKey;
         this.size = size;
         this.resourceType = resourceType;
         this.material = material;
+        this.gems = gems;
         this.buildingLevelData = buildingLevelData;
     }
+
     /**
      * Get the translation key of the building name.
      * @return String - the name key.
@@ -69,6 +69,27 @@ public enum TroopCreationBuildings implements ITroopCreateBuilding {
     public ResourceTypes getResourceType() {
         return resourceType;
     }
+
+    /**
+     * A list of the building level steps.
+     * @return {@link BuildingLevelData}[] - Each level step for upgrade stuff.
+     * @since 0.0.1
+     */
+    @Override
+    public BuildingLevelData[] getBuildingLevelData() {
+        return buildingLevelData;
+    }
+
+    /**
+     * Get the building class.
+     * @return Class<? extends GeneralBuilding> - A class which extends the general building class.
+     * @since 0.0.1
+     */
+    @Override
+    public Class<? extends GeneralBuilding> getBuildingClass() {
+        return DecorativeBuilding.class;
+    }
+
     /**
      * Get the material of the building.
      * @return Material - the displaying material.
@@ -78,23 +99,24 @@ public enum TroopCreationBuildings implements ITroopCreateBuilding {
     public Material getMaterial() {
         return material;
     }
+
     /**
-     * Get the building class.
-     * @return Class<? extends GeneralBuilding> - A class which extends the general building class.
+     * Random amount how much gems a player gets from destroying the building
+     * @return int - the amount of gems received.
      * @since 0.0.1
      */
     @Override
-    public Class<? extends GeneralBuilding> getBuildingClass() {
-        return TroopsCreateBuilding.class;
+    public int getGems() {
+        return gems;
     }
 
     /**
-     * Get the building data each level of the building for troop buildings.
-     * @return {@link TroopsLevelData}[] - Array for each level data.
+     * When the building is destroyed the player gets back the full money.
+     * @return boolean - receive full money back.
      * @since 0.0.1
      */
     @Override
-    public TroopsCreateLevelData[] getBuildingLevelData() {
-        return buildingLevelData;
+    public boolean receiveFullPayPrice() {
+        return true;
     }
 }

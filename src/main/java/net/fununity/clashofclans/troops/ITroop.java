@@ -1,5 +1,6 @@
 package net.fununity.clashofclans.troops;
 
+import net.fununity.clashofclans.buildings.interfaces.IDefenseBuilding;
 import org.bukkit.entity.EntityType;
 
 /**
@@ -38,6 +39,13 @@ public interface ITroop {
     int getMaxHP();
 
     /**
+     * Get the damage of the troop.
+     * @return double - the damage.
+     * @since 0.0.1
+     */
+    double getDamage();
+
+    /**
      * Get the entity type of the troop.
      * @return EntityType - the entity type.
      * @since 0.0.1
@@ -57,4 +65,11 @@ public interface ITroop {
      * @since 0.0.1
      */
     int getSize();
+
+    /**
+     * The building that will be attacked prioritized by the troop.
+     * @return IDefenseBuilding - prioritized defense building.
+     * @since 0.0.1
+     */
+    IDefenseBuilding getPrioritizedDefense();
 }

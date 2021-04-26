@@ -1,5 +1,6 @@
-package net.fununity.clashofclans;
+package net.fununity.clashofclans.tickhandler;
 
+import net.fununity.clashofclans.ClashOfClans;
 import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
 import net.fununity.clashofclans.buildings.classes.TroopsCreateBuilding;
 import net.fununity.clashofclans.player.CoCPlayer;

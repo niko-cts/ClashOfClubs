@@ -1,8 +1,10 @@
 package net.fununity.clashofclans.commands;
 
+import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.BuildingsManager;
 import net.fununity.clashofclans.buildings.Schematics;
 import net.fununity.clashofclans.listener.PlayerInteractListener;
+import net.fununity.clashofclans.player.PlayerManager;
 import net.fununity.main.api.command.handler.APICommand;
 import net.fununity.main.api.player.APIPlayer;
 import net.fununity.main.api.util.LocationUtil;
@@ -23,9 +25,19 @@ public class CoCCommand extends APICommand {
 
     @Override
     public void onCommand(APIPlayer apiPlayer, String[] args) {
-        if (args.length == 2) {
-            Schematics.saveSchematic(BuildingsManager.getInstance().getBuildingById(args[0]), Integer.parseInt(args[1]),
-                    LocationUtil.getMinAndMax(PlayerInteractListener.getSchematicSaver()[0], PlayerInteractListener.getSchematicSaver()[1]));
+        if (args.length >= 2) {
+            if (args[0].equalsIgnoreCase("cheat")) {
+                for (ResourceTypes type : ResourceTypes.values()) {
+                    PlayerManager.getInstance().getPlayer(apiPlayer.getUniqueId()).addResource(type, Integer.parseInt(args[1]));
+                }
+                return;
+            }
+
+            if(args.length == 3)
+                Schematics.saveSchematic(BuildingsManager.getInstance().getBuildingById(args[0]), Integer.parseInt(args[1]), LocationUtil.getMinAndMax(PlayerInteractListener.getSchematicSaver()[0], PlayerInteractListener.getSchematicSaver()[1]), args[2]);
+            else
+                Schematics.saveSchematic(BuildingsManager.getInstance().getBuildingById(args[0]), Integer.parseInt(args[1]), LocationUtil.getMinAndMax(PlayerInteractListener.getSchematicSaver()[0], PlayerInteractListener.getSchematicSaver()[1]));
+
             apiPlayer.sendRawMessage("§aSuccessful");
             return;
         }

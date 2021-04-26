@@ -1,4 +1,5 @@
 package net.fununity.clashofclans.buildings.interfaces;
+
 /**
  * Interface class for resource gathering buildings.
  * @see net.fununity.clashofclans.buildings.list.ResourceGathererBuildings

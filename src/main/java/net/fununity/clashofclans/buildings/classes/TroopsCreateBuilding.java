@@ -25,11 +25,12 @@ public class TroopsCreateBuilding extends TroopsBuilding {
      * @param uuid UUID - the uuid of the owner.
      * @param building   IBuilding - the building class.
      * @param coordinate Location - the location of the building.
+     * @param rotation      byte - the rotation of the building.
      * @param level      int - the level of the building.
      * @since 0.0.1
      */
-    public TroopsCreateBuilding(UUID uuid, IBuilding building, Location coordinate, int level) {
-        super(uuid, building, coordinate, level);
+    public TroopsCreateBuilding(UUID uuid, IBuilding building, Location coordinate, byte rotation, int level) {
+        super(uuid, building, coordinate, rotation, level);
         this.troopsQueue = new LinkedList<>();
         this.secondsForNextTroop = 0;
     }

@@ -2,35 +2,38 @@ package net.fununity.clashofclans.buildings.list;
 
 import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
+import net.fununity.clashofclans.buildings.classes.RandomWorldBuilding;
 import net.fununity.clashofclans.buildings.interfaces.BuildingLevelData;
-import net.fununity.clashofclans.buildings.interfaces.IBuilding;
+import net.fununity.clashofclans.buildings.interfaces.IDestroyableBuilding;
 import net.fununity.clashofclans.language.TranslationKeys;
 import org.bukkit.Material;
 
-public enum Buildings implements IBuilding {
-    TOWN_HALL (TranslationKeys.COC_BUILDING_GENERAL_TOWN_HALL_NAME, TranslationKeys.COC_BUILDING_GENERAL_TOWN_HALL_DESCRIPTION, new int[]{8, 8}, ResourceTypes.GOLD, Material.AIR,
-            new BuildingLevelData[]{new BuildingLevelData(500, 0, 10, 10),
-                                    new BuildingLevelData(1000, 1, 500, 180),
-                                    new BuildingLevelData(1500, 2, 2000, 1800),
-                                    new BuildingLevelData(2500, 3, 12500, 7200)}),
-    BUILDER (TranslationKeys.COC_BUILDING_GENERAL_BUILDER_NAME, TranslationKeys.COC_BUILDING_GENERAL_BUILDER_DESCRIPTION, new int[]{2, 2}, ResourceTypes.GEMS, Material.WOODEN_AXE,
-            new BuildingLevelData[]{new BuildingLevelData(250, 1, 500, 0)}),
-    CLUB_TOWER (TranslationKeys.COC_BUILDING_GENERAL_CLUB_TOWER_NAME, TranslationKeys.COC_BUILDING_GENERAL_CLUB_TOWER_DESCRIPTION, new int[]{5, 5}, ResourceTypes.GOLD, Material.AIR,
-            new BuildingLevelData[]{new BuildingLevelData(1500, 5, 250000, 3600*3)});
+public enum RandomWorldBuildings implements IDestroyableBuilding {
+
+    BUSH(TranslationKeys.COC_BUILDING_RANDOM_BUSH_NAME, TranslationKeys.COC_BUILDING_RANDOM_BUSH_DESCRIPTION, new int[]{3, 3}, 2, new BuildingLevelData[]{new BuildingLevelData(10, 0, 1, 0)});
+
+    private static final RandomWorldBuildings[] START_BUILDINGS = new RandomWorldBuildings[]{BUSH};
+
+    /**
+     * Get start buildings, that may appear at the start of the game.
+     * @return RandomWorldBuildings[] - Array of start buildings.
+     * @since 0.0.1
+     */
+    public static RandomWorldBuildings[] getStartBuildings() {
+        return START_BUILDINGS;
+    }
 
     private final String nameKey;
     private final String descriptionKey;
     private final int[] size;
-    private final ResourceTypes resourceType;
-    private final Material material;
+    private final int gems;
     private final BuildingLevelData[] buildingLevelData;
 
-    Buildings(String nameKey, String descriptionKey, int[] size, ResourceTypes resourceType, Material material, BuildingLevelData[] buildingLevelData) {
+    RandomWorldBuildings(String nameKey, String descriptionKey, int[] size, int gems, BuildingLevelData[] buildingLevelData) {
         this.nameKey = nameKey;
         this.descriptionKey = descriptionKey;
         this.size = size;
-        this.resourceType = resourceType;
-        this.material = material;
+        this.gems = gems;
         this.buildingLevelData = buildingLevelData;
     }
 
@@ -76,7 +79,7 @@ public enum Buildings implements IBuilding {
      */
     @Override
     public ResourceTypes getResourceType() {
-        return resourceType;
+        return ResourceTypes.FOOD;
     }
 
     /**
@@ -92,13 +95,12 @@ public enum Buildings implements IBuilding {
 
     /**
      * Get the building class.
-     *
      * @return Class<? extends GeneralBuilding> - A class which extends the general building class.
      * @since 0.0.1
      */
     @Override
     public Class<? extends GeneralBuilding> getBuildingClass() {
-        return GeneralBuilding.class;
+        return RandomWorldBuilding.class;
     }
 
     /**
@@ -108,6 +110,26 @@ public enum Buildings implements IBuilding {
      */
     @Override
     public Material getMaterial() {
-        return material;
+        return Material.AIR;
+    }
+
+    /**
+     * Random amount how much gems a player gets from destroying the building
+     * @return int - the amount of gems received.
+     * @since 0.0.1
+     */
+    @Override
+    public int getGems() {
+        return gems;
+    }
+
+    /**
+     * When the building is destroyed the player gets back the full money.
+     * @return boolean - receive full money back.
+     * @since 0.0.1
+     */
+    @Override
+    public boolean receiveFullPayPrice() {
+        return false;
     }
 }

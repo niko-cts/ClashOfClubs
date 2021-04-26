@@ -1,6 +1,5 @@
 package net.fununity.clashofclans.buildings.interfaces;
 
-import net.fununity.clashofclans.ResourceTypes;
 /**
  * Level data class for resource gatherings.
  * @see ResourceContainerLevelData
@@ -21,8 +20,8 @@ public class ResourceGatherLevelData extends ResourceContainerLevelData {
      * @param resourceGatheringPerHour int - the amount of resource per minute
      * @since 0.0.1
      */
-    public ResourceGatherLevelData(int maxHP, int minTownHall, int upgradeCost, int buildSeconds, ResourceTypes resourceType, int maximumAmount, int resourceGatheringPerHour) {
-        super(maxHP, minTownHall, upgradeCost, buildSeconds, resourceType, maximumAmount);
+    public ResourceGatherLevelData(int maxHP, int minTownHall, int upgradeCost, int buildSeconds, int maximumAmount, int resourceGatheringPerHour) {
+        super(maxHP, minTownHall, upgradeCost, buildSeconds, maximumAmount);
         this.resourceGathering = resourceGatheringPerHour;
     }
 

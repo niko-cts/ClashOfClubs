@@ -1,9 +1,14 @@
 package net.fununity.clashofclans.buildings.classes;
 
+import net.fununity.clashofclans.ClashOfClans;
 import net.fununity.clashofclans.ResourceTypes;
+import net.fununity.clashofclans.buildings.Schematics;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
+import net.fununity.clashofclans.buildings.interfaces.IBuildingWithHologram;
+import net.fununity.clashofclans.buildings.interfaces.IDifferentVersionBuildings;
 import net.fununity.clashofclans.buildings.interfaces.IResourceContainerBuilding;
 import net.fununity.clashofclans.language.TranslationKeys;
+import net.fununity.clashofclans.player.PlayerManager;
 import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.hologram.APIHologram;
 import net.fununity.main.api.inventory.CustomInventory;
@@ -11,10 +16,14 @@ import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.item.UsefulItems;
 import net.fununity.main.api.player.APIPlayer;
 import net.fununity.misc.translationhandler.translations.Language;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * The resource container building class.
@@ -22,9 +31,10 @@ import java.util.*;
  * @author Niko
  * @since 0.0.1
  */
-public class ResourceContainerBuilding extends ContainerBuilding {
+public class ResourceContainerBuilding extends GeneralBuilding implements IBuildingWithHologram, IDifferentVersionBuildings {
 
     private APIHologram hologram;
+    private double currentAmount;
 
     /**
      * Instantiates the class.
@@ -34,45 +44,111 @@ public class ResourceContainerBuilding extends ContainerBuilding {
      * @param level      int - the level of the building.
      * @since 0.0.1
      */
-    public ResourceContainerBuilding(UUID uuid, IBuilding building, Location coordinate, int level) {
-        super(uuid, building, coordinate, level);
-        this.createHologram();
+    public ResourceContainerBuilding(UUID uuid, IBuilding building, Location coordinate, byte rotation, int level) {
+        this(uuid, building, coordinate, rotation, level, 0);
      }
+    /**
+     * Instantiates the class.
+     * @param uuid UUID - the uuid of the owner.
+     * @param building   IBuilding - the building class.
+     * @param coordinate Location - the location of the building.
+     * @param level      int - the level of the building.
+     * @since 0.0.1
+     */
+    public ResourceContainerBuilding(UUID uuid, IBuilding building, Location coordinate, byte rotation, int level, double amount) {
+        super(uuid, building, coordinate, rotation, level);
+        this.currentAmount = amount;
+        this.updateHologram();
+    }
 
 
     @Override
     public CustomInventory getInventory(Language language) {
         CustomInventory inventory = super.getInventory(language);
-        CustomInventory menu = new CustomInventory(language.getTranslation(getBuilding().getNameKey()) + " - " + getLevel(), 9*4);
+        CustomInventory menu = new CustomInventory(getBuildingTitle(language), 9*4);
         menu.setSpecialHolder(inventory.getSpecialHolder());
 
         for (int i = 0; i < inventory.getInventory().getContents().length; i++) {
             ItemStack content = inventory.getInventory().getContents()[i];
             menu.addItem(content, inventory.getClickAction(i));
         }
-        menu.fill(UsefulItems.BACKGROUND_BLACK);
+        menu.fill(UsefulItems.BACKGROUND_GRAY);
 
-        int fillTill = (int) (90 * getAmount() / getMaximumResource());
 
-        String name = language.getTranslation(TranslationKeys.COC_GUI_CONTAINER_AMOUNT, Arrays.asList("${color}", "${max}", "${current}"), Arrays.asList(getResourceContaining().getChatColor() + "", getMaximumResource() + "", ((int)getAmount()) + ""));
-        for (int i = 10, j=27; j < 36; i+=10, j++)
-            menu.setItem(j, new ItemBuilder(fillTill >= i ? getResourceContaining().getGlass() : UsefulItems.BACKGROUND_GRAY).setName(name).craft());
+        String name = language.getTranslation(TranslationKeys.COC_GUI_CONTAINER_AMOUNT, Arrays.asList("${color}", "${max}", "${current}"), Arrays.asList(getContainingResourceType().getChatColor() + "", getMaximumResource() + "", ((int)getAmount()) + ""));
+
+        int fillTill = getCurrentBuildingVersion();
+        for (int i = 10 / 9, j = 27; j < 36; i += 10 / 9, j++)
+            menu.setItem(j, new ItemBuilder(fillTill >= i ? getContainingResourceType().getGlass() : UsefulItems.BACKGROUND_GRAY).setName(name).craft());
 
         return menu;
     }
 
-    @Override
+    /**
+     * Set the amount of the building.
+     * @param currentAmount int - the amount of troops.
+     * @since 0.0.1
+     */
     public void setAmount(double currentAmount) {
         boolean change = (int) getAmount() != (int) currentAmount;
-        super.setAmount(currentAmount);
+        int oldVersion = getCurrentBuildingVersion();
+        this.currentAmount = currentAmount;
         if (!change) return;
-        this.createHologram();
+        Bukkit.getScheduler().runTask(ClashOfClans.getInstance(), () -> updateVersion(oldVersion != getCurrentBuildingVersion()));
+        this.updateHologram();
+    }
+    /**
+     * Get the amount of the building.
+     * @return int - the amount of thing
+     * @since 0.0.1
+     */
+    public double getAmount() {
+        return currentAmount;
     }
 
     @Override
     public void setCoordinate(Location coordinate) {
         super.setCoordinate(coordinate);
-        this.createHologram();
+        this.updateHologram();
+    }
+
+    /**
+     * Updates the hologram for the player.
+     * @since 0.0.1
+     */
+    @Override
+    public void updateHologram() {
+        APIPlayer onlinePlayer = FunUnityAPI.getInstance().getPlayerHandler().getPlayer(getUuid());
+        if (onlinePlayer != null) {
+            if (this.hologram != null)
+                onlinePlayer.hideHolograms(this.hologram.getLocation());
+
+            this.hologram = new APIHologram(getCoordinate().clone().add(0.1, 2.5, 0.1), Collections.singletonList("" + getContainingResourceType().getChatColor() + ((int) getAmount()) + "§7/" + getContainingResourceType().getChatColor() + getMaximumResource()));
+            onlinePlayer.showHologram(this.hologram);
+        }
+    }
+
+    /**
+     * Called when the version was updated.
+     * @param schematic boolean - schematic change
+     * @since 0.0.1
+     */
+    @Override
+    public void updateVersion(boolean schematic) {
+        PlayerManager.getInstance().forceUpdateInventory(this);
+        if (schematic)
+            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), () -> Schematics.createBuilding(this));
+    }
+
+    /**
+     * Gets the current version of the building.
+     * E.g. percentage of fill.
+     * @return int - building version
+     * @since 0.0.1
+     */
+    @Override
+    public int getCurrentBuildingVersion() {
+        return (int) (100 * getAmount() / getMaximumResource());
     }
 
     /**
@@ -80,8 +156,8 @@ public class ResourceContainerBuilding extends ContainerBuilding {
      * @return {@link ResourceTypes} - the type of resource.
      * @since 0.0.1
      */
-    public ResourceTypes getResourceContaining() {
-        return getBuilding().getBuildingLevelData()[getLevel() - 1].getResourceTypes();
+    public ResourceTypes getContainingResourceType() {
+        return getBuilding().getContainingResourceType();
     }
 
     /**
@@ -90,27 +166,9 @@ public class ResourceContainerBuilding extends ContainerBuilding {
      * @since 0.0.1
      */
     public int getMaximumResource() {
-        return getBuilding().getBuildingLevelData()[getLevel() - 1].getMaximumResource();
+        return getLevel() > 0 ? getBuilding().getBuildingLevelData()[getLevel() - 1].getMaximumResource() : 0;
     }
 
-    /**
-     * Creates a hologram, which shows the current building resources.
-     * @since 0.0.1
-     */
-    private void createHologram() {
-        List<APIPlayer> players = new ArrayList<>();
-        if (this.hologram != null) {
-            APIPlayer onlinePlayer = FunUnityAPI.getInstance().getPlayerHandler().getPlayer(getUuid());
-            if (onlinePlayer != null && onlinePlayer.getHolograms(this.hologram.getLocation()).contains(this.hologram)) {
-                onlinePlayer.hideHolograms(this.hologram.getLocation());
-                players.add(onlinePlayer);
-            }
-        }
-
-        this.hologram = new APIHologram(getCoordinate().clone().add(0.1, 2.5, 0.1), Collections.singletonList("" + getResourceContaining().getChatColor() + ((int) getAmount()) + "§7/" + getResourceContaining().getChatColor() + getMaximumResource()));
-
-        players.forEach(p -> p.showHologram(this.hologram));
-    }
 
     /**
      * Get the resource container building interface.
@@ -122,7 +180,8 @@ public class ResourceContainerBuilding extends ContainerBuilding {
         return (IResourceContainerBuilding) super.getBuilding();
     }
 
-    public APIHologram getHologram() {
-        return hologram;
+    @Override
+    public List<APIHologram> getHolograms() {
+        return Collections.singletonList(this.hologram);
     }
 }

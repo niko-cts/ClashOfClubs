@@ -1,11 +1,11 @@
-package net.fununity.clashofclans;
+package net.fununity.clashofclans.tickhandler;
 
+import net.fununity.clashofclans.ClashOfClans;
 import net.fununity.clashofclans.buildings.BuildingsManager;
 import net.fununity.clashofclans.buildings.DatabaseBuildings;
 import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
 import net.fununity.clashofclans.buildings.classes.ResourceGatherBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
-import net.fununity.clashofclans.buildings.interfaces.IResourceGatherBuilding;
 import net.fununity.clashofclans.buildings.interfaces.ResourceGatherLevelData;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.player.PlayerManager;
@@ -32,26 +32,32 @@ public class ResourceTickHandler {
     public static void startTimer() {
         resourceGatherBuildingList = new ArrayList<>();
         Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), () -> {
-            try (ResultSet set = DatabaseBuildings.getInstance().getContainerDataBuildings()) {
+            List<Location> locations = new ArrayList<>();
+            try (ResultSet set = DatabaseBuildings.getInstance().getResourceContainerDataBuildings()) {
                 while (set != null && set.next()) {
-                    IBuilding building = BuildingsManager.getInstance().getBuildingById(set.getString("buildingID"));
-                    if (!(building instanceof IResourceGatherBuilding))
-                        continue;
-                    Location location = new Location(ClashOfClans.getInstance().getPlayWorld(), set.getInt("x"), 100, set.getInt("z"));
-                    ResourceGatherBuilding gatherBuilding = new ResourceGatherBuilding(UUID.fromString(set.getString("uuid")), building, location, set.getInt("level"));
-                    gatherBuilding.setAmount(set.getInt("amount"));
-                    resourceGatherBuildingList.add(gatherBuilding);
+                    locations.add(new Location(ClashOfClans.getInstance().getPlayWorld(), set.getInt("x"), ClashOfClans.getBaseYCoordinate(), set.getInt("z")));
+                }
+            } catch (SQLException exception) {
+                ClashOfClans.getInstance().getLogger().warning(exception.getMessage());
+            }
+            try (ResultSet buildingSet = DatabaseBuildings.getInstance().getBuilding(locations)) {
+                while (buildingSet != null && buildingSet.next()) {
+                    IBuilding buildingID = BuildingsManager.getInstance().getBuildingById(buildingSet.getString("buildingID"));
+                    if (!(buildingID instanceof ResourceGatherBuilding)) continue;
+
+                    ResourceGatherBuilding resourceGatherBuilding = new ResourceGatherBuilding(UUID.fromString(buildingSet.getString("uuid")), buildingID,
+                            new Location(ClashOfClans.getInstance().getPlayWorld(), buildingSet.getInt("x"), ClashOfClans.getBaseYCoordinate(), buildingSet.getInt("z")), buildingSet.getByte("rotation"), buildingSet.getInt("level"), buildingSet.getDouble("amount"));
+                    resourceGatherBuildingList.add(resourceGatherBuilding);
                 }
             } catch (SQLException exception) {
                 ClashOfClans.getInstance().getLogger().warning(exception.getMessage());
             }
 
-            Bukkit.getScheduler().runTaskTimer(ClashOfClans.getInstance(), () -> {
+            Bukkit.getScheduler().runTaskTimerAsynchronously(ClashOfClans.getInstance(), () -> {
                 for (ResourceGatherBuilding resourceGatherBuilding : getResourceGatherBuildingList()) {
                     ResourceGatherLevelData levelData = resourceGatherBuilding.getBuilding().getBuildingLevelData()[resourceGatherBuilding.getLevel() - 1];
-                    double gathering = levelData.getResourceGatheringPerHour() / 720.0; // each 5s
                     if (resourceGatherBuilding.getAmount() < levelData.getMaximumResource())
-                        resourceGatherBuilding.setAmount(resourceGatherBuilding.getAmount() + gathering);
+                        resourceGatherBuilding.setAmount(resourceGatherBuilding.getAmount() + levelData.getResourceGatheringPerHour() / 720.0); // each 5s
                 }
             }, 100, 100);
             Bukkit.getScheduler().runTaskTimerAsynchronously(ClashOfClans.getInstance(), ResourceTickHandler::syncResources, 20 * 60 * 10, 20 * 60 * 10);

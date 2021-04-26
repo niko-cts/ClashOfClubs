@@ -3,10 +3,16 @@ package net.fununity.clashofclans.buildings.list;
 import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
 import net.fununity.clashofclans.buildings.classes.ResourceContainerBuilding;
+import net.fununity.clashofclans.buildings.interfaces.BuildingLevelData;
 import net.fununity.clashofclans.buildings.interfaces.IResourceContainerBuilding;
+import net.fununity.clashofclans.buildings.interfaces.IUpgradeDetails;
 import net.fununity.clashofclans.buildings.interfaces.ResourceContainerLevelData;
 import net.fununity.clashofclans.language.TranslationKeys;
+import net.fununity.misc.translationhandler.translations.Language;
 import org.bukkit.Material;
+
+import java.util.Arrays;
+import java.util.List;
 
 public enum ResourceContainerBuildings implements IResourceContainerBuilding {
     GOLD_STOCK(TranslationKeys.COC_BUILDING_CONTAINER_GOLD_STOCK_NAME, TranslationKeys.COC_BUILDING_CONTAINER_GOLD_STOCK_DESCRIPTION, new int[]{4, 4}, ResourceTypes.ELIXIR, Material.GOLD_INGOT, new ResourceContainerLevelData[]{new ResourceContainerLevelData(250, 1, 50, 10, ResourceTypes.GOLD, 500)});
@@ -16,14 +22,16 @@ public enum ResourceContainerBuildings implements IResourceContainerBuilding {
     private final int[] size;
     private final ResourceTypes resourceType;
     private final Material material;
+    private final ResourceTypes containingResourceType;
     private final ResourceContainerLevelData[] buildingLevelData;
 
-    ResourceContainerBuildings(String nameKey, String descriptionKey, int[] size, ResourceTypes resourceType, Material material, ResourceContainerLevelData[] buildingLevelData) {
+    ResourceContainerBuildings(String nameKey, String descriptionKey, int[] size, ResourceTypes resourceType, Material material, ResourceTypes containingResourceType, ResourceContainerLevelData[] buildingLevelData) {
         this.nameKey = nameKey;
         this.descriptionKey = descriptionKey;
         this.size = size;
         this.resourceType = resourceType;
         this.material = material;
+        this.containingResourceType = containingResourceType;
         this.buildingLevelData = buildingLevelData;
     }
 
@@ -89,6 +97,29 @@ public enum ResourceContainerBuildings implements IResourceContainerBuilding {
     @Override
     public Material getMaterial() {
         return material;
+    }
+
+    /**
+     * Get the lore details for upgrade and build.
+     * @param buildingLevelData {@link BuildingLevelData} - the level data instance.
+     * @param language                   Language - the language to translate to.
+     * @return List<String> - Further lore details.
+     * @since 0.0.1
+     */
+    @Override
+    public List<String> getLoreDetails(BuildingLevelData buildingLevelData, Language language) {
+        return Arrays.asList(language.getTranslation(TranslationKeys.COC_BUILDING_CONTAINER_LOREDETAILS, Arrays.asList("${type}", "${max}", "${color}"),
+                Arrays.asList(getContainingResourceType().getColoredName(language), ((ResourceContainerLevelData)buildingLevelData).getMaximumResource()+"", getContainingResourceType().getChatColor() + "")).split(";"));
+    }
+
+    /**
+     * Get the containing type of resource.
+     * @return {@link ResourceTypes} - the containing resource.
+     * @since 0.0.1
+     */
+    @Override
+    public ResourceTypes getContainingResourceType() {
+        return containingResourceType;
     }
 
     @Override

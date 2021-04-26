@@ -23,10 +23,9 @@ public class JoinListener implements Listener {
      */
     @EventHandler
     public void onJoin(APIPlayerJoinEvent event) {
-        event.getAPIPlayer().getPlayer().sendMessage("§eLoading base, please wait.");
         Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), () -> {
             CoCPlayer coCPlayer = PlayerManager.getInstance().playerJoins(event.getAPIPlayer());
-            Bukkit.getScheduler().runTask(ClashOfClans.getInstance(), () -> ScoreboardMenu.show(event.getAPIPlayer(), coCPlayer));
+            Bukkit.getScheduler().runTask(ClashOfClans.getInstance(), () -> ScoreboardMenu.show(coCPlayer));
         });
     }
 

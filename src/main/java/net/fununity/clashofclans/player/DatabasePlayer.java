@@ -27,8 +27,8 @@ public class DatabasePlayer {
     private DatabasePlayer() {
         this.databaseHandler = DatabaseHandler.getInstance();
         if (!this.databaseHandler.doesTableExist(TABLE_DATA))
-            this.databaseHandler.createTable(TABLE_DATA, Arrays.asList("uuid", "xp", "x", "z"),
-                    Arrays.asList("VARCHAR(36) NOT NULL PRIMARY KEY", "INT NOT NULL DEFAULT 0", "INT NOT NULL", "INT NOT NULL"));
+            this.databaseHandler.createTable(TABLE_DATA, Arrays.asList("uuid", "xp", "x", "z", "gems"),
+                    Arrays.asList("VARCHAR(36) NOT NULL PRIMARY KEY", "INT NOT NULL DEFAULT 0", "INT NOT NULL", "INT NOT NULL", "INT NOT NULL default 0"));
     }
 
     public boolean contains(UUID uuid) {
@@ -41,11 +41,32 @@ public class DatabasePlayer {
     }
 
     public void createUser(UUID uuid, Location coordinate) {
-        this.databaseHandler.insertIntoTable(TABLE_DATA, Arrays.asList(uuid.toString(), "0", coordinate.getBlockX()+"", coordinate.getBlockZ()+""), Arrays.asList("string", "", "", ""));
+        this.databaseHandler.insertIntoTable(TABLE_DATA, Arrays.asList(uuid.toString(), "0", coordinate.getBlockX()+"", coordinate.getBlockZ()+"", "200"), Arrays.asList("string", "", "", "", ""));
     }
 
-    public void addXP(UUID uuid, int xp) {
-        this.databaseHandler.update(TABLE_DATA, Collections.singletonList("xp"), Collections.singletonList(xp+""), Collections.singletonList(""), "WHERE uuid='" + uuid + "' LIMIT 1");
+    public void deleteUser(UUID uuid) {
+        this.databaseHandler.delete(TABLE_DATA, "WHERE uuid='" + uuid + "' LIMIT 1");
+    }
+
+    public void setExp(UUID uuid, int xp) {
+        updatePlayer(uuid, xp, "xp");
+    }
+
+    public void addExp(UUID uuid, int exp) {
+        try (ResultSet set = this.databaseHandler.select(TABLE_DATA, Collections.singletonList("xp"), "WHERE uuid='" + uuid + "' LIMIT 1")) {
+            if (set != null && set.next())
+                this.databaseHandler.update(TABLE_DATA, Collections.singletonList("xp"), Collections.singletonList((set.getInt("xp") + exp) + ""), Collections.singletonList(""), "WHERE uuid='" + uuid + "' LIMIT 1");
+        } catch (SQLException exception) {
+            ClashOfClans.getInstance().getLogger().warning(exception.getMessage());
+        }
+    }
+
+    public void setGems(UUID uuid, int amount) {
+        updatePlayer(uuid, amount, "gems");
+    }
+
+    private void updatePlayer(UUID uuid, int amount, String update) {
+        this.databaseHandler.update(TABLE_DATA, Collections.singletonList(update), Collections.singletonList(amount+""), Collections.singletonList(""), "WHERE uuid='" + uuid + "' LIMIT 1");
     }
 
     public ResultSet getPlayerData(UUID uuid) {
@@ -55,13 +76,14 @@ public class DatabasePlayer {
     public Location getHighestCoordinate() {
         try (ResultSet set = this.databaseHandler.select(TABLE_DATA, Arrays.asList("x", "z"), "WHERE 1=1 ORDER BY x DESC, z DESC LIMIT 1")) {
             if (set != null && set.next()) {
-                Location location = new Location(ClashOfClans.getInstance().getPlayWorld(), set.getInt("x"), 50, set.getInt("z"));
-                return location.getBlockX() >= 20000000 ? location.add(-40000000, 0, 300) : location.add(300, 0, 0);
+                Location location = new Location(ClashOfClans.getInstance().getPlayWorld(), set.getInt("x"), ClashOfClans.getBaseYCoordinate(), set.getInt("z"));
+                return location.getBlockX() >= 20000000 ? location.add(-40000000, 0, ClashOfClans.getBaseSize() * 3) : location.add(ClashOfClans.getBaseSize() * 3, 0, 0);
             }
         } catch (SQLException exception) {
-            ClashOfClans.getInstance().getLogger().warning("HC: " + exception.getMessage());
+            ClashOfClans.getInstance().getLogger().warning(exception.getMessage());
         }
 
-        return new Location(ClashOfClans.getInstance().getPlayWorld(), -20000000, 50, -20000000);
+        return new Location(ClashOfClans.getInstance().getPlayWorld(), -20000000, ClashOfClans.getBaseYCoordinate(), -20000000);
     }
+
 }
