@@ -71,6 +71,20 @@ public class TranslationKeys {
     public static final String COC_GUI_CONSTRUCTION_BUILDING_NAME = "coc.gui.construction.building.name";
     public static final String COC_GUI_CONSTRUCTION_BUILDING_LORE = "coc.gui.construction.building.lore";
 
+    public static final String COC_GUI_TROOPS_CONTAINER_NAME = "coc.building.troops.container.name";
+    public static final String COC_GUI_TROOPS_CONTAINER_LORE = "coc.building.troops.container.lore";
+    public static final String COC_GUI_TROOPS_TRAIN_NAME = "coc.building.troops.train.name";
+    public static final String COC_GUI_TROOPS_TRAIN_LORE = "coc.building.troops.train.lore";
+
+    // CONTAINER
+    public static final String COC_GUI_CONTAINER_NAME = "coc.building.container.name";
+    public static final String COC_GUI_CONTAINER_LORE = "coc.building.container.lore";
+    // TRAIN
+    public static final String COC_GUI_TRAIN_NAME = "coc.building.train.name";
+    public static final String COC_GUI_TRAIN_QUEUE_LORE = "coc.building.train.queue.lore";
+    public static final String COC_GUI_TRAIN_LORE = "coc.building.train.lore";
+
+
     // GENERAL BUILDINGS
     public static final String COC_BUILDING_GENERAL_TOWN_HALL_NAME = "coc.building.general.town.hall.name";
     public static final String COC_BUILDING_GENERAL_TOWN_HALL_DESCRIPTION = "coc.building.general.town.hall.description";

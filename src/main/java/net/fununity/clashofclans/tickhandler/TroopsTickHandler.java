@@ -32,9 +32,10 @@ public class TroopsTickHandler {
                     continue;
                 }
 
-                troopsCreateBuilding.setSecondsForNextTroop(troopsCreateBuilding.getSecondsForNextTroop() - 1);
-                if (troopsCreateBuilding.getSecondsForNextTroop() <= 0)
-                    Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), () -> TroopsManager.getInstance().troopEducated(troopsCreateBuilding));
+                troopsCreateBuilding.setTrainSecondsLeft(troopsCreateBuilding.getTrainSecondsLeft() - 1);
+                if (troopsCreateBuilding.getTrainSecondsLeft() <= 0)
+                    Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), () ->
+                            TroopsManager.getInstance().troopEducated(troopsCreateBuilding));
             }
         }, 20, 20);
     }
@@ -73,7 +74,7 @@ public class TroopsTickHandler {
                 TroopsCreateBuilding cachedBuilding = troopsCreateBuildingList.stream().filter(b -> b.getCoordinate().equals(building.getCoordinate())).findFirst().orElse(null);
                 if (cachedBuilding != null) {
                     ((TroopsCreateBuilding) building).setTroopsQueue(cachedBuilding.getTroopsQueue());
-                    ((TroopsCreateBuilding) building).setSecondsForNextTroop(cachedBuilding.getSecondsForNextTroop());
+                    ((TroopsCreateBuilding) building).setTrainSecondsLeft(cachedBuilding.getTrainSecondsLeft());
                     troopsCreateBuildingList.remove(cachedBuilding);
                 }
             }

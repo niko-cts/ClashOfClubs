@@ -10,10 +10,20 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 
+/**
+ * Database class to transmit for the player database.
+ * @author Niko
+ * @since 0.0.1
+ */
 public class DatabasePlayer {
 
     private static DatabasePlayer instance;
 
+    /**
+     * Get the singleton instance of this class.
+     * @return {@link DatabasePlayer} - the singeleton instance class.
+     * @since 0.0.1
+     */
     public static DatabasePlayer getInstance() {
         if(instance == null)
             instance = new DatabasePlayer();
@@ -24,6 +34,10 @@ public class DatabasePlayer {
 
     private final DatabaseHandler databaseHandler;
 
+    /**
+     * Instantiates the class.
+     * @since 0.0.1
+     */
     private DatabasePlayer() {
         this.databaseHandler = DatabaseHandler.getInstance();
         if (!this.databaseHandler.doesTableExist(TABLE_DATA))
@@ -31,6 +45,12 @@ public class DatabasePlayer {
                     Arrays.asList("VARCHAR(36) NOT NULL PRIMARY KEY", "INT NOT NULL DEFAULT 0", "INT NOT NULL", "INT NOT NULL", "INT NOT NULL default 0"));
     }
 
+    /**
+     * Check if the user exists.
+     * @param uuid UUID - uuid to check.
+     * @return boolean - get if the user exists.
+     * @since 0.0.1
+     */
     public boolean contains(UUID uuid) {
         try (ResultSet playerData = this.databaseHandler.select(TABLE_DATA, Collections.singletonList("1"), "WHERE uuid='" + uuid + "' LIMIT 1")) {
             return playerData != null && playerData.next();
@@ -40,18 +60,41 @@ public class DatabasePlayer {
         return false;
     }
 
+    /**
+     * Creates the user.
+     * @param uuid UUID - uuid to create.
+     * @param coordinate Location - the base.
+     * @since 0.0.1
+     */
     public void createUser(UUID uuid, Location coordinate) {
         this.databaseHandler.insertIntoTable(TABLE_DATA, Arrays.asList(uuid.toString(), "0", coordinate.getBlockX()+"", coordinate.getBlockZ()+"", "200"), Arrays.asList("string", "", "", "", ""));
     }
 
+    /**
+     * Deletes a user.
+     * @param uuid UUID - uuid of player.
+     * @since 0.0.1
+     */
     public void deleteUser(UUID uuid) {
         this.databaseHandler.delete(TABLE_DATA, "WHERE uuid='" + uuid + "' LIMIT 1");
     }
 
-    public void setExp(UUID uuid, int xp) {
-        updatePlayer(uuid, xp, "xp");
+    /**
+     * Set the xp of a player.
+     * @param uuid UUID - uuid to set.
+     * @param exp int - the xp to set.
+     * @since 0.0.1
+     */
+    public void setExp(UUID uuid, int exp) {
+        updatePlayer(uuid, exp, "xp");
     }
 
+    /**
+     * Adds the xp of a player.
+     * @param uuid UUID - uuid to set.
+     * @param exp int - the xp to set.
+     * @since 0.0.1
+     */
     public void addExp(UUID uuid, int exp) {
         try (ResultSet set = this.databaseHandler.select(TABLE_DATA, Collections.singletonList("xp"), "WHERE uuid='" + uuid + "' LIMIT 1")) {
             if (set != null && set.next())

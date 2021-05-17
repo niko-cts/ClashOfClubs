@@ -170,6 +170,12 @@ public class BuildingsManager {
     }
 
 
+    /**
+     * Creates the construction of the building.
+     * @param player CoCPlayer - the player.
+     * @param building GeneralBuilding - the building to construct.
+     * @since 0.0.1
+     */
     private void createConstruction(CoCPlayer player, GeneralBuilding building) {
         ConstructionBuilding constructionBuilding = new ConstructionBuilding(building, building.getMaxBuildingDuration());
         player.getBuildings().add(constructionBuilding);
@@ -187,6 +193,11 @@ public class BuildingsManager {
         });
     }
 
+    /**
+     * Gets called, when a building is fully constructed.
+     * @param constructionBuilding {@link ConstructionBuilding} - the constructed building.
+     * @since 0.0.1
+     */
     public void finishedBuilding(ConstructionBuilding constructionBuilding) {
         Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), () -> {
             UUID uuid = constructionBuilding.getUuid();

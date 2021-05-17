@@ -49,17 +49,19 @@ public class TroopsManager {
      * @since 0.0.1
      */
     public void troopEducated(TroopsCreateBuilding building) {
-        Troop troop = building.getTroopsQueue().poll();
+        ITroop troop = building.getTroopsQueue().poll();
         if (troop == null) return;
 
         List<TroopsBuilding> buildings = getTroopBuildings(building.getUuid());
         buildings.removeIf(list -> list instanceof TroopsCreateBuilding);
-        TroopsBuilding troopsBuilding = getBuildingWhichFitTroop(buildings, troop.getTroop());
+        buildings.sort(Comparator.comparingInt(TroopsBuilding::getCurrentSizeOfTroops));
+
+        TroopsBuilding troopsBuilding = getBuildingWhichFitTroop(buildings, troop);
         if (troopsBuilding == null)
             troopsBuilding = building;
 
-        troopsBuilding.addTroopAmount(troop.getTroop(), 1);
-        DatabaseBuildings.getInstance().updateTroopsData(troopsBuilding.getCoordinate(), troop.getTroop(), building.getTroopAmount().get(troop.getTroop()));
+        troopsBuilding.addTroopAmount(troop, 1);
+        DatabaseBuildings.getInstance().updateTroopsData(troopsBuilding.getCoordinate(), troop, building.getTroopAmount().get(troop));
     }
 
     /**
@@ -118,9 +120,9 @@ public class TroopsManager {
      * @since 0.0.1
      */
     public List<TroopsBuilding> getTroopBuildings(UUID uuid) {
-        if (PlayerManager.getInstance().isCached(uuid)) {
+        if (PlayerManager.getInstance().isCached(uuid))
             return PlayerManager.getInstance().getPlayer(uuid).getBuildings().stream().filter(b -> b instanceof TroopsBuilding).map(list -> (TroopsBuilding) list).collect(Collectors.toList());
-        }
+
         Map<Location, ConcurrentMap<ITroop, Integer>> troopLocations = new HashMap<>();
         try (ResultSet dataTroopsSet = DatabaseBuildings.getInstance().getTroopsDataBuildings(uuid)) {
             while (dataTroopsSet != null && dataTroopsSet.next()) {

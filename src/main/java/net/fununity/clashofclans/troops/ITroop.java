@@ -1,7 +1,10 @@
 package net.fununity.clashofclans.troops;
 
 import net.fununity.clashofclans.buildings.interfaces.IDefenseBuilding;
-import org.bukkit.entity.EntityType;
+import net.fununity.misc.translationhandler.translations.Language;
+import net.minecraft.server.v1_16_R3.EntityCreature;
+import net.minecraft.server.v1_16_R3.EntityTypes;
+import org.bukkit.Material;
 
 /**
  * The troop interface class.
@@ -11,18 +14,20 @@ import org.bukkit.entity.EntityType;
 public interface ITroop {
 
     /**
-     * Get the name key of the troop.
-     * @return String - the name key
+     * Get the name of the troop.
+     * @param language Language - the language to translate.
+     * @return String - the name
      * @since 0.0.1
      */
-    String getNameKey();
+    String getName(Language language);
 
     /**
      * Get the description key of the troop.
-     * @return String - the name key
+     * @param language Language - the language to translate.
+     * @return String - the description.
      * @since 0.0.1
      */
-    String descriptionKey();
+    String[] getDescription(Language language);
 
     /**
      * Get the type of troop.
@@ -47,10 +52,10 @@ public interface ITroop {
 
     /**
      * Get the entity type of the troop.
-     * @return EntityType - the entity type.
+     * @return EntityTypes<? extends EntityCreature> - the entity type.
      * @since 0.0.1
      */
-    EntityType getEntityType();
+    EntityTypes<? extends EntityCreature> getEntityType();
 
     /**
      * Get the enum name of the troop.
@@ -65,6 +70,27 @@ public interface ITroop {
      * @since 0.0.1
      */
     int getSize();
+
+    /**
+     * Get the minimum level of the barrack to train this troop.
+     * @return int - minimum barrack level.
+     * @since 0.0.1
+     */
+    int getMinBarracksLevel();
+
+    /**
+     * Get the amount of seconds to train this troop.
+     * @return int - train duration in seconds.
+     * @since 0.0.1
+     */
+    int getTrainDuration();
+
+    /**
+     * Get the representative item for this entity.
+     * @return Material - the material.
+     * @since 0.0.1
+     */
+    Material getRepresentativeItem();
 
     /**
      * The building that will be attacked prioritized by the troop.

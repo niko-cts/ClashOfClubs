@@ -5,11 +5,23 @@ import net.fununity.clashofclans.buildings.Schematics;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IDifferentVersionBuildings;
 import net.fununity.clashofclans.buildings.interfaces.ITroopBuilding;
+import net.fununity.clashofclans.gui.TroopsGUI;
+import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.PlayerManager;
 import net.fununity.clashofclans.troops.ITroop;
+import net.fununity.clashofclans.troops.Troop;
+import net.fununity.main.api.inventory.ClickAction;
+import net.fununity.main.api.inventory.CustomInventory;
+import net.fununity.main.api.item.ItemBuilder;
+import net.fununity.main.api.item.UsefulItems;
+import net.fununity.main.api.player.APIPlayer;
+import net.fununity.misc.translationhandler.translations.Language;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,6 +60,30 @@ public class TroopsBuilding extends GeneralBuilding implements IDifferentVersion
     public TroopsBuilding(UUID uuid, IBuilding building, Location coordinate, byte rotation, int level, ConcurrentMap<ITroop, Integer> troopAmount) {
         super(uuid, building, coordinate, rotation, level);
         this.troopAmount = troopAmount;
+    }
+
+    @Override
+    public CustomInventory getInventory(Language language) {
+        CustomInventory inventory = super.getInventory(language);
+        CustomInventory menu = new CustomInventory(getBuildingTitle(language), 9 * 5);
+        menu.setSpecialHolder(getId() + "-" + getCoordinate().toString());
+        for (int i=0;i<inventory.getInventory().getContents().length;i++)
+            menu.setItem(i, inventory.getInventory().getItem(i), inventory.getClickAction(i));
+
+        menu.setItem(20, new ItemBuilder(Material.CHEST)
+                        .setName(language.getTranslation(TranslationKeys.COC_GUI_TROOPS_CONTAINER_NAME))
+                        .setLore(language.getTranslation(TranslationKeys.COC_GUI_TROOPS_CONTAINER_LORE, Arrays.asList("${current}", "${max}"), Arrays.asList(getCurrentSizeOfTroops() + "", getMaxAmountOfTroops()+"")).split(";")).craft(),
+                new ClickAction() {
+                    @Override
+                    public void onClick(APIPlayer apiPlayer, ItemStack itemStack, int i) {
+                        apiPlayer.getPlayer().closeInventory();
+                        TroopsGUI.openContainer(apiPlayer, TroopsBuilding.this);
+                    }
+                });
+
+        menu.fill(UsefulItems.BACKGROUND_GRAY);
+
+        return menu;
     }
 
     /**

@@ -118,6 +118,20 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_GUI_CONSTRUCTION_BUILDING_NAME, "&6Buildings menu");
         add(TranslationKeys.COC_GUI_CONSTRUCTION_BUILDING_LORE, "&7Building cost: &e${cost} ${type};&7Amounts of building;&7with town hall level ${level}: &e${amount}&7/&e${max}");
 
+
+        // TROOPS
+        add(TranslationKeys.COC_GUI_TROOPS_CONTAINER_NAME, "&6Container");
+        add(TranslationKeys.COC_GUI_TROOPS_CONTAINER_LORE, "&7There are currently ${current} of ${max};&7troops in this building.;&7Click to open the gui.");
+        add(TranslationKeys.COC_GUI_CONTAINER_NAME, "&6Container");
+        add(TranslationKeys.COC_GUI_CONTAINER_LORE, "&6Container");
+        add(TranslationKeys.COC_GUI_TROOPS_TRAIN_NAME, "&6Train your troops");
+        add(TranslationKeys.COC_GUI_TROOPS_TRAIN_LORE, "&7Click to train troops.");
+        add(TranslationKeys.COC_GUI_TRAIN_NAME, "&6Train troops");
+        add(TranslationKeys.COC_GUI_TRAIN_QUEUE_LORE, "&7Duration left: &e${duration} &7/ &e${max} seconds");
+        add(TranslationKeys.COC_GUI_TRAIN_LORE, "&7Barracks minimum level: &e${minlevel};&7Train duration: &e${duration} seconds");
+
+
+
         // TROOPS
         add(TranslationKeys.COC_TROOPS_TYPE_LAND, "&eLand");
         add(TranslationKeys.COC_TROOPS_TYPE_FLYING, "&aFlying");

@@ -5,52 +5,67 @@ import net.fununity.clashofclans.buildings.interfaces.IDefenseBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IUpgradeDetails;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.misc.translationhandler.translations.Language;
+import net.minecraft.server.v1_16_R3.EntityCreature;
+import net.minecraft.server.v1_16_R3.EntityTypes;
+import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public enum Troops implements ITroop, IUpgradeDetails {
-    BARBARIAN(TranslationKeys.COC_TROOPS_BARBARIAN_NAME, TranslationKeys.COC_TROOPS_BARBARIAN_DESCRIPTION, TroopType.LAND, 100, 5.0, EntityType.ZOMBIE, 1, null);
+    BARBARIAN(TranslationKeys.COC_TROOPS_BARBARIAN_NAME, TranslationKeys.COC_TROOPS_BARBARIAN_DESCRIPTION, TroopType.LAND, 100, 5.0, EntityTypes.ZOMBIE, Material.STONE_SWORD,1, 1, 10,null);
 
     private final String nameKey;
     private final String descriptionKey;
     private final TroopType troopType;
     private final int maxHP;
     private final double damage;
-    private final EntityType entityType;
+    private final EntityTypes<? extends EntityCreature> entityType;
+    private final Material representativeItem;
+    private final int minBarracks;
     private final int size;
+    private final int trainDuration;
     private final IDefenseBuilding prioritizedDefenseBuilding;
 
-    Troops(String nameKey, String descriptionKey, TroopType troopType, int maxHP, double damage, EntityType entityType, int size, IDefenseBuilding defenseBuilding) {
+    Troops (String nameKey, String descriptionKey, TroopType troopType, int maxHP, double damage, EntityTypes<? extends EntityCreature> entityType, Material representativeItem, int minBarrackLevel, int size, int trainDuration, IDefenseBuilding defenseBuilding) {
         this.nameKey = nameKey;
         this.descriptionKey = descriptionKey;
         this.troopType = troopType;
         this.maxHP = maxHP;
         this.damage = damage;
         this.entityType = entityType;
+        this.representativeItem = representativeItem;
+        this.minBarracks = minBarrackLevel;
         this.size = size;
+        this.trainDuration = trainDuration;
         this.prioritizedDefenseBuilding = defenseBuilding;
     }
 
+
     /**
-     * Get the name key of the troop.
-     * @return String - the name key
+     * Get the name of the troop.
+     * @param language Language - the language to translate.
+     * @return String - the name
      * @since 0.0.1
      */
     @Override
-    public String getNameKey() {
-        return nameKey;
+    public String getName(Language language) {
+        return language.getTranslation(nameKey);
     }
 
     /**
      * Get the description key of the troop.
-     * @return String - the name key
+     * @param language Language - the language to translate.
+     * @return String - the description.
      * @since 0.0.1
      */
     @Override
-    public String descriptionKey() {
-        return descriptionKey;
+    public String[] getDescription(Language language) {
+        List<String> lore = new ArrayList<>(Arrays.asList(language.getTranslation(descriptionKey).split(";")));
+        lore.addAll(getLoreDetails(null, language));
+        return lore.toArray(new String[0]);
     }
 
     /**
@@ -85,11 +100,11 @@ public enum Troops implements ITroop, IUpgradeDetails {
 
     /**
      * Get the entity type of the troop.
-     * @return EntityType - the entity type.
+     * @return EntityTypes<? extends EntityCreature> - the entity type.
      * @since 0.0.1
      */
     @Override
-    public EntityType getEntityType() {
+    public EntityTypes<? extends EntityCreature> getEntityType() {
         return entityType;
     }
 
@@ -101,6 +116,36 @@ public enum Troops implements ITroop, IUpgradeDetails {
     @Override
     public int getSize() {
         return size;
+    }
+
+    /**
+     * Get the minimum level of the barrack to train this troop.
+     * @return int - minimum barrack level.
+     * @since 0.0.1
+     */
+    @Override
+    public int getMinBarracksLevel() {
+        return minBarracks;
+    }
+
+    /**
+     * Get the amount of seconds to train this troop.
+     * @return int - train duration in seconds.
+     * @since 0.0.1
+     */
+    @Override
+    public int getTrainDuration() {
+        return trainDuration;
+    }
+
+    /**
+     * Get the representative item for this entity.
+     * @return Material - the material.
+     * @since 0.0.1
+     */
+    @Override
+    public Material getRepresentativeItem() {
+        return representativeItem;
     }
 
     /**
