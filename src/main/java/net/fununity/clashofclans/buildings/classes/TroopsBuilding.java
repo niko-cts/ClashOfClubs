@@ -9,7 +9,6 @@ import net.fununity.clashofclans.gui.TroopsGUI;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.PlayerManager;
 import net.fununity.clashofclans.troops.ITroop;
-import net.fununity.clashofclans.troops.Troop;
 import net.fununity.main.api.inventory.ClickAction;
 import net.fununity.main.api.inventory.CustomInventory;
 import net.fununity.main.api.item.ItemBuilder;

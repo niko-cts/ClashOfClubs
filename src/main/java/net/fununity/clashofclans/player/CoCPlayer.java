@@ -3,12 +3,11 @@ package net.fununity.clashofclans.player;
 import net.fununity.clashofclans.ClashOfClans;
 import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.DatabaseBuildings;
-import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
-import net.fununity.clashofclans.buildings.classes.ResourceContainerBuilding;
-import net.fununity.clashofclans.buildings.classes.ResourceGatherBuilding;
+import net.fununity.clashofclans.buildings.classes.*;
 import net.fununity.clashofclans.buildings.interfaces.IBuildingWithHologram;
 import net.fununity.clashofclans.buildings.list.Buildings;
 import net.fununity.clashofclans.language.TranslationKeys;
+import net.fununity.clashofclans.troops.ITroop;
 import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.player.APIPlayer;
@@ -18,6 +17,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 /**
@@ -313,5 +314,21 @@ public class CoCPlayer {
                max += ((ResourceContainerBuilding) building).getMaximumResource();
         }
         return max;
+    }
+
+    /**
+     * Get the amount of all troops the player has.
+     * @return ConcurrentMap<ITroop, Integer> - Map with troops and amounts.
+     * @since 0.0.1
+     */
+    public ConcurrentMap<ITroop, Integer> getTroops() {
+        List<TroopsBuilding> troopBuildings = getBuildings().stream().filter(b -> b instanceof TroopsBuilding && !(b instanceof TroopsCreateBuilding)).map(b -> (TroopsBuilding) b).collect(Collectors.toList());
+        ConcurrentMap<ITroop, Integer> troopsAmount = new ConcurrentHashMap<>();
+        for (TroopsBuilding troopBuilding : troopBuildings) {
+            for (Map.Entry<ITroop, Integer> entry : troopBuilding.getTroopAmount().entrySet()) {
+                troopsAmount.put(entry.getKey(), troopsAmount.getOrDefault(entry.getKey(), 0) + entry.getValue());
+            }
+        }
+        return troopsAmount;
     }
 }

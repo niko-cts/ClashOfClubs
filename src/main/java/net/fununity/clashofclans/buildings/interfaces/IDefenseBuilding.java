@@ -26,10 +26,10 @@ public interface IDefenseBuilding extends IBuilding {
 
     /**
      * Get the radius of the defense building.
-     * @return int - the radius.
+     * @return double - the radius.
      * @since 0.0.1
      */
-    int getRadius();
+    double getRadius();
 
     /**
      * Get the building data each level of the building for defense buildings.

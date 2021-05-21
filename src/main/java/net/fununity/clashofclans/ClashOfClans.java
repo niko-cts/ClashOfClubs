@@ -15,6 +15,8 @@ import net.fununity.clashofclans.tickhandler.ResourceTickHandler;
 import net.fununity.clashofclans.tickhandler.TroopsTickHandler;
 import net.fununity.main.api.util.RegisterUtil;
 import org.bukkit.World;
+import org.bukkit.WorldCreator;
+import org.bukkit.WorldType;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class ClashOfClans extends JavaPlugin {
@@ -25,11 +27,18 @@ public class ClashOfClans extends JavaPlugin {
     private static final int BASE_SIZE = 100;
     private static final int BASE_BACKGROUND = 10;
     private World playWorld;
+    private World attackWorld;
 
     @Override
     public void onEnable() {
         instance = this;
         this.playWorld = getServer().getWorld("world");
+        this.attackWorld = getServer().getWorld("attackWorld");
+        if (attackWorld == null) {
+            WorldCreator attackWorld = new WorldCreator("attackWorld");
+            attackWorld.type(WorldType.FLAT);
+            this.attackWorld = getServer().createWorld(attackWorld);
+        }
 
         new EnglishMessages();
         new GermanMessages();
@@ -71,5 +80,9 @@ public class ClashOfClans extends JavaPlugin {
 
     public String getColoredName() {
         return TITLE;
+    }
+
+    public World getAttackWorld() {
+        return attackWorld;
     }
 }

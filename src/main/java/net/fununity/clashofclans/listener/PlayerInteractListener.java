@@ -35,6 +35,7 @@ public class PlayerInteractListener implements Listener {
         if (event.getHand() != EquipmentSlot.HAND || event.getAction() == Action.PHYSICAL) return;
         Material handMaterial = event.getPlayer().getInventory().getItemInMainHand().getType();
 
+        // setup gui.
         if (handMaterial == Material.IRON_AXE && CoCCommand.getSchematicSetter().contains(event.getPlayer().getUniqueId())) {
             if (event.getClickedBlock() == null) return;
             event.setCancelled(true);

@@ -28,11 +28,11 @@ public enum DefenseBuildings implements IDefenseBuilding, IUpgradeDetails {
     private final ResourceTypes resourceType;
     private final Material material;
     private final boolean attackFlying;
-    private final int radius;
+    private final double radius;
     private final TroopType prioritizedType;
     private final DefenseLevelData[] buildingLevelData;
 
-    DefenseBuildings(String nameKey, String descriptionKey, int[] size, ResourceTypes resourceType, Material material, boolean attackFlying, int radius, TroopType prioritizedType, DefenseLevelData[] buildingLevelData) {
+    DefenseBuildings(String nameKey, String descriptionKey, int[] size, ResourceTypes resourceType, Material material, boolean attackFlying, double radius, TroopType prioritizedType, DefenseLevelData[] buildingLevelData) {
         this.nameKey = nameKey;
         this.descriptionKey = descriptionKey;
         this.size = size;
@@ -108,11 +108,11 @@ public enum DefenseBuildings implements IDefenseBuilding, IUpgradeDetails {
 
     /**
      * Get the radius of the defense building.
-     * @return int - the radius.
+     * @return double - the radius.
      * @since 0.0.1
      */
     @Override
-    public int getRadius() {
+    public double getRadius() {
         return radius;
     }
 

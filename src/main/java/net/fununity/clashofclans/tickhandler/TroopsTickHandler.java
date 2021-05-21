@@ -5,7 +5,7 @@ import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
 import net.fununity.clashofclans.buildings.classes.TroopsCreateBuilding;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.player.PlayerManager;
-import net.fununity.clashofclans.troops.TroopsManager;
+import net.fununity.clashofclans.buildings.TroopsBuildingManager;
 import org.bukkit.Bukkit;
 
 import java.util.*;
@@ -35,7 +35,7 @@ public class TroopsTickHandler {
                 troopsCreateBuilding.setTrainSecondsLeft(troopsCreateBuilding.getTrainSecondsLeft() - 1);
                 if (troopsCreateBuilding.getTrainSecondsLeft() <= 0)
                     Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), () ->
-                            TroopsManager.getInstance().troopEducated(troopsCreateBuilding));
+                            TroopsBuildingManager.getInstance().troopEducated(troopsCreateBuilding));
             }
         }, 20, 20);
     }

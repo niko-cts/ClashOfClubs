@@ -51,6 +51,13 @@ public interface ITroop {
     double getDamage();
 
     /**
+     * Get the range the entity can attack.
+     * @return double - attack range.
+     * @since 0.0.1
+     */
+    double getRange();
+
+    /**
      * Get the entity type of the troop.
      * @return EntityTypes<? extends EntityCreature> - the entity type.
      * @since 0.0.1
@@ -70,6 +77,13 @@ public interface ITroop {
      * @since 0.0.1
      */
     int getSize();
+
+    /**
+     * Get if the troop is flying.
+     * @return boolean - is flying.
+     * @since 0.0.1
+     */
+    boolean isFlying();
 
     /**
      * Get the minimum level of the barrack to train this troop.
@@ -98,4 +112,6 @@ public interface ITroop {
      * @since 0.0.1
      */
     IDefenseBuilding getPrioritizedDefense();
+
+
 }

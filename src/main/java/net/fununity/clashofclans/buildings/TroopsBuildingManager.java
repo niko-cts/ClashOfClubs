@@ -1,14 +1,14 @@
-package net.fununity.clashofclans.troops;
+package net.fununity.clashofclans.buildings;
 
 import net.fununity.clashofclans.ClashOfClans;
-import net.fununity.clashofclans.buildings.BuildingsManager;
-import net.fununity.clashofclans.buildings.DatabaseBuildings;
 import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
 import net.fununity.clashofclans.buildings.classes.TroopsBuilding;
 import net.fununity.clashofclans.buildings.classes.TroopsCreateBuilding;
 import net.fununity.clashofclans.buildings.list.TroopBuildings;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.player.PlayerManager;
+import net.fununity.clashofclans.troops.ITroop;
+import net.fununity.clashofclans.troops.Troops;
 import org.bukkit.Location;
 
 import java.sql.ResultSet;
@@ -23,22 +23,22 @@ import java.util.stream.Collectors;
  * @author Niko
  * @since 0.0.1
  */
-public class TroopsManager {
+public class TroopsBuildingManager {
 
-    private static TroopsManager instance;
+    private static TroopsBuildingManager instance;
 
     /**
      * Get the singleton instance of this class.
-     * @return {@link TroopsManager} - singleton instance of this class.
+     * @return {@link TroopsBuildingManager} - singleton instance of this class.
      * @since 0.0.1
      */
-    public static TroopsManager getInstance() {
+    public static TroopsBuildingManager getInstance() {
         if(instance == null)
-            instance = new TroopsManager();
+            instance = new TroopsBuildingManager();
         return instance;
     }
 
-    private TroopsManager() {
+    private TroopsBuildingManager() {
         // not needed atm
     }
 

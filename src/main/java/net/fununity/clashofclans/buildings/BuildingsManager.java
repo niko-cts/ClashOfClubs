@@ -61,6 +61,7 @@ public class BuildingsManager {
         this.allBuildings.addAll(Arrays.asList(DecorativeBuildings.values()));
         this.allBuildings.addAll(Arrays.asList(RandomWorldBuildings.values()));
         this.allBuildings.addAll(Arrays.asList(DefenseBuildings.values()));
+        this.allBuildings.addAll(Arrays.asList(WallBuildings.values()));
     }
 
     /**

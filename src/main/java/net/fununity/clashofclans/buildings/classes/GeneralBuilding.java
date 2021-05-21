@@ -29,7 +29,7 @@ public class GeneralBuilding {
     private byte rotation;
     private Location coordinate;
     private int level;
-    private int currentHP;
+    private double currentHP;
 
     /**
      * Instantiates the class.
@@ -142,10 +142,10 @@ public class GeneralBuilding {
 
     /**
      * Sets the current hp of the building.
-     * @param currentHP int - the current hp.
+     * @param currentHP double - the current hp.
      * @since 0.0.1
      */
-    public void setCurrentHP(int currentHP) {
+    public void setCurrentHP(double currentHP) {
         this.currentHP = currentHP;
     }
 
@@ -154,7 +154,7 @@ public class GeneralBuilding {
      * @return int - the current hp.
      * @since 0.0.1
      */
-    public int getCurrentHP() {
+    public double getCurrentHP() {
         return currentHP;
     }
 
@@ -165,6 +165,15 @@ public class GeneralBuilding {
      */
     public Location getCoordinate() {
         return coordinate.clone();
+    }
+
+    /**
+     * Get center coordinate of the building.
+     * @return Location - center location.
+     * @since 0.0.1
+     */
+    public Location getCenterCoordinate() {
+        return getCoordinate().add(getBuilding().getSize()[0] / 2.0, 0, getBuilding().getSize()[1] / 2.0);
     }
 
     /**

@@ -8,20 +8,21 @@ import net.fununity.misc.translationhandler.translations.Language;
 import net.minecraft.server.v1_16_R3.EntityCreature;
 import net.minecraft.server.v1_16_R3.EntityTypes;
 import org.bukkit.Material;
-import org.bukkit.entity.EntityType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public enum Troops implements ITroop, IUpgradeDetails {
-    BARBARIAN(TranslationKeys.COC_TROOPS_BARBARIAN_NAME, TranslationKeys.COC_TROOPS_BARBARIAN_DESCRIPTION, TroopType.LAND, 100, 5.0, EntityTypes.ZOMBIE, Material.STONE_SWORD,1, 1, 10,null);
+    BARBARIAN(TranslationKeys.COC_TROOPS_BARBARIAN_NAME, TranslationKeys.COC_TROOPS_BARBARIAN_DESCRIPTION, TroopType.LAND, 100, 5.0, 1.5, false, EntityTypes.ZOMBIE, Material.STONE_SWORD,1, 1, 10,null);
 
     private final String nameKey;
     private final String descriptionKey;
     private final TroopType troopType;
     private final int maxHP;
     private final double damage;
+    private final double range;
+    private final boolean flying;
     private final EntityTypes<? extends EntityCreature> entityType;
     private final Material representativeItem;
     private final int minBarracks;
@@ -29,12 +30,14 @@ public enum Troops implements ITroop, IUpgradeDetails {
     private final int trainDuration;
     private final IDefenseBuilding prioritizedDefenseBuilding;
 
-    Troops (String nameKey, String descriptionKey, TroopType troopType, int maxHP, double damage, EntityTypes<? extends EntityCreature> entityType, Material representativeItem, int minBarrackLevel, int size, int trainDuration, IDefenseBuilding defenseBuilding) {
+    Troops (String nameKey, String descriptionKey, TroopType troopType, int maxHP, double damage, double range, boolean flying, EntityTypes<? extends EntityCreature> entityType, Material representativeItem, int minBarrackLevel, int size, int trainDuration, IDefenseBuilding defenseBuilding) {
         this.nameKey = nameKey;
         this.descriptionKey = descriptionKey;
         this.troopType = troopType;
         this.maxHP = maxHP;
         this.damage = damage;
+        this.range = range;
+        this.flying = flying;
         this.entityType = entityType;
         this.representativeItem = representativeItem;
         this.minBarracks = minBarrackLevel;
@@ -99,6 +102,16 @@ public enum Troops implements ITroop, IUpgradeDetails {
     }
 
     /**
+     * Get the range the entity can attack.
+     * @return double - attack range.
+     * @since 0.0.1
+     */
+    @Override
+    public double getRange() {
+        return range;
+    }
+
+    /**
      * Get the entity type of the troop.
      * @return EntityTypes<? extends EntityCreature> - the entity type.
      * @since 0.0.1
@@ -116,6 +129,16 @@ public enum Troops implements ITroop, IUpgradeDetails {
     @Override
     public int getSize() {
         return size;
+    }
+
+    /**
+     * Get if the troop is flying.
+     * @return boolean - is flying.
+     * @since 0.0.1
+     */
+    @Override
+    public boolean isFlying() {
+        return flying;
     }
 
     /**

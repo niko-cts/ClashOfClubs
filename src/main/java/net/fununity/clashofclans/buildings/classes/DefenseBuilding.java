@@ -25,4 +25,13 @@ public class DefenseBuilding extends GeneralBuilding {
     public IDefenseBuilding getBuilding() {
         return (IDefenseBuilding) super.getBuilding();
     }
+
+    /**
+     * Gets the damage of the building.
+     * @return double - amount of damage.
+     * @since 0.0.1
+     */
+    public double getDamage() {
+        return getBuilding().getBuildingLevelData()[getLevel()-1].getDamage();
+    }
 }
