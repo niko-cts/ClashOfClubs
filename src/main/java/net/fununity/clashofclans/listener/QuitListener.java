@@ -1,6 +1,6 @@
 package net.fununity.clashofclans.listener;
 
-import net.fununity.clashofclans.ClashOfClans;
+import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.player.PlayerManager;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -21,7 +21,7 @@ public class QuitListener implements Listener {
      */
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), ()-> PlayerManager.getInstance().playerLeft(event.getPlayer().getUniqueId()));
+        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> PlayerManager.getInstance().playerLeft(event.getPlayer().getUniqueId()));
     }
 
 }

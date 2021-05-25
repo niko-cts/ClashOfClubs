@@ -1,6 +1,6 @@
 package net.fununity.clashofclans.player;
 
-import net.fununity.clashofclans.ClashOfClans;
+import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.BuildingsManager;
 import net.fununity.clashofclans.buildings.DatabaseBuildings;
@@ -83,7 +83,7 @@ public class PlayerManager {
         }
         coCPlayer.updateResources();
         this.playersMap.put(uuid, coCPlayer);
-        Bukkit.getScheduler().runTask(ClashOfClans.getInstance(), () -> {
+        Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> {
             coCPlayer.visit(player, !contains);
             coCPlayer.getBuildings().stream().filter(b -> b instanceof IBuildingWithHologram).forEach(b -> ((IBuildingWithHologram) b).updateHologram());
             ScoreboardMenu.show(coCPlayer);
@@ -147,11 +147,11 @@ public class PlayerManager {
 
                 resourceTypes.put(ResourceTypes.GEMS, data.getInt("gems"));
 
-                coCPlayer = new CoCPlayer(uuid, new Location(ClashOfClans.getInstance().getPlayWorld(), playerX, ClashOfClans.getBaseYCoordinate(), playerZ), resourceTypes, xp);
+                coCPlayer = new CoCPlayer(uuid, new Location(ClashOfClubs.getInstance().getPlayWorld(), playerX, ClashOfClubs.getBaseYCoordinate(), playerZ), resourceTypes, xp);
             } else
                 return null;
         } catch (SQLException exception) {
-            ClashOfClans.getInstance().getLogger().warning(exception.getMessage());
+            ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
             return null;
         }
 
@@ -161,10 +161,10 @@ public class PlayerManager {
             while (dataBuildingsSet != null && dataBuildingsSet.next()) {
                 int x = dataBuildingsSet.getInt("x");
                 int z = dataBuildingsSet.getInt("z");
-                amountContainers.put(new Location(ClashOfClans.getInstance().getPlayWorld(), x, ClashOfClans.getBaseYCoordinate(), z), dataBuildingsSet.getDouble("amount"));
+                amountContainers.put(new Location(ClashOfClubs.getInstance().getPlayWorld(), x, ClashOfClubs.getBaseYCoordinate(), z), dataBuildingsSet.getDouble("amount"));
             }
         } catch (SQLException exception) {
-            ClashOfClans.getInstance().getLogger().warning(exception.getMessage());
+            ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
         }
 
         Map<Location, ConcurrentMap<ITroop, Integer>> troopsAmount = new HashMap<>();
@@ -175,29 +175,28 @@ public class PlayerManager {
                     troops.put(troop, dataTroopsSet.getInt(troop.name().toLowerCase()));
                 int x = dataTroopsSet.getInt("x");
                 int z = dataTroopsSet.getInt("z");
-                troopsAmount.put(new Location(ClashOfClans.getInstance().getPlayWorld(), x, ClashOfClans.getBaseYCoordinate(), z), troops);
+                troopsAmount.put(new Location(ClashOfClubs.getInstance().getPlayWorld(), x, ClashOfClubs.getBaseYCoordinate(), z), troops);
             }
         } catch (SQLException exception) {
-            ClashOfClans.getInstance().getLogger().warning(exception.getMessage());
+            ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
         }
 
         try (ResultSet set = DatabaseBuildings.getInstance().getBuildings(uuid)) {
             while (set != null && set.next()) {
                 IBuilding buildingID = BuildingsManager.getInstance().getBuildingById(set.getString("buildingID"));
-                Location location = new Location(ClashOfClans.getInstance().getPlayWorld(), set.getInt("x"), ClashOfClans.getBaseYCoordinate(), set.getInt("z"));
+                Location location = new Location(ClashOfClubs.getInstance().getPlayWorld(), set.getInt("x"), ClashOfClubs.getBaseYCoordinate(), set.getInt("z"));
                 if (buildingID instanceof IResourceContainerBuilding) {
                     coCPlayer.getBuildings().add(BuildingsManager.getInstance()
                             .getBuildingInstance(uuid, buildingID, location, set.getByte("rotation"), set.getInt("level"), amountContainers.getOrDefault(location, 0.0)));
-                } else if(buildingID instanceof ITroopBuilding) {
-                    coCPlayer.getBuildings().add(BuildingsManager.getInstance()
-                            .getBuildingInstance(uuid, buildingID, location, set.getByte("rotation"), set.getInt("level"), troopsAmount.get(location)));
+                } else if (buildingID instanceof ITroopBuilding) {
+                    coCPlayer.getBuildings().add(BuildingsManager.getInstance().getBuildingInstance(uuid, buildingID, location, set.getByte("rotation"), set.getInt("level"), troopsAmount.getOrDefault(location, new ConcurrentHashMap<>())));
                 } else {
                     coCPlayer.getBuildings().add(BuildingsManager.getInstance()
                             .getBuildingInstance(uuid, buildingID, location, set.getByte("rotation"), set.getInt("level")));
                 }
             }
         } catch (SQLException exception) {
-            ClashOfClans.getInstance().getLogger().warning(exception.getMessage());
+            ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
         }
 
         try (ResultSet construction = DatabaseBuildings.getInstance().getConstructionBuildings(uuid)) {
@@ -213,7 +212,7 @@ public class PlayerManager {
                 }
             }
         } catch (SQLException exception) {
-            ClashOfClans.getInstance().getLogger().warning(exception.getMessage());
+            ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
         }
         return coCPlayer;
     }

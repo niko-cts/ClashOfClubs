@@ -206,7 +206,7 @@ public class DatabaseBuildings {
             values.add(entry.getValue() + "");
             properties.add("");
         }
-        this.databaseHandler.update(TABLE_CONTAINER, update, values, properties, "WHERE x=" + changedBuilding.getCoordinate().getBlockX() + " AND z=" + changedBuilding.getCoordinate().getBlockZ() + " LIMIT 1");
+        this.databaseHandler.update(TABLE_TROOPS, update, values, properties, "WHERE x=" + changedBuilding.getCoordinate().getBlockX() + " AND z=" + changedBuilding.getCoordinate().getBlockZ() + " LIMIT 1");
     }
 
     /**
@@ -217,7 +217,7 @@ public class DatabaseBuildings {
      * @since 0.0.1
      */
     public void updateTroopsData(Location location, ITroop troop, int amount) {
-        this.databaseHandler.update(TABLE_CONTAINER, Collections.singletonList(troop.name().toLowerCase()), Collections.singletonList(amount+""), Collections.singletonList(""),"WHERE x=" + location.getBlockX() + " AND z=" + location.getBlockZ() + " LIMIT 1");
+        this.databaseHandler.update(TABLE_TROOPS, Collections.singletonList(troop.name().toLowerCase()), Collections.singletonList(amount+""), Collections.singletonList(""),"WHERE x=" + location.getBlockX() + " AND z=" + location.getBlockZ() + " LIMIT 1");
     }
 
     /**

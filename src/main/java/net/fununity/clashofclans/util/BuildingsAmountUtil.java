@@ -1,11 +1,7 @@
 package net.fununity.clashofclans.util;
 
-import net.fununity.clashofclans.buildings.classes.TroopsBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
-import net.fununity.clashofclans.buildings.list.Buildings;
-import net.fununity.clashofclans.buildings.list.ResourceContainerBuildings;
-import net.fununity.clashofclans.buildings.list.ResourceGathererBuildings;
-import net.fununity.clashofclans.buildings.list.TroopCreationBuildings;
+import net.fununity.clashofclans.buildings.list.*;
 
 /**
  * Utility class to get the amount of each building per town hall level.
@@ -44,6 +40,26 @@ public class BuildingsAmountUtil {
                     return 4;
                 default:
                     return 5;
+            }
+        } else if(building == TroopBuildings.ARMY_CAMP) {
+            switch (townHallLevel) {
+                case 1:
+                case 2:
+                    return 1;
+                case 3:
+                case 4:
+                    return 2;
+                default:
+                    return 4;
+            }
+        } else if(building == DefenseBuildings.ARCHER_TOWER || building == DefenseBuildings.CANNON) {
+            switch (townHallLevel) {
+                case 1:
+                    return 2;
+                case 2:
+                    return 3;
+                default:
+                    return 4;
             }
         }
         return 0;

@@ -1,6 +1,6 @@
 package net.fununity.clashofclans.listener;
 
-import net.fununity.clashofclans.ClashOfClans;
+import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.player.PlayerManager;
 import net.fununity.clashofclans.util.BuildingLocationUtil;
@@ -24,7 +24,7 @@ public class PlayerMoveListener implements Listener {
 
         Player player = event.getPlayer();
         Block targetBlock = LocationUtil.getTargetBlock(player, 3);
-        if (targetBlock == null || targetBlock.getLocation().getBlockY() != ClashOfClans.getBaseYCoordinate() + 1) return;
+        if (targetBlock == null || targetBlock.getLocation().getBlockY() != ClashOfClubs.getBaseYCoordinate() + 1) return;
         CoCPlayer coCPlayer = PlayerManager.getInstance().getPlayer(player.getUniqueId());
 
         Location lastLoc = (Location) coCPlayer.getBuildingMode()[0];

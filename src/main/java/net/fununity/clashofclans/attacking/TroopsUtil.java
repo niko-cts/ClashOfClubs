@@ -2,7 +2,9 @@ package net.fununity.clashofclans.attacking;
 
 import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
+import net.fununity.main.api.util.LocationUtil;
 import org.bukkit.Location;
+import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
 import java.util.Comparator;
@@ -28,11 +30,16 @@ public class TroopsUtil {
      */
     public static boolean canTroopAttackBuilding(Troop troop, GeneralBuilding attackBuilding) {
         Location centerBuilding = attackBuilding.getCenterCoordinate();
-        Vector vec = centerBuilding.toVector().multiply(-1).add(troop.getBukkitEntity().getLocation().toVector())
-                .add(new Vector(attackBuilding.getBuilding().getSize()[0] / 2.0 + troop.getTroop().getRange(), 0,
-                        attackBuilding.getBuilding().getSize()[1] / 2.0 + troop.getTroop().getRange()));
+        Location troopLoc = troop.getBukkitEntity().getLocation();
+        Vector vec = troopLoc.toVector().subtract(centerBuilding.toVector());
+        vec.multiply(Math.sqrt(NumberConversions.square(attackBuilding.getBuilding().getSize()[0] / 2.0) +
+                NumberConversions.square(attackBuilding.getBuilding().getSize()[1] / 2.0)) / vec.length() -
+                troop.getTroop().getRange() / vec.length());
 
-        return troop.getBukkitEntity().getLocation().distance(centerBuilding.add(vec)) <= troop.getTroop().getRange() + 1;
+        centerBuilding.add(vec);
+        centerBuilding.setY(troopLoc.getY());
+
+        return troopLoc.distance(centerBuilding) <= troop.getTroop().getRange() + 1.5;
     }
 
     /**
@@ -45,9 +52,9 @@ public class TroopsUtil {
      */
     public static GeneralBuilding getNearestBuilding(Troop troop, List<IBuilding> whitelist, List<IBuilding> blacklist) {
         Location location = troop.getBukkitEntity().getLocation();
-        return troop.getAttackingManager().getBuildingsOnField().stream().filter(b ->
-                        !blacklist.contains(b.getBuilding()) && (whitelist.isEmpty() || whitelist.contains(b.getBuilding())))
-                .min(Comparator.comparing(o1 -> o1.getCenterCoordinate().distance(location))).orElse(null);
+        return troop.getAttackingManager().getBuildingsOnField().stream()
+                .filter(b -> !blacklist.contains(b.getBuilding()) && (whitelist.isEmpty() || whitelist.contains(b.getBuilding())))
+                .min(Comparator.comparing(b -> b.getCenterCoordinate().distance(location))).orElse(null);
     }
 
     /**
@@ -58,9 +65,39 @@ public class TroopsUtil {
      */
     public static Location getAttackBuildingLocation(Troop troop) {
         GeneralBuilding attackBuilding = troop.getAttackBuilding();
-        Vector vec = attackBuilding.getCenterCoordinate().toVector().multiply(-1).add(troop.getBukkitEntity().getLocation().toVector())
-                .add(new Vector(attackBuilding.getBuilding().getSize()[0] / 2.0 + troop.getTroop().getRange(), 0,
-                        attackBuilding.getBuilding().getSize()[1] / 2.0 + troop.getTroop().getRange()));
-        return troop.getBukkitEntity().getLocation().clone().add(vec.multiply(-1));
+        Vector vec = troop.getBukkitEntity().getLocation().toVector().subtract(attackBuilding.getCenterCoordinate().toVector());
+        vec.multiply(Math.sqrt(NumberConversions.square(attackBuilding.getBuilding().getSize()[0] / 2.0) +
+                NumberConversions.square(attackBuilding.getBuilding().getSize()[1] / 2.0)) / vec.length() -
+                troop.getTroop().getRange() / vec.length() - 0.09);
+
+        System.out.println("1 " + troop.getBukkitEntity().getLocation() + " <- " + attackBuilding.getCenterCoordinate() + " " +
+                (Math.sqrt(NumberConversions.square(attackBuilding.getBuilding().getSize()[0] / 2.0) +
+                        NumberConversions.square(attackBuilding.getBuilding().getSize()[1] / 2.0)) / vec.length()) +
+                " " + (troop.getTroop().getRange() / vec.length()));
+
+        Location walkLoc = attackBuilding.getCenterCoordinate().add(vec);
+        walkLoc.setY(LocationUtil.getBlockHeight(walkLoc));
+        return walkLoc;
+    }
+
+    /**
+     * Get the blocking building between the troop and the attacking one.
+     * @see Troop#getAttackBuilding()
+     * @param troop {@link Troop} - the troop.
+     * @return {@link GeneralBuilding} - the building, which blocks.
+     * @since 0.0.1
+     */
+    public static GeneralBuilding getBlockingBuilding(Troop troop) {
+        GeneralBuilding attackBuilding = troop.getAttackBuilding();
+        Location troopLocation = troop.getBukkitEntity().getLocation().clone();
+        Vector vec = attackBuilding.getCenterCoordinate().toVector().subtract(troopLocation.toVector());
+        vec.multiply(0.1);
+        for (int i = 0; i < 10; i++) {
+            troopLocation.add(vec);
+            GeneralBuilding building = troop.getAttackingManager().getBuildingsOnField().stream().filter(b -> LocationUtil.isBetween(b.getCoordinate(), troopLocation, b.getCoordinate().add(b.getBuilding().getSize()[0], 5, b.getBuilding().getSize()[1]))).findFirst().orElse(null);
+            if (building != null)
+                return building;
+        }
+        return null;
     }
 }

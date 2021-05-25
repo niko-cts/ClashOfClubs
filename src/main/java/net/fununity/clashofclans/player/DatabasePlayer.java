@@ -1,6 +1,6 @@
 package net.fununity.clashofclans.player;
 
-import net.fununity.clashofclans.ClashOfClans;
+import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.misc.databasehandler.DatabaseHandler;
 import org.bukkit.Location;
 
@@ -55,7 +55,7 @@ public class DatabasePlayer {
         try (ResultSet playerData = this.databaseHandler.select(TABLE_DATA, Collections.singletonList("1"), "WHERE uuid='" + uuid + "' LIMIT 1")) {
             return playerData != null && playerData.next();
         } catch (SQLException exception) {
-            ClashOfClans.getInstance().getLogger().warning(exception.getMessage());
+            ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
         }
         return false;
     }
@@ -100,7 +100,7 @@ public class DatabasePlayer {
             if (set != null && set.next())
                 this.databaseHandler.update(TABLE_DATA, Collections.singletonList("xp"), Collections.singletonList((set.getInt("xp") + exp) + ""), Collections.singletonList(""), "WHERE uuid='" + uuid + "' LIMIT 1");
         } catch (SQLException exception) {
-            ClashOfClans.getInstance().getLogger().warning(exception.getMessage());
+            ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
         }
     }
 
@@ -119,14 +119,14 @@ public class DatabasePlayer {
     public Location getHighestCoordinate() {
         try (ResultSet set = this.databaseHandler.select(TABLE_DATA, Arrays.asList("x", "z"), "WHERE 1=1 ORDER BY x DESC, z DESC LIMIT 1")) {
             if (set != null && set.next()) {
-                Location location = new Location(ClashOfClans.getInstance().getPlayWorld(), set.getInt("x"), ClashOfClans.getBaseYCoordinate(), set.getInt("z"));
-                return location.getBlockX() >= 20000000 ? location.add(-40000000, 0, ClashOfClans.getBaseSize() * 3) : location.add(ClashOfClans.getBaseSize() * 3, 0, 0);
+                Location location = new Location(ClashOfClubs.getInstance().getPlayWorld(), set.getInt("x"), ClashOfClubs.getBaseYCoordinate(), set.getInt("z"));
+                return location.getBlockX() >= 20000000 ? location.add(-40000000, 0, ClashOfClubs.getBaseSize() * 3) : location.add(ClashOfClubs.getBaseSize() * 3, 0, 0);
             }
         } catch (SQLException exception) {
-            ClashOfClans.getInstance().getLogger().warning(exception.getMessage());
+            ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
         }
 
-        return new Location(ClashOfClans.getInstance().getPlayWorld(), -20000000, ClashOfClans.getBaseYCoordinate(), -20000000);
+        return new Location(ClashOfClubs.getInstance().getPlayWorld(), -20000000, ClashOfClubs.getBaseYCoordinate(), -20000000);
     }
 
 }

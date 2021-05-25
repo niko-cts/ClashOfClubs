@@ -1,6 +1,6 @@
 package net.fununity.clashofclans.player;
 
-import net.fununity.clashofclans.ClashOfClans;
+import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.DatabaseBuildings;
 import net.fununity.clashofclans.buildings.classes.*;
@@ -110,7 +110,7 @@ public class CoCPlayer {
      * @since 0.0.1
      */
     public Location getEndLocation() {
-        return getLocation().add(ClashOfClans.getBaseSize(), 300, ClashOfClans.getBaseSize());
+        return getLocation().add(ClashOfClubs.getBaseSize(), 300, ClashOfClubs.getBaseSize());
     }
 
     /**
@@ -175,7 +175,7 @@ public class CoCPlayer {
             if (resourceContainerBuilding.getAmount() == 0)
                 continue;
             resourceContainerBuilding.setAmount(removing);
-            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), () -> DatabaseBuildings.getInstance().updateData(resourceContainerBuilding.getCoordinate(), (int) resourceContainerBuilding.getAmount()));
+            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> DatabaseBuildings.getInstance().updateData(resourceContainerBuilding.getCoordinate(), (int) resourceContainerBuilding.getAmount()));
         }
     }
 
@@ -202,7 +202,7 @@ public class CoCPlayer {
             if (resourceContainerBuilding.getMaximumResource() == resourceContainerBuilding.getAmount())
                 continue;
             resourceContainerBuilding.setAmount(min);
-            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), () -> DatabaseBuildings.getInstance().updateData(resourceContainerBuilding.getCoordinate(), (int) resourceContainerBuilding.getAmount()));
+            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> DatabaseBuildings.getInstance().updateData(resourceContainerBuilding.getCoordinate(), (int) resourceContainerBuilding.getAmount()));
         }
     }
 
@@ -214,7 +214,7 @@ public class CoCPlayer {
     public void setGems(int amount) {
         this.resourceMap.put(ResourceTypes.GEMS, amount);
         ScoreboardMenu.show(this);
-        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), () -> DatabasePlayer.getInstance().setGems(getUniqueId(), amount));
+        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> DatabasePlayer.getInstance().setGems(getUniqueId(), amount));
     }
 
     /**

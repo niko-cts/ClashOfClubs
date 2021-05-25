@@ -1,21 +1,18 @@
 package net.fununity.clashofclans.commands;
 
-import net.fununity.clashofclans.ClashOfClans;
+import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
-import net.fununity.clashofclans.attacking.AttackingManager;
+import net.fununity.clashofclans.attacking.AttackingHandler;
+import net.fununity.clashofclans.attacking.PlayerAttackingManager;
 import net.fununity.clashofclans.buildings.BuildingsManager;
 import net.fununity.clashofclans.buildings.Schematics;
 import net.fununity.clashofclans.listener.PlayerInteractListener;
 import net.fununity.clashofclans.player.PlayerManager;
-import net.fununity.clashofclans.troops.ITroop;
 import net.fununity.main.api.command.handler.APICommand;
-import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.player.APIPlayer;
 import net.fununity.main.api.util.LocationUtil;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
@@ -47,23 +44,10 @@ public class CoCCommand extends APICommand {
         }
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("attack")) {
-                Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), ()->{
-                    AttackingManager attackInstance = AttackingManager.getAttackInstance(apiPlayer.getUniqueId(), UUID.fromString("cf177f71-cd90-40c3-a5b4-d648c2e3b447"));
-
-                    Bukkit.getScheduler().runTask(ClashOfClans.getInstance(), ()-> {
-                        apiPlayer.getPlayer().getInventory().clear();
-                        List<ItemStack> items = new ArrayList<>();
-                        for (Map.Entry<ITroop, Integer> entry : attackInstance.getInventoryTroops().entrySet()) {
-                            items.add(new ItemBuilder(entry.getKey().getRepresentativeItem(), entry.getValue()).setName(entry.getKey().getName(apiPlayer.getLanguage())).craft());
-                        }
-
-                        apiPlayer.getPlayer().getInventory().addItem(items.toArray(new ItemStack[0]));
-                        Location teleport = attackInstance.getBase().clone().add(20, 0, 20);
-                        teleport.setY(LocationUtil.getBlockHeight(teleport.getWorld(), teleport.getBlockX(), teleport.getBlockZ()));
-                        apiPlayer.getPlayer().teleport(teleport);
-
-                    });
-
+                apiPlayer.sendRawMessage("§aLoading please wait..");
+                Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), ()->{
+                    PlayerAttackingManager attackInstance = AttackingHandler.createAttackingInstance(apiPlayer.getUniqueId(), UUID.fromString("cf177f71-cd90-40c3-a5b4-d648c2e3b447"));
+                    Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> attackInstance.playerJoined(apiPlayer));
                 });
                 return;
             }

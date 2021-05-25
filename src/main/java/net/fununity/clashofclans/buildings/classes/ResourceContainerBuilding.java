@@ -1,6 +1,6 @@
 package net.fununity.clashofclans.buildings.classes;
 
-import net.fununity.clashofclans.ClashOfClans;
+import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.Schematics;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
@@ -94,7 +94,7 @@ public class ResourceContainerBuilding extends GeneralBuilding implements IBuild
         int oldVersion = getCurrentBuildingVersion();
         this.currentAmount = currentAmount;
         if (!change) return;
-        Bukkit.getScheduler().runTask(ClashOfClans.getInstance(), () -> updateVersion(oldVersion != getCurrentBuildingVersion()));
+        Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> updateVersion(oldVersion != getCurrentBuildingVersion()));
         this.updateHologram();
     }
     /**
@@ -137,7 +137,7 @@ public class ResourceContainerBuilding extends GeneralBuilding implements IBuild
     public void updateVersion(boolean schematic) {
         PlayerManager.getInstance().forceUpdateInventory(this);
         if (schematic)
-            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), () -> Schematics.createBuilding(this));
+            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> Schematics.createBuilding(this));
     }
 
     /**
@@ -148,7 +148,20 @@ public class ResourceContainerBuilding extends GeneralBuilding implements IBuild
      */
     @Override
     public int getCurrentBuildingVersion() {
-        return (int) (100 * getAmount() / getMaximumResource());
+        return 0;
+        /**
+        double percentage = 100 * getAmount() / getMaximumResource();
+        if (percentage < 20)
+            return 0;
+        if (percentage < 40)
+            return 1;
+        if (percentage < 60)
+            return 2;
+        if (percentage < 80)
+            return 3;
+        if (percentage < 100)
+            return 4;
+        return 5;*/
     }
 
     /**

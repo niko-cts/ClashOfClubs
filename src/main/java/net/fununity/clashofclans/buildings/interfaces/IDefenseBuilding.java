@@ -22,7 +22,7 @@ public interface IDefenseBuilding extends IBuilding {
      * @return boolean - can also attack flying enemies.
      * @since 0.0.1
      */
-    boolean attackFlying();
+    boolean canAttackFlying();
 
     /**
      * Get the radius of the defense building.
@@ -30,6 +30,13 @@ public interface IDefenseBuilding extends IBuilding {
      * @since 0.0.1
      */
     double getRadius();
+
+    /**
+     * Get the speed the defense building attacks in ticks.
+     * @return long - the attack speed in ticks.
+     * @since 0.0.1
+     */
+    long getAttackSpeed();
 
     /**
      * Get the building data each level of the building for defense buildings.

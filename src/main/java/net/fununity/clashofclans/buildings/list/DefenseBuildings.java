@@ -13,14 +13,14 @@ import java.util.Arrays;
 import java.util.List;
 
 public enum DefenseBuildings implements IDefenseBuilding, IUpgradeDetails {
-    CANNON (TranslationKeys.COC_BUILDING_DEFENSE_CANNON_NAME, TranslationKeys.COC_BUILDING_DEFENSE_CANNON_DESCRIPTION, new int[]{5, 5}, ResourceTypes.GOLD, Material.FIRE_CHARGE, false, 10,null,
-                    new DefenseLevelData[]{new DefenseLevelData(300, 1, 50, 15, 20),
-                            new DefenseLevelData(400, 2, 100, 60, 30),
-                            new DefenseLevelData(500, 2, 150, 300, 50)}),
-    ARCHER_TOWER (TranslationKeys.COC_BUILDING_DEFENSE_ARCHERTOWER_NAME, TranslationKeys.COC_BUILDING_DEFENSE_ARCHERTOWER_DESCRIPTION, new int[]{5, 5}, ResourceTypes.GOLD, Material.BOW, true, 15,null,
-            new DefenseLevelData[]{new DefenseLevelData(400, 1, 80, 25, 30),
-                    new DefenseLevelData(500, 2, 500, 240, 50),
-                    new DefenseLevelData(600, 3, 750, 1800, 70)});
+    CANNON (TranslationKeys.COC_BUILDING_DEFENSE_CANNON_NAME, TranslationKeys.COC_BUILDING_DEFENSE_CANNON_DESCRIPTION, new int[]{5, 5}, ResourceTypes.GOLD, Material.FIRE_CHARGE, false, 7, 20, null,
+                    new DefenseLevelData[]{new DefenseLevelData(300, 1, 50, 15, 7),
+                            new DefenseLevelData(400, 2, 100, 60, 15),
+                            new DefenseLevelData(500, 2, 150, 300, 22)}),
+    ARCHER_TOWER (TranslationKeys.COC_BUILDING_DEFENSE_ARCHERTOWER_NAME, TranslationKeys.COC_BUILDING_DEFENSE_ARCHERTOWER_DESCRIPTION, new int[]{5, 5}, ResourceTypes.GOLD, Material.BOW, true, 15, 15,null,
+            new DefenseLevelData[]{new DefenseLevelData(400, 1, 80, 25, 10),
+                    new DefenseLevelData(500, 2, 500, 240, 20),
+                    new DefenseLevelData(600, 3, 750, 1800, 30)});
 
     private final String nameKey;
     private final String descriptionKey;
@@ -29,10 +29,11 @@ public enum DefenseBuildings implements IDefenseBuilding, IUpgradeDetails {
     private final Material material;
     private final boolean attackFlying;
     private final double radius;
+    private final long speed;
     private final TroopType prioritizedType;
     private final DefenseLevelData[] buildingLevelData;
 
-    DefenseBuildings(String nameKey, String descriptionKey, int[] size, ResourceTypes resourceType, Material material, boolean attackFlying, double radius, TroopType prioritizedType, DefenseLevelData[] buildingLevelData) {
+    DefenseBuildings(String nameKey, String descriptionKey, int[] size, ResourceTypes resourceType, Material material, boolean attackFlying, double radius, long speed, TroopType prioritizedType, DefenseLevelData[] buildingLevelData) {
         this.nameKey = nameKey;
         this.descriptionKey = descriptionKey;
         this.size = size;
@@ -40,6 +41,7 @@ public enum DefenseBuildings implements IDefenseBuilding, IUpgradeDetails {
         this.material = material;
         this.attackFlying = attackFlying;
         this.radius = radius;
+        this.speed = speed;
         this.prioritizedType = prioritizedType;
         this.buildingLevelData = buildingLevelData;
     }
@@ -102,7 +104,7 @@ public enum DefenseBuildings implements IDefenseBuilding, IUpgradeDetails {
      * @since 0.0.1
      */
     @Override
-    public boolean attackFlying() {
+    public boolean canAttackFlying() {
         return attackFlying;
     }
 
@@ -114,6 +116,16 @@ public enum DefenseBuildings implements IDefenseBuilding, IUpgradeDetails {
     @Override
     public double getRadius() {
         return radius;
+    }
+
+    /**
+     * Get the speed the defense building attacks in ticks.
+     * @return long - the attack speed in ticks.
+     * @since 0.0.1
+     */
+    @Override
+    public long getAttackSpeed() {
+        return speed;
     }
 
     /**

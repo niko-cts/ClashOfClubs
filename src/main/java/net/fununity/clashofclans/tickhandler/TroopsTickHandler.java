@@ -1,6 +1,6 @@
 package net.fununity.clashofclans.tickhandler;
 
-import net.fununity.clashofclans.ClashOfClans;
+import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
 import net.fununity.clashofclans.buildings.classes.TroopsCreateBuilding;
 import net.fununity.clashofclans.player.CoCPlayer;
@@ -25,7 +25,7 @@ public class TroopsTickHandler {
      */
     public static void startTimer() {
         troopsCreateBuildingList = new ArrayList<>();
-        Bukkit.getScheduler().runTaskTimer(ClashOfClans.getInstance(), () -> {
+        Bukkit.getScheduler().runTaskTimer(ClashOfClubs.getInstance(), () -> {
             for (TroopsCreateBuilding troopsCreateBuilding : getTroopsCreationBuildings()) {
                 if (troopsCreateBuilding.getTroopsQueue().isEmpty()) {
                     troopsCreateBuildingList.remove(troopsCreateBuilding);
@@ -34,7 +34,7 @@ public class TroopsTickHandler {
 
                 troopsCreateBuilding.setTrainSecondsLeft(troopsCreateBuilding.getTrainSecondsLeft() - 1);
                 if (troopsCreateBuilding.getTrainSecondsLeft() <= 0)
-                    Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), () ->
+                    Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () ->
                             TroopsBuildingManager.getInstance().troopEducated(troopsCreateBuilding));
             }
         }, 20, 20);

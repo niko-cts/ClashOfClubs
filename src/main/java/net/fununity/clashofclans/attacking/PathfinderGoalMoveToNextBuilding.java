@@ -11,7 +11,7 @@ import java.util.EnumSet;
 
 public class PathfinderGoalMoveToNextBuilding extends PathfinderGoal {
 
-    private static final float STANDARD_SPEED = 0.47F;
+    private static final double STANDARD_SPEED = 1F;
     private final Troop troop;
 
     public PathfinderGoalMoveToNextBuilding(Troop troop) {
@@ -26,17 +26,19 @@ public class PathfinderGoalMoveToNextBuilding extends PathfinderGoal {
 
         if (troop.getAttackBuilding() != null) {
             if (!TroopsUtil.canTroopAttackBuilding(troop, troop.getAttackBuilding())) {
-                troop.setAttackBuilding(TroopsUtil.getNearestBuilding(troop, Arrays.asList(WallBuildings.values()), Collections.emptyList()));
-                return true;
+                GeneralBuilding blockingBuilding = TroopsUtil.getBlockingBuilding(troop);
+                troop.setAttackBuilding(blockingBuilding);
+                return blockingBuilding != null;
             }
             troop.setAttack(true);
             return false;
         }
 
-        GeneralBuilding nearestBuilding = TroopsUtil.getNearestBuilding(troop, troop.getTroop().getPrioritizedDefense() != null ?
-                Collections.singletonList(troop.getTroop().getPrioritizedDefense()) : Collections.emptyList(), Arrays.asList(WallBuildings.values()));
+        GeneralBuilding nearestBuilding = TroopsUtil.getNearestBuilding(troop, troop.getTroop().getPrioritizedBuilding() != null ?
+                Collections.singletonList(troop.getTroop().getPrioritizedBuilding()) : Collections.emptyList(), Arrays.asList(WallBuildings.values()));
         if (nearestBuilding != null) {
             troop.setAttackBuilding(nearestBuilding);
+            troop.setMoving(true);
             return true;
         }
         return false;
@@ -50,6 +52,7 @@ public class PathfinderGoalMoveToNextBuilding extends PathfinderGoal {
     @Override
     public void c() {
         Location location = TroopsUtil.getAttackBuildingLocation(troop);
+        System.out.println("Walking to " + location + " (" + troop.getAttackBuilding().getBuilding() + ")");
         this.troop.getNavigation().a(location.getX(), location.getY(), location.getZ(), STANDARD_SPEED);
     }
 

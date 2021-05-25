@@ -1,7 +1,8 @@
 package net.fununity.clashofclans.troops;
 
+import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.interfaces.BuildingLevelData;
-import net.fununity.clashofclans.buildings.interfaces.IDefenseBuilding;
+import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IUpgradeDetails;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.misc.translationhandler.translations.Language;
@@ -14,7 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public enum Troops implements ITroop, IUpgradeDetails {
-    BARBARIAN(TranslationKeys.COC_TROOPS_BARBARIAN_NAME, TranslationKeys.COC_TROOPS_BARBARIAN_DESCRIPTION, TroopType.LAND, 100, 5.0, 1.5, false, EntityTypes.ZOMBIE, Material.STONE_SWORD,1, 1, 10,null);
+    BARBARIAN(TranslationKeys.COC_TROOPS_BARBARIAN_NAME, TranslationKeys.COC_TROOPS_BARBARIAN_DESCRIPTION, TroopType.LAND, 50, 10.0, 0.3, false, EntityTypes.ZOMBIE, Material.STONE_SWORD,1, 1, 10, 10,null);
 
     private final String nameKey;
     private final String descriptionKey;
@@ -28,9 +29,10 @@ public enum Troops implements ITroop, IUpgradeDetails {
     private final int minBarracks;
     private final int size;
     private final int trainDuration;
-    private final IDefenseBuilding prioritizedDefenseBuilding;
+    private final int amountOfCost;
+    private final IBuilding prioritizedBuilding;
 
-    Troops (String nameKey, String descriptionKey, TroopType troopType, int maxHP, double damage, double range, boolean flying, EntityTypes<? extends EntityCreature> entityType, Material representativeItem, int minBarrackLevel, int size, int trainDuration, IDefenseBuilding defenseBuilding) {
+    Troops (String nameKey, String descriptionKey, TroopType troopType, int maxHP, double damage, double range, boolean flying, EntityTypes<? extends EntityCreature> entityType, Material representativeItem, int minBarrackLevel, int size, int trainDuration, int amountOfCost, IBuilding prioritizedBuilding) {
         this.nameKey = nameKey;
         this.descriptionKey = descriptionKey;
         this.troopType = troopType;
@@ -43,7 +45,18 @@ public enum Troops implements ITroop, IUpgradeDetails {
         this.minBarracks = minBarrackLevel;
         this.size = size;
         this.trainDuration = trainDuration;
-        this.prioritizedDefenseBuilding = defenseBuilding;
+        this.amountOfCost = amountOfCost;
+        this.prioritizedBuilding = prioritizedBuilding;
+    }
+
+    /**
+     * Gets the troop by its material.
+     * @param material Material - the representative material.
+     * @return {@link ITroop} - the troop.
+     * @since 0.0.1
+     */
+    public static ITroop getByMaterial(Material material) {
+        return Arrays.stream(values()).filter(t -> t.getRepresentativeItem() == material).findFirst().orElse(null);
     }
 
 
@@ -162,6 +175,16 @@ public enum Troops implements ITroop, IUpgradeDetails {
     }
 
     /**
+     * Get the price amount per unit.
+     * @return int - amount of resource to train.
+     * @since 0.0.1
+     */
+    @Override
+    public int getCostAmount() {
+        return amountOfCost;
+    }
+
+    /**
      * Get the representative item for this entity.
      * @return Material - the material.
      * @since 0.0.1
@@ -173,12 +196,12 @@ public enum Troops implements ITroop, IUpgradeDetails {
 
     /**
      * The building that will be attacked prioritized by the troop.
-     * @return IDefenseBuilding - prioritized defense building.
+     * @return {@link IBuilding} - prioritized building.
      * @since 0.0.1
      */
     @Override
-    public IDefenseBuilding getPrioritizedDefense() {
-        return prioritizedDefenseBuilding;
+    public IBuilding getPrioritizedBuilding() {
+        return prioritizedBuilding;
     }
 
     /**
@@ -191,7 +214,8 @@ public enum Troops implements ITroop, IUpgradeDetails {
     @Override
     public List<String> getLoreDetails(BuildingLevelData buildingLevelData, Language language) {
         return Arrays.asList(language.getTranslation(TranslationKeys.COC_TROOPS_LOREDETAILS,
-                Arrays.asList("${hp}", "${damage}", "${prioritize}", "${size}", "${type}"),
-                Arrays.asList(getMaxHP()+"", getDamage()+"", getPrioritizedDefense() == null ? "None" : language.getTranslation(getPrioritizedDefense().getNameKey()), getSize() + "", getTroopType().getName(language))).split(";"));
+                Arrays.asList("${hp}", "${damage}", "${prioritize}", "${size}", "${type}", "${cost}"),
+                Arrays.asList(getMaxHP()+"", getDamage()+"", getPrioritizedBuilding() == null ? "None" : language.getTranslation(getPrioritizedBuilding().getNameKey()), getSize() + "", getTroopType().getName(language), ResourceTypes.FOOD.getChatColor() + " " +
+                        getCostAmount() + " " + ResourceTypes.FOOD.getColoredName(language))).split(";"));
     }
 }

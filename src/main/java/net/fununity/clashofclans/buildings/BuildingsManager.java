@@ -1,6 +1,6 @@
 package net.fununity.clashofclans.buildings;
 
-import net.fununity.clashofclans.ClashOfClans;
+import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.classes.*;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
@@ -103,10 +103,10 @@ public class BuildingsManager {
             building.setCoordinate(BuildingLocationUtil.getCoordinate(building));
             coCPlayer.getBuildings().add(building);
             DatabaseBuildings.getInstance().buildBuilding(uuid, building);
-            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), () -> Schematics.createBuilding(building));
+            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> Schematics.createBuilding(building));
         }
 
-        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
             List<RandomWorldBuilding> rdmBuildings = new ArrayList<>();
             for (int i = 0; i < RandomUtil.getRandomInt(15) + 10; i++) {
                 RandomWorldBuildings building = RandomWorldBuildings.getStartBuildings()[RandomUtil.getRandomInt(RandomWorldBuildings.getStartBuildings().length)];
@@ -118,7 +118,7 @@ public class BuildingsManager {
                 building.setCoordinate(BuildingLocationUtil.getCoordinate(building));
                 coCPlayer.getBuildings().add(building);
                 DatabaseBuildings.getInstance().buildBuilding(uuid, building);
-                Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), () -> Schematics.createBuilding(building));
+                Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> Schematics.createBuilding(building));
             }
         });
 
@@ -185,7 +185,7 @@ public class BuildingsManager {
             finishedBuilding(constructionBuilding);
             return;
         }
-        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
             if (building.getBuilding() == Buildings.TOWN_HALL || building.getLevel() != 0)
                 Schematics.removeBuilding(building.getCoordinate(), building.getBuilding().getSize());
 
@@ -200,7 +200,7 @@ public class BuildingsManager {
      * @since 0.0.1
      */
     public void finishedBuilding(ConstructionBuilding constructionBuilding) {
-        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
             UUID uuid = constructionBuilding.getUuid();
 
             GeneralBuilding building = constructionBuilding.getConstructionBuilding();
@@ -223,12 +223,15 @@ public class BuildingsManager {
 
             Schematics.createBuilding(building);
 
-            if (building.getLevel() == 0)
+            if (building.getLevel() == 1 && building.getBuilding() != Buildings.TOWN_HALL && building.getBuilding() != Buildings.CLUB_TOWER)
                 DatabaseBuildings.getInstance().buildBuilding(uuid, building);
             else
                 DatabaseBuildings.getInstance().upgradeBuilding(uuid, building, building.getLevel());
 
             DatabaseBuildings.getInstance().finishedBuilding(building.getCoordinate());
+
+            if (building.getBuilding() == TroopBuildings.ARMY_CAMP)
+               TroopsBuildingManager.getInstance().moveTroopsToField(PlayerManager.getInstance().getPlayer(uuid));
         });
     }
 
@@ -257,7 +260,7 @@ public class BuildingsManager {
                     coCPlayer.addResource(building.getBuilding().getResourceType(), building.getUpgradeCost());
             }
         }
-        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
             Schematics.removeBuilding(building.getCoordinate(), building.getBuilding().getSize());
             DatabaseBuildings.getInstance().deleteBuilding(building);
         });
@@ -364,7 +367,7 @@ public class BuildingsManager {
             return;
         }
         building.setAmount(building.getAmount() - toAdd);
-        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), () -> DatabaseBuildings.getInstance().updateData(building.getCoordinate(), (int) building.getAmount()));
+        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> DatabaseBuildings.getInstance().updateData(building.getCoordinate(), (int) building.getAmount()));
         cocPlayer.addResource(building.getContainingResourceType(), toAdd);
     }
 
@@ -392,7 +395,7 @@ public class BuildingsManager {
             building.setRotation((byte) buildingMode[2]);
 
         building.setCoordinate(BuildingLocationUtil.getCoordinate(building.getBuilding().getSize(), building.getRotation(), (Location) buildingMode[0]));
-        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
             Schematics.removeBuilding(oldLocation, building.getBuilding().getSize());
             Schematics.createBuilding(building);
             DatabaseBuildings.getInstance().moveBuilding(building, oldLocation, oldRotation);

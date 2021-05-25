@@ -1,6 +1,6 @@
 package net.fununity.clashofclans.language;
 
-import net.fununity.clashofclans.ClashOfClans;
+import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.main.api.common.messages.MessageList;
 import net.fununity.main.api.common.util.SpecialChars;
 import net.fununity.misc.translationhandler.TranslationHandler;
@@ -14,7 +14,7 @@ public class EnglishMessages extends MessageList {
         // VISIT
         add(TranslationKeys.COC_COMMAND_VISIT_USAGE, "visit <User>");
         add(TranslationKeys.COC_COMMAND_VISIT_DESCRIPTION, "&7Visit another base.");
-        add(TranslationKeys.COC_COMMAND_VISIT_ILLEGAL_HASNOBUILDING, "&cThis user has not played " + ClashOfClans.getInstance().getColoredName().replace("§", "&") + " &cyet.");
+        add(TranslationKeys.COC_COMMAND_VISIT_ILLEGAL_HASNOBUILDING, "&cThis user has not played " + ClashOfClubs.getColoredName().replace("§", "&") + " &cyet.");
         add(TranslationKeys.COC_COMMAND_VISIT_ILLEGAL_NOTONLINE, "&cThis user is not online! &7Buy &6premium &7to visit offline player bases.");
         add(TranslationKeys.COC_COMMAND_VISIT_SUCCESS, "&aYou will be send to the base!");
 
@@ -79,6 +79,8 @@ public class EnglishMessages extends MessageList {
         // BARACK BUILDINGS
         add(TranslationKeys.COC_BUILDING_TROOPS_CREATION_BARRACKS_NORMAL_NAME, "&6Baracks");
         add(TranslationKeys.COC_BUILDING_TROOPS_CREATION_BARRACKS_NORMAL_DESCRIPTION, "&7This building trains your troops.");
+        add(TranslationKeys.COC_BUILDING_TROOPS_ARMYCAMP_NAME, "&6Armycamp");
+        add(TranslationKeys.COC_BUILDING_TROOPS_ARMYCAMP_DESCRIPTION, "&7This building stores your troops.");
 
         // RANDOM
         add(TranslationKeys.COC_BUILDING_RANDOM_BUSH_NAME, "&2Bush");
@@ -122,20 +124,21 @@ public class EnglishMessages extends MessageList {
         // TROOPS
         add(TranslationKeys.COC_GUI_TROOPS_CONTAINER_NAME, "&6Container");
         add(TranslationKeys.COC_GUI_TROOPS_CONTAINER_LORE, "&7There are currently ${current} of ${max};&7troops in this building.;&7Click to open the gui.");
-        add(TranslationKeys.COC_GUI_CONTAINER_NAME, "&6Container");
-        add(TranslationKeys.COC_GUI_CONTAINER_LORE, "&6Container");
+        add(TranslationKeys.COC_GUI_CONTAINER_NAME, "&6Troops Container");
+        add(TranslationKeys.COC_GUI_CONTAINER_LORE, "&7Amount of units: &e${amount}");
         add(TranslationKeys.COC_GUI_TROOPS_TRAIN_NAME, "&6Train your troops");
         add(TranslationKeys.COC_GUI_TROOPS_TRAIN_LORE, "&7Click to train troops.");
         add(TranslationKeys.COC_GUI_TRAIN_NAME, "&6Train troops");
-        add(TranslationKeys.COC_GUI_TRAIN_QUEUE_LORE, "&7Duration left: &e${duration} &7/ &e${max} seconds");
+        add(TranslationKeys.COC_GUI_TRAIN_QUEUE_LORE, "&7This troop is currently in queue;&7Duration left: &e${duration} &7/ &e${max} seconds");
         add(TranslationKeys.COC_GUI_TRAIN_LORE, "&7Barracks minimum level: &e${minlevel};&7Train duration: &e${duration} seconds");
+        add(TranslationKeys.COC_GUI_TRAIN_RELOAD, "&eReload this menu");
 
 
 
         // TROOPS
         add(TranslationKeys.COC_TROOPS_TYPE_LAND, "&eLand");
         add(TranslationKeys.COC_TROOPS_TYPE_FLYING, "&aFlying");
-        add(TranslationKeys.COC_TROOPS_LOREDETAILS, ";&7Type: ${type};&7Max hp: &c${hp};&7Damage: &e${damage};&7Prioritize Defense: ${prioritize};&7Size: &e${size}");
+        add(TranslationKeys.COC_TROOPS_LOREDETAILS, ";&7Type: ${type};&7Max hp: &c${hp};&7Damage: &e${damage};&7Prioritize Defense: ${prioritize};&7Size: &e${size};&7Cost: ${cost}");
         add(TranslationKeys.COC_TROOPS_BARBARIAN_NAME, "&eBarbarian");
         add(TranslationKeys.COC_TROOPS_BARBARIAN_DESCRIPTION, "&7This idyet will run to the;&7next building and attacks it.");
 
@@ -155,6 +158,18 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_CANCEL_LORE, "&7Click to cancel the construct operation");
         add(TranslationKeys.COC_CONSTRUCTION_BUILD, "&aBuilding will be constructed!");
 
+        // ATTACKING
+        add(TranslationKeys.COC_ATTACKING_BOARD_STARS, "&6Stars");
+        add(TranslationKeys.COC_ATTACK_FINISHED,
+                "&8------{ ${name} }--------\n" +
+                        "      ${stars}  \n" +
+                        "&6Attack finished!\n" +
+                        "&cElo points &7received: &c${elo}\n" +
+                        "&6Gold &7gathered: &e${gold}\n" +
+                        "&dFood &7gathered: &d${food}\n" +
+                        "&8------{ ${name} }--------\n" +
+                        "\n" +
+                        "&7You will be send back in 5 seconds...");
 
         insertIntoLanguage();
     }

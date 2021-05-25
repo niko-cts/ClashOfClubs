@@ -1,6 +1,6 @@
 package net.fununity.clashofclans.listener;
 
-import net.fununity.clashofclans.ClashOfClans;
+import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.player.PlayerManager;
 import net.fununity.clashofclans.player.ScoreboardMenu;
@@ -23,9 +23,9 @@ public class JoinListener implements Listener {
      */
     @EventHandler
     public void onJoin(APIPlayerJoinEvent event) {
-        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
             CoCPlayer coCPlayer = PlayerManager.getInstance().playerJoins(event.getAPIPlayer());
-            Bukkit.getScheduler().runTask(ClashOfClans.getInstance(), () -> ScoreboardMenu.show(coCPlayer));
+            Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> ScoreboardMenu.show(coCPlayer));
         });
     }
 

@@ -1,5 +1,6 @@
 package net.fununity.clashofclans.buildings.classes;
 
+import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.interfaces.IBuildingWithHologram;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.PlayerManager;
@@ -11,6 +12,7 @@ import net.fununity.main.api.item.UsefulItems;
 import net.fununity.main.api.player.APIPlayer;
 import net.fununity.main.api.util.LocationUtil;
 import net.fununity.misc.translationhandler.translations.Language;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
 import java.util.Collections;
@@ -60,7 +62,7 @@ public class ConstructionBuilding extends GeneralBuilding implements IBuildingWi
         String name = language.getTranslation(TranslationKeys.COC_GUI_BUILDING_UNDERCONSTRUCTION, "${left}", getDuration());
         int finished = getCurrentBuildingVersion();
         for (int i = 10 / 9, j = 27; j < menu.getInventory().getSize(); i += 10 / 9, j++)
-            menu.setItem(j, new ItemBuilder(i >= finished ? UsefulItems.BACKGROUND_GREEN : UsefulItems.BACKGROUND_BLACK).setName(name).craft());
+            menu.setItem(j, new ItemBuilder(i <= finished ? UsefulItems.BACKGROUND_GREEN : UsefulItems.BACKGROUND_BLACK).setName(name).craft());
 
         menu.fill(UsefulItems.BACKGROUND_GRAY);
         return menu;
@@ -115,7 +117,7 @@ public class ConstructionBuilding extends GeneralBuilding implements IBuildingWi
     public void setBuildingDuration(int buildTime) {
         this.buildingDuration = buildTime;
         updateHologram();
-        PlayerManager.getInstance().forceUpdateInventory(this);
+        Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> PlayerManager.getInstance().forceUpdateInventory(this));
     }
 
     /**
@@ -139,6 +141,6 @@ public class ConstructionBuilding extends GeneralBuilding implements IBuildingWi
      * @since 0.0.1
      */
     public int getCurrentBuildingVersion() {
-        return 100 * (getMaxBuildingDuration() - this.buildingDuration) / getMaxBuildingDuration();
+        return 100 * this.buildingDuration / getMaxBuildingDuration();
     }
 }

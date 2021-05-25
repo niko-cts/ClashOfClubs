@@ -83,6 +83,7 @@ public class TranslationKeys {
     public static final String COC_GUI_TRAIN_NAME = "coc.building.train.name";
     public static final String COC_GUI_TRAIN_QUEUE_LORE = "coc.building.train.queue.lore";
     public static final String COC_GUI_TRAIN_LORE = "coc.building.train.lore";
+    public static final String COC_GUI_TRAIN_RELOAD = "coc.building.train.reload";
 
 
     // GENERAL BUILDINGS

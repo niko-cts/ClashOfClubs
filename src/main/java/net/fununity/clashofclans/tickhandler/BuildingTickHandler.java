@@ -1,6 +1,6 @@
 package net.fununity.clashofclans.tickhandler;
 
-import net.fununity.clashofclans.ClashOfClans;
+import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.BuildingsManager;
 import net.fununity.clashofclans.buildings.DatabaseBuildings;
 import net.fununity.clashofclans.buildings.classes.ConstructionBuilding;
@@ -27,24 +27,24 @@ public class BuildingTickHandler {
 
     public static void startTimer() {
         constructionBuildingList = new ArrayList<>();
-        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
             try (ResultSet set = DatabaseBuildings.getInstance().getConstructionBuildings()) {
                 while (set != null && set.next()) {
-                    Location location = new Location(ClashOfClans.getInstance().getPlayWorld(), set.getInt("x"), 100, set.getInt("z"));
+                    Location location = new Location(ClashOfClubs.getInstance().getPlayWorld(), set.getInt("x"), 100, set.getInt("z"));
                     try (ResultSet building = DatabaseBuildings.getInstance().getBuilding(location)) {
                         if  (building != null && building.next()) {
                             GeneralBuilding generalBuilding = new GeneralBuilding(UUID.fromString(set.getString("uuid")), BuildingsManager.getInstance().getBuildingById(building.getString("buildingID")), location, building.getByte("rotation"), building.getInt("level"));
                             constructionBuildingList.add(new ConstructionBuilding(generalBuilding, (int) ChronoUnit.SECONDS.between(OffsetDateTime.now(), OffsetDateTime.parse(set.getString("date")))));
                         }
                     } catch (SQLException exception) {
-                        ClashOfClans.getInstance().getLogger().warning(exception.getMessage());
+                        ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
                     }
                 }
             } catch (SQLException exception) {
-                ClashOfClans.getInstance().getLogger().warning(exception.getMessage());
+                ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
             }
 
-            Bukkit.getScheduler().runTaskTimerAsynchronously(ClashOfClans.getInstance(), () -> {
+            Bukkit.getScheduler().runTaskTimerAsynchronously(ClashOfClubs.getInstance(), () -> {
                 for (ConstructionBuilding constructionBuilding : getConstructionBuildings()) {
                     if (constructionBuilding.getBuildingDuration() > 0)
                         constructionBuilding.setBuildingDuration(constructionBuilding.getBuildingDuration() - 1);

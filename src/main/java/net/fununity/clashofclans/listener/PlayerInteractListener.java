@@ -1,6 +1,6 @@
 package net.fununity.clashofclans.listener;
 
-import net.fununity.clashofclans.ClashOfClans;
+import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.BuildingsManager;
 import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
 import net.fununity.clashofclans.commands.CoCCommand;
@@ -25,14 +25,25 @@ import org.bukkit.inventory.EquipmentSlot;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Listener class for interaction.
+ * @author Niko
+ * @since 0.0.1
+ */
 public class PlayerInteractListener implements Listener {
 
     private static final Location[] SCHEMATIC_SAVER = new Location[2];
     private static final List<Material> WHITELIST_MATERIALS = Arrays.asList(Material.BARRIER, Material.NETHER_STAR, Material.CLOCK, Material.PISTON, Material.STICK);
 
+    /**
+     * Will be called, when a player interacts.
+     * @param event PlayerInteractEvent - triggered event.
+     * @since 0.0.1
+     */
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
         if (event.getHand() != EquipmentSlot.HAND || event.getAction() == Action.PHYSICAL) return;
+
         Material handMaterial = event.getPlayer().getInventory().getItemInMainHand().getType();
 
         // setup gui.
@@ -96,7 +107,7 @@ public class PlayerInteractListener implements Listener {
 
         if (targetBlock == null) return;
 
-        if (targetBlock.getLocation().getBlockY() != ClashOfClans.getBaseYCoordinate() + 1) return;
+        if (targetBlock.getLocation().getBlockY() != ClashOfClubs.getBaseYCoordinate() + 1) return;
 
         GeneralBuilding building = player.getBuildingMode()[1] instanceof GeneralBuilding ? (GeneralBuilding) player.getBuildingMode()[1] : null;
 

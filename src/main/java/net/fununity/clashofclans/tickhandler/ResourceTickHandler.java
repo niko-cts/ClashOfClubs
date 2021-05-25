@@ -1,6 +1,6 @@
 package net.fununity.clashofclans.tickhandler;
 
-import net.fununity.clashofclans.ClashOfClans;
+import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.BuildingsManager;
 import net.fununity.clashofclans.buildings.DatabaseBuildings;
 import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
@@ -31,14 +31,14 @@ public class ResourceTickHandler {
      */
     public static void startTimer() {
         resourceGatherBuildingList = new ArrayList<>();
-        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
             List<Location> locations = new ArrayList<>();
             try (ResultSet set = DatabaseBuildings.getInstance().getResourceContainerDataBuildings()) {
                 while (set != null && set.next()) {
-                    locations.add(new Location(ClashOfClans.getInstance().getPlayWorld(), set.getInt("x"), ClashOfClans.getBaseYCoordinate(), set.getInt("z")));
+                    locations.add(new Location(ClashOfClubs.getInstance().getPlayWorld(), set.getInt("x"), ClashOfClubs.getBaseYCoordinate(), set.getInt("z")));
                 }
             } catch (SQLException exception) {
-                ClashOfClans.getInstance().getLogger().warning(exception.getMessage());
+                ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
             }
             try (ResultSet buildingSet = DatabaseBuildings.getInstance().getBuilding(locations)) {
                 while (buildingSet != null && buildingSet.next()) {
@@ -46,21 +46,21 @@ public class ResourceTickHandler {
                     if (!(buildingID instanceof ResourceGatherBuilding)) continue;
 
                     ResourceGatherBuilding resourceGatherBuilding = new ResourceGatherBuilding(UUID.fromString(buildingSet.getString("uuid")), buildingID,
-                            new Location(ClashOfClans.getInstance().getPlayWorld(), buildingSet.getInt("x"), ClashOfClans.getBaseYCoordinate(), buildingSet.getInt("z")), buildingSet.getByte("rotation"), buildingSet.getInt("level"), buildingSet.getDouble("amount"));
+                            new Location(ClashOfClubs.getInstance().getPlayWorld(), buildingSet.getInt("x"), ClashOfClubs.getBaseYCoordinate(), buildingSet.getInt("z")), buildingSet.getByte("rotation"), buildingSet.getInt("level"), buildingSet.getDouble("amount"));
                     resourceGatherBuildingList.add(resourceGatherBuilding);
                 }
             } catch (SQLException exception) {
-                ClashOfClans.getInstance().getLogger().warning(exception.getMessage());
+                ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
             }
 
-            Bukkit.getScheduler().runTaskTimerAsynchronously(ClashOfClans.getInstance(), () -> {
+            Bukkit.getScheduler().runTaskTimerAsynchronously(ClashOfClubs.getInstance(), () -> {
                 for (ResourceGatherBuilding resourceGatherBuilding : getResourceGatherBuildingList()) {
                     ResourceGatherLevelData levelData = resourceGatherBuilding.getBuilding().getBuildingLevelData()[resourceGatherBuilding.getLevel() - 1];
                     if (resourceGatherBuilding.getAmount() < levelData.getMaximumResource())
                         resourceGatherBuilding.setAmount(resourceGatherBuilding.getAmount() + levelData.getResourceGatheringPerHour() / 720.0); // each 5s
                 }
             }, 100, 100);
-            Bukkit.getScheduler().runTaskTimerAsynchronously(ClashOfClans.getInstance(), ResourceTickHandler::syncResources, 20 * 60 * 10, 20 * 60 * 10);
+            Bukkit.getScheduler().runTaskTimerAsynchronously(ClashOfClubs.getInstance(), ResourceTickHandler::syncResources, 20 * 60 * 10, 20 * 60 * 10);
         });
     }
 

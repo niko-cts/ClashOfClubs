@@ -1,5 +1,8 @@
 package net.fununity.clashofclans;
 
+import net.fununity.clashofclans.attacking.listener.AttackingJoinListener;
+import net.fununity.clashofclans.attacking.listener.AttackingPlayerInteractListener;
+import net.fununity.clashofclans.attacking.listener.AttackingQuitListener;
 import net.fununity.clashofclans.commands.CoCCommand;
 import net.fununity.clashofclans.commands.HomeCommand;
 import net.fununity.clashofclans.commands.ResetCommand;
@@ -19,9 +22,13 @@ import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class ClashOfClans extends JavaPlugin {
+/**
+ * Main class of the clash of clubs plugin.
+ * @since 0.0.1
+ */
+public class ClashOfClubs extends JavaPlugin {
 
-    private static ClashOfClans instance;
+    private static ClashOfClubs instance;
     private static final String TITLE = "§6Clash§0of§eClubs";
     private static final int BASE_Y_COORDINATE = 50;
     private static final int BASE_SIZE = 100;
@@ -29,6 +36,10 @@ public class ClashOfClans extends JavaPlugin {
     private World playWorld;
     private World attackWorld;
 
+    /**
+     * Will be called, when the plugin enables.
+     * @since 0.0.1
+     */
     @Override
     public void onEnable() {
         instance = this;
@@ -46,6 +57,9 @@ public class ClashOfClans extends JavaPlugin {
         RegisterUtil registerUtil = new RegisterUtil(this);
         registerUtil.addListeners(new JoinListener(), new QuitListener(), new PlayerInteractListener(), new PlayerMoveListener());
         registerUtil.addCommands(new CoCCommand(), new HomeCommand(), new VisitCommand(), new ResetCommand());
+
+        registerUtil.addListeners(new AttackingJoinListener(), new AttackingQuitListener(), new AttackingPlayerInteractListener());
+
         registerUtil.register();
 
         ResourceTickHandler.startTimer();
@@ -53,36 +67,78 @@ public class ClashOfClans extends JavaPlugin {
         BuildingTickHandler.startTimer();
     }
 
+    /**
+     * Will be called, when the plugin disables.
+     * @since 0.0.1
+     */
     @Override
     public void onDisable() {
         ResourceTickHandler.syncResources();
     }
 
-    public static ClashOfClans getInstance() {
+    /**
+     * Get the instance of this class.
+     * @return ClashOfClubs - Plugin instance class.
+     * @since 0.0.1
+     */
+    public static ClashOfClubs getInstance() {
         return instance;
     }
 
+    /**
+     * Get the play world.
+     * @return World - the play world.
+     * @since 0.0.1
+     */
     public World getPlayWorld() {
         return playWorld;
     }
 
+    /**
+     * Get the world, where the attacking happens.
+     * @return World - the attacking world.
+     * @deprecated attacking and normal part will be split on two servers.
+     * @since 0.0.1
+     */
+    @Deprecated
+    public World getAttackWorld() {
+        return attackWorld;
+    }
+
+    /**
+     * Get the size of the background base.
+     * @return int - the base background size.
+     * @since 0.0.1
+     */
     public static int getBaseBackground() {
         return BASE_BACKGROUND;
     }
 
+    /**
+     * Get the standard y coordinate.
+     * @return int - y coordinate.
+     * @since 0.0.1
+     */
     public static int getBaseYCoordinate() {
         return BASE_Y_COORDINATE;
     }
 
+    /**
+     * Get the base size.
+     * @return int - base size x, z
+     * @since 0.0.1
+     */
     public static int getBaseSize() {
         return BASE_SIZE;
     }
 
-    public String getColoredName() {
+    /**
+     * Get the colored name.
+     * @return String - colored name.
+     * @since 0.0.1
+     */
+    public static String getColoredName() {
         return TITLE;
     }
 
-    public World getAttackWorld() {
-        return attackWorld;
-    }
 }

@@ -1,7 +1,7 @@
 name: ClashOfClubs
 version: '0.0.1'
 author: Niko
-main: net.fununity.clashofclans.ClashOfClans
+main: net.fununity.clashofclans.ClashOfClubs
 api-version: 1.16
 depend:
   - FunUnityAPI

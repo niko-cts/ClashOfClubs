@@ -1,13 +1,11 @@
 package net.fununity.clashofclans.commands;
 
-import net.fununity.clashofclans.ClashOfClans;
+import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.BuildingsManager;
 import net.fununity.clashofclans.buildings.DatabaseBuildings;
-import net.fununity.clashofclans.buildings.classes.ResourceGatherBuilding;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.DatabasePlayer;
 import net.fununity.clashofclans.player.PlayerManager;
-import net.fununity.clashofclans.tickhandler.ResourceTickHandler;
 import net.fununity.main.api.cloud.CloudManager;
 import net.fununity.main.api.command.handler.APICommand;
 import net.fununity.main.api.messages.MessagePrefix;
@@ -42,7 +40,7 @@ public class ResetCommand extends APICommand {
             return;
         }
 
-        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
             UUID uuid = PlayerDataUtil.getPlayerUUID(args[0]);
             if (uuid == null) {
                 apiPlayer.sendMessage(MessagePrefix.ERROR, net.fununity.main.api.messages.TranslationKeys.API_PLAYER_NOT_FOUND);
@@ -63,7 +61,7 @@ public class ResetCommand extends APICommand {
         if (Bukkit.getPlayer(uuid) != null)
             CloudManager.getInstance().sendPlayerToLobby(uuid);
 
-        Bukkit.getScheduler().runTaskLaterAsynchronously(ClashOfClans.getInstance(), () -> {
+        Bukkit.getScheduler().runTaskLaterAsynchronously(ClashOfClubs.getInstance(), () -> {
             DatabasePlayer.getInstance().deleteUser(uuid);
             DatabaseBuildings.getInstance().deleteAllBuildings(uuid);
 

@@ -1,6 +1,6 @@
 package net.fununity.clashofclans.troops;
 
-import net.fununity.clashofclans.buildings.interfaces.IDefenseBuilding;
+import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.misc.translationhandler.translations.Language;
 import net.minecraft.server.v1_16_R3.EntityCreature;
 import net.minecraft.server.v1_16_R3.EntityTypes;
@@ -100,6 +100,13 @@ public interface ITroop {
     int getTrainDuration();
 
     /**
+     * Get the price amount per unit.
+     * @return int - amount of resource to train.
+     * @since 0.0.1
+     */
+    int getCostAmount();
+
+    /**
      * Get the representative item for this entity.
      * @return Material - the material.
      * @since 0.0.1
@@ -108,10 +115,10 @@ public interface ITroop {
 
     /**
      * The building that will be attacked prioritized by the troop.
-     * @return IDefenseBuilding - prioritized defense building.
+     * @return {@link IBuilding} - prioritized building.
      * @since 0.0.1
      */
-    IDefenseBuilding getPrioritizedDefense();
+    IBuilding getPrioritizedBuilding();
 
 
 }

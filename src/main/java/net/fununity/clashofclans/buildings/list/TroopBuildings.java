@@ -5,10 +5,13 @@ import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
 import net.fununity.clashofclans.buildings.classes.TroopsBuilding;
 import net.fununity.clashofclans.buildings.interfaces.ITroopBuilding;
 import net.fununity.clashofclans.buildings.interfaces.TroopsLevelData;
+import net.fununity.clashofclans.language.TranslationKeys;
 import org.bukkit.Material;
 
 public enum TroopBuildings implements ITroopBuilding {
-    ;
+    ARMY_CAMP(TranslationKeys.COC_BUILDING_TROOPS_ARMYCAMP_NAME, TranslationKeys.COC_BUILDING_TROOPS_ARMYCAMP_DESCRIPTION, new int[]{7, 7}, ResourceTypes.FOOD, Material.CAMPFIRE,
+            new TroopsLevelData[]{new TroopsLevelData(100, 1, 150, 60, 10),
+                        new TroopsLevelData(200, 1, 350, 90, 15),});
 
     private final String nameKey;
     private final String descriptionKey;

@@ -5,16 +5,20 @@ import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IDifferentVersionBuildings;
 import net.fununity.clashofclans.buildings.interfaces.IUpgradeDetails;
 import net.fununity.clashofclans.language.TranslationKeys;
+import net.fununity.main.api.common.util.SpecialChars;
+import net.fununity.main.api.hologram.APIHologram;
 import net.fununity.main.api.inventory.ClickAction;
 import net.fununity.main.api.inventory.CustomInventory;
 import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.item.UsefulItems;
 import net.fununity.main.api.player.APIPlayer;
+import net.fununity.main.api.util.LocationUtil;
 import net.fununity.misc.translationhandler.translations.Language;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 /**
@@ -30,6 +34,7 @@ public class GeneralBuilding {
     private Location coordinate;
     private int level;
     private double currentHP;
+    private APIHologram healthHologram;
 
     /**
      * Instantiates the class.
@@ -145,8 +150,15 @@ public class GeneralBuilding {
      * @param currentHP double - the current hp.
      * @since 0.0.1
      */
-    public void setCurrentHP(double currentHP) {
+    public void setCurrentHP(APIPlayer attacker, double currentHP) {
         this.currentHP = currentHP;
+        if (this.healthHologram != null)
+            attacker.hideHologram(healthHologram);
+        Location centerCoordinate = getCenterCoordinate();
+        centerCoordinate.setY(LocationUtil.getBlockHeight(centerCoordinate) + 2);
+        DecimalFormat format = new DecimalFormat("0.0");
+        this.healthHologram = new APIHologram(centerCoordinate, Collections.singletonList("§e" + format.format(currentHP) + "§7/§e" + getMaxHP() + " §c" + SpecialChars.HEART));
+        attacker.showHologram(this.healthHologram);
     }
 
     /**
@@ -240,8 +252,7 @@ public class GeneralBuilding {
      * @since 0.0.1
      */
     public String getId() {
-        return new StringBuilder().append(building.name()).append("-").append(level)
-                .append(this instanceof IDifferentVersionBuildings ? "-" + ((IDifferentVersionBuildings) this).getCurrentBuildingVersion() : "").toString();
+        return new StringBuilder().append(building.name()).append("-").append(level).append(this instanceof IDifferentVersionBuildings ? "-" + ((IDifferentVersionBuildings) this).getCurrentBuildingVersion() : "").toString();
     }
 
     @Override

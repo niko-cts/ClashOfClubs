@@ -1,10 +1,9 @@
 package net.fununity.clashofclans.buildings;
 
-import net.fununity.clashofclans.ClashOfClans;
+import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.classes.ConstructionBuilding;
 import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
-import net.fununity.clashofclans.buildings.interfaces.IDifferentVersionBuildings;
 import net.fununity.clashofclans.util.BuildingLocationUtil;
 import net.fununity.main.api.common.util.RandomUtil;
 import org.bukkit.Bukkit;
@@ -12,7 +11,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
-import org.yaml.snakeyaml.events.Event;
 
 import java.io.*;
 import java.util.*;
@@ -50,14 +48,14 @@ public class Schematics {
             }
         }
 
-        File file = new File(ClashOfClans.getInstance().getDataFolder().getAbsolutePath() + "/building-schematics", id + ".schematic");
+        File file = new File(ClashOfClubs.getInstance().getDataFolder().getAbsolutePath() + "/building-schematics", id + ".schematic");
         createPath();
         if (file.exists()) return false;
         try {
             if (!file.createNewFile())
                 return false;
         } catch (IOException e) {
-            ClashOfClans.getInstance().getLogger().warning(e.getMessage());
+            ClashOfClubs.getInstance().getLogger().warning(e.getMessage());
         }
 
         String newLine = System.getProperty("line.separator");
@@ -69,7 +67,7 @@ public class Schematics {
             bw.close();
             return true;
         } catch (IOException e) {
-            ClashOfClans.getInstance().getLogger().warning(e.getMessage());
+            ClashOfClubs.getInstance().getLogger().warning(e.getMessage());
         }
         return false;
     }
@@ -86,7 +84,7 @@ public class Schematics {
                     Location breakLoc = new Location(location.getWorld(), x, y, z);
                     if (breakLoc.getBlock().getType() != Material.AIR || location.getBlockY() + 2 > breakLoc.getBlockY()) {
                         allAir = false;
-                        Bukkit.getScheduler().runTask(ClashOfClans.getInstance(), () -> {
+                        Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> {
                             if (location.getBlockY() + 2 > breakLoc.getBlockY())
                                 breakLoc.getBlock().setType(RANDOM_FLOOR.get(RandomUtil.getRandomInt(RANDOM_FLOOR.size())));
                             else
@@ -130,11 +128,11 @@ public class Schematics {
             else if(array[3].contains("grass_block"))
                 blockData = RANDOM_FLOOR.get(RandomUtil.getRandomInt(RANDOM_FLOOR.size())).createBlockData();
             else
-                blockData = ClashOfClans.getInstance().getServer().createBlockData(array[3]);
+                blockData = ClashOfClubs.getInstance().getServer().createBlockData(array[3]);
 
             Block blockToChange = coordinate.clone().add(x, y, z).getBlock();
             if (!blockData.equals(blockToChange.getBlockData()))
-                Bukkit.getScheduler().runTask(ClashOfClans.getInstance(), () -> blockToChange.setBlockData(blockData));
+                Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> blockToChange.setBlockData(blockData));
         }
     }
 
@@ -146,21 +144,21 @@ public class Schematics {
     }
 
     private static List<String> getStringListFromBuilding(String id) {
-        File file = new File(ClashOfClans.getInstance().getDataFolder().getAbsolutePath() + "/building-schematics", id + ".schematic");
+        File file = new File(ClashOfClubs.getInstance().getDataFolder().getAbsolutePath() + "/building-schematics", id + ".schematic");
         List<String> list = new ArrayList<>();
         if (!file.exists()) return list;
 
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             br.lines().forEach(list::add);
         } catch (IOException e) {
-            ClashOfClans.getInstance().getLogger().warning(e.getMessage());
+            ClashOfClubs.getInstance().getLogger().warning(e.getMessage());
         }
         return list;
     }
 
 
     private static void createPath() {
-        File file = new File(ClashOfClans.getInstance().getDataFolder().getAbsolutePath() + "/building-schematics");
+        File file = new File(ClashOfClubs.getInstance().getDataFolder().getAbsolutePath() + "/building-schematics");
         if (!file.exists())
             file.mkdirs();
     }

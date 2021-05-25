@@ -1,6 +1,6 @@
 package net.fununity.clashofclans.language;
 
-import net.fununity.clashofclans.ClashOfClans;
+import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.main.api.common.messages.MessageList;
 import net.fununity.main.api.common.util.SpecialChars;
 import net.fununity.misc.translationhandler.TranslationHandler;
@@ -14,7 +14,7 @@ public class GermanMessages extends MessageList {
         // VISIT
         add(TranslationKeys.COC_COMMAND_VISIT_USAGE, "visit <User>");
         add(TranslationKeys.COC_COMMAND_VISIT_DESCRIPTION, "&7Visit another base.");
-        add(TranslationKeys.COC_COMMAND_VISIT_ILLEGAL_HASNOBUILDING, "&cThis user has not played " + ClashOfClans.getInstance().getColoredName().replace("§", "&") + " &cyet.");
+        add(TranslationKeys.COC_COMMAND_VISIT_ILLEGAL_HASNOBUILDING, "&cThis user has not played " + ClashOfClubs.getColoredName().replace("§", "&") + " &cyet.");
         add(TranslationKeys.COC_COMMAND_VISIT_ILLEGAL_NOTONLINE, "&cThis user is not online! &7Buy &6premium &7to visit offline player bases.");
         add(TranslationKeys.COC_COMMAND_VISIT_SUCCESS, "&aYou will be send to the base!");
 

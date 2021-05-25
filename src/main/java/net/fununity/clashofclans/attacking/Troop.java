@@ -1,6 +1,6 @@
 package net.fununity.clashofclans.attacking;
 
-import net.fununity.clashofclans.ClashOfClans;
+import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
 import net.fununity.clashofclans.troops.ITroop;
 import net.fununity.main.api.common.util.SpecialChars;
@@ -11,6 +11,7 @@ import net.minecraft.server.v1_16_R3.PathfinderGoalRandomLookaround;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.text.DecimalFormat;
@@ -19,7 +20,7 @@ public class Troop extends EntityCreature {
 
     private static final DecimalFormat FORMAT = new DecimalFormat("0.0");
 
-    private final AttackingManager attackingManager;
+    private final PlayerAttackingManager attackingManager;
     private final ITroop troop;
     private float health;
     private boolean moving;
@@ -28,7 +29,7 @@ public class Troop extends EntityCreature {
 
     private GeneralBuilding attackBuilding;
 
-    public Troop(AttackingManager attackingManager, ITroop troop, Location location) {
+    public Troop(PlayerAttackingManager attackingManager, ITroop troop, Location location) {
         super(troop.getEntityType(), ((CraftWorld)location.getWorld()).getHandle());
         this.attackingManager = attackingManager;
         this.troop = troop;
@@ -40,13 +41,19 @@ public class Troop extends EntityCreature {
         this.setHealth(troop.getMaxHP());
 
         this.setLocation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
+        this.getWorld().addEntity(this, CreatureSpawnEvent.SpawnReason.CUSTOM);
 
-        Bukkit.getScheduler().runTaskLater(ClashOfClans.getInstance(), () -> moving = false, 5L);
-        this.attackTimer = Bukkit.getScheduler().runTaskTimer(ClashOfClans.getInstance(), this::attackTimer, 20L, 20L);
+        Bukkit.getScheduler().runTaskLater(ClashOfClubs.getInstance(), () -> moving = false, 5L);
+        this.attackTimer = Bukkit.getScheduler().runTaskTimer(ClashOfClubs.getInstance(), this::attackTimer, 20L, 20L);
     }
 
     private void attackTimer() {
         if (moving || !attack) return;
+        if (!attackingManager.getBuildingsOnField().contains(attackBuilding)) {
+            setAttackBuilding(null);
+            setAttack(false);
+            return;
+        }
         attackingManager.attackBuilding(this, attackBuilding);
     }
 
@@ -66,6 +73,16 @@ public class Troop extends EntityCreature {
     public void die() {
         super.die();
         this.attackTimer.cancel();
+    }
+
+    @Override
+    public String toString() {
+        return "Troop{" +
+                "troop=" + troop +
+                ", health=" + health +
+                ", moving=" + moving +
+                ", attack=" + attack +
+                '}';
     }
 
     @Override
@@ -101,7 +118,7 @@ public class Troop extends EntityCreature {
         return troop;
     }
 
-    public AttackingManager getAttackingManager() {
+    public PlayerAttackingManager getAttackingManager() {
         return attackingManager;
     }
 }

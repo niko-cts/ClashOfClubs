@@ -1,6 +1,6 @@
 package net.fununity.clashofclans.buildings.classes;
 
-import net.fununity.clashofclans.ClashOfClans;
+import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.Schematics;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IDifferentVersionBuildings;
@@ -54,6 +54,7 @@ public class TroopsBuilding extends GeneralBuilding implements IDifferentVersion
      * @param building   IBuilding - the building class.
      * @param coordinate Location - the location of the building.
      * @param level      int - the level of the building.
+     * @param troopAmount ConcurrentMap<ITroop, Integer> - the current amount of troops.
      * @since 0.0.1
      */
     public TroopsBuilding(UUID uuid, IBuilding building, Location coordinate, byte rotation, int level, ConcurrentMap<ITroop, Integer> troopAmount) {
@@ -64,7 +65,7 @@ public class TroopsBuilding extends GeneralBuilding implements IDifferentVersion
     @Override
     public CustomInventory getInventory(Language language) {
         CustomInventory inventory = super.getInventory(language);
-        CustomInventory menu = new CustomInventory(getBuildingTitle(language), 9 * 5);
+        CustomInventory menu = new CustomInventory(getBuildingTitle(language), 9 * 4);
         menu.setSpecialHolder(getId() + "-" + getCoordinate().toString());
         for (int i=0;i<inventory.getInventory().getContents().length;i++)
             menu.setItem(i, inventory.getInventory().getItem(i), inventory.getClickAction(i));
@@ -163,7 +164,7 @@ public class TroopsBuilding extends GeneralBuilding implements IDifferentVersion
     public void updateVersion(boolean schematic) {
         PlayerManager.getInstance().forceUpdateInventory(this);
         if (schematic)
-            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), () -> Schematics.createBuilding(this));
+            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> Schematics.createBuilding(this));
     }
 
     /**

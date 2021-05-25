@@ -1,6 +1,6 @@
 package net.fununity.clashofclans.commands;
 
-import net.fununity.clashofclans.ClashOfClans;
+import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.DatabasePlayer;
 import net.fununity.clashofclans.player.PlayerManager;
@@ -25,7 +25,7 @@ public class VisitCommand extends APICommand {
             sendCommandUsage(apiPlayer);
             return;
         }
-        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClans.getInstance(), () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
             UUID uuid = PlayerDataUtil.getPlayerUUID(args[0]);
             if (uuid == null) {
                 apiPlayer.sendMessage(MessagePrefix.ERROR, net.fununity.main.api.messages.TranslationKeys.API_PLAYER_NOT_FOUND);
@@ -41,7 +41,7 @@ public class VisitCommand extends APICommand {
             }
             apiPlayer.sendMessage(MessagePrefix.SUCCESS, TranslationKeys.COC_COMMAND_VISIT_SUCCESS);
             PlayerManager.getInstance().getPlayer(apiPlayer.getUniqueId()).leave(apiPlayer);
-            Bukkit.getScheduler().runTask(ClashOfClans.getInstance(), () ->
+            Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () ->
                     PlayerManager.getInstance().getPlayer(uuid).visit(apiPlayer, true));
         });
     }
