@@ -65,6 +65,39 @@ public class TroopsUtil {
      */
     public static Location getAttackBuildingLocation(Troop troop) {
         GeneralBuilding attackBuilding = troop.getAttackBuilding();
+
+        Locatioon coordinate attackBuilding.getCoordinate();
+        int minX = coordinate.getBlockX();
+        int minZ = coordinate.getBlockZ();
+        int maxX = minX + attackBuilding.getBuilding().getSize()[0];
+        int maxZ = minZ + attackBuilding.getBuilding().getSize()[1];
+
+        Locatioon troopLocation = troop.getBukkitEntity().getLocation();
+        double troopX = troopLocation.getX();
+        double troopZ = troopLocation.getZ();
+
+        int southEast = Math.sqrt(NumberConversions.square(troopX - maxX) + 
+            NumberConversions.square(troopZ - minZ));
+        int southWest = Math.sqrt(NumberConversions.square(troopX - minX) + 
+            NumberConversions.square(troopZ - minZ));
+        int northEast = Math.sqrt(NumberConversions.square(troopX - maxX) + 
+            NumberConversions.square(troopZ - maxZ));
+        int northWest = Math.sqrt(NumberConversions.square(troopX - minX) + 
+            NumberConversions.square(troopZ - maxZ));
+        
+        int min = Math.min(Math.min(southEast, southWest), Math.min(northEast, northWest));
+        if (min == southEast) {
+            if (Math.min(southWest, northEast) == southWest) { // southEast, southWest
+                Vector line = new Vector(maxX - minX, 0, maxZ - minZ);
+            } else { // southEast, northEast
+                Vector line = new Vector(0, 0, maxZ - minZ);
+            }
+        } else if(min == southWest) {
+            
+        }
+
+        
+
         Vector vec = troop.getBukkitEntity().getLocation().toVector().subtract(attackBuilding.getCenterCoordinate().toVector());
         vec.multiply(Math.sqrt(NumberConversions.square(attackBuilding.getBuilding().getSize()[0] / 2.0) +
                 NumberConversions.square(attackBuilding.getBuilding().getSize()[1] / 2.0)) / vec.length() -
