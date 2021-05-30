@@ -133,33 +133,19 @@ public class TroopsBuildingManager {
         if (PlayerManager.getInstance().isCached(uuid))
             return PlayerManager.getInstance().getPlayer(uuid).getBuildings().stream().filter(b -> b instanceof TroopsBuilding).map(list -> (TroopsBuilding) list).collect(Collectors.toList());
 
-        Map<Location, ConcurrentMap<ITroop, Integer>> troopLocations = new HashMap<>();
-        try (ResultSet dataTroopsSet = DatabaseBuildings.getInstance().getTroopsDataBuildings(uuid)) {
-            while (dataTroopsSet != null && dataTroopsSet.next()) {
-                int x = dataTroopsSet.getInt("x");
-                int z = dataTroopsSet.getInt("z");
-
-                ConcurrentMap<ITroop, Integer> troops = new ConcurrentHashMap<>();
-                for (Troops troop : Troops.values())
-                    troops.put(troop, dataTroopsSet.getInt(troop.name().toLowerCase()));
-
-                troopLocations.put(new Location(ClashOfClubs.getInstance().getPlayWorld(), x, ClashOfClubs.getBaseYCoordinate(), z), troops);
-            }
-        } catch (SQLException exception) {
-            ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
-        }
-
         List<TroopsBuilding> buildings = new ArrayList<>();
-        try (ResultSet building = DatabaseBuildings.getInstance().getBuilding(troopLocations.keySet())) {
+        try (ResultSet building = DatabaseBuildings.getInstance().getSpecifiedBuilding(TroopBuildings.values())) {
             while (building != null && building.next()) {
                 int x = building.getInt("x");
                 int z = building.getInt("z");
                 Location location = new Location(ClashOfClubs.getInstance().getPlayWorld(), x, ClashOfClubs.getBaseYCoordinate(), z);
-                TroopsBuilding troopsBuilding = new TroopsBuilding(uuid, BuildingsManager.getInstance().getBuildingById(building.getString("buildingID")),
-                        location, building.getByte("rotation"), building.getInt("level"));
-                troopsBuilding.setTroopAmount(troopLocations.get(location));
 
-                buildings.add(troopsBuilding);
+                ConcurrentMap<ITroop, Integer> amount = new ConcurrentHashMap<>();
+                for (Troops troop : Troops.values())
+                    amount.put(troop, building.getInt(troop.name().toLowerCase()));
+
+                buildings.add(new TroopsBuilding(uuid, BuildingsManager.getInstance().getBuildingById(building.getString("buildingID")),
+                        location, building.getByte("rotation"), building.getInt("level"), amount));
             }
         } catch (SQLException exception) {
             ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());

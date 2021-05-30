@@ -7,6 +7,7 @@ import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
 import net.fununity.clashofclans.buildings.classes.ResourceGatherBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.buildings.interfaces.ResourceGatherLevelData;
+import net.fununity.clashofclans.buildings.list.ResourceGathererBuildings;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.player.PlayerManager;
 import org.bukkit.Bukkit;
@@ -32,22 +33,13 @@ public class ResourceTickHandler {
     public static void startTimer() {
         resourceGatherBuildingList = new ArrayList<>();
         Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
-            List<Location> locations = new ArrayList<>();
-            try (ResultSet set = DatabaseBuildings.getInstance().getResourceContainerDataBuildings()) {
+            try (ResultSet set = DatabaseBuildings.getInstance().getSpecifiedBuilding(ResourceGathererBuildings.values())) {
                 while (set != null && set.next()) {
-                    locations.add(new Location(ClashOfClubs.getInstance().getPlayWorld(), set.getInt("x"), ClashOfClubs.getBaseYCoordinate(), set.getInt("z")));
-                }
-            } catch (SQLException exception) {
-                ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
-            }
-            try (ResultSet buildingSet = DatabaseBuildings.getInstance().getBuilding(locations)) {
-                while (buildingSet != null && buildingSet.next()) {
-                    IBuilding buildingID = BuildingsManager.getInstance().getBuildingById(buildingSet.getString("buildingID"));
-                    if (!(buildingID instanceof ResourceGatherBuilding)) continue;
+                    IBuilding buildingID = BuildingsManager.getInstance().getBuildingById(set.getString("buildingID"));
 
-                    ResourceGatherBuilding resourceGatherBuilding = new ResourceGatherBuilding(UUID.fromString(buildingSet.getString("uuid")), buildingID,
-                            new Location(ClashOfClubs.getInstance().getPlayWorld(), buildingSet.getInt("x"), ClashOfClubs.getBaseYCoordinate(), buildingSet.getInt("z")), buildingSet.getByte("rotation"), buildingSet.getInt("level"), buildingSet.getDouble("amount"));
-                    resourceGatherBuildingList.add(resourceGatherBuilding);
+                    resourceGatherBuildingList.add(new ResourceGatherBuilding(UUID.fromString(set.getString("uuid")), buildingID,
+                            new Location(ClashOfClubs.getInstance().getPlayWorld(), set.getInt("x"), ClashOfClubs.getBaseYCoordinate(), set.getInt("z")),
+                            set.getByte("rotation"), set.getInt("level"), set.getDouble("amount")));
                 }
             } catch (SQLException exception) {
                 ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());

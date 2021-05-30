@@ -2,6 +2,8 @@ package net.fununity.clashofclans.attacking;
 
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
+import net.fununity.clashofclans.attacking.history.AttackHistory;
+import net.fununity.clashofclans.attacking.history.AttackHistoryDatabase;
 import net.fununity.clashofclans.buildings.Schematics;
 import net.fununity.clashofclans.buildings.classes.DefenseBuilding;
 import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
@@ -23,6 +25,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -162,12 +165,13 @@ public class PlayerAttackingManager {
             troop.die();
 
         Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
+            int elo = getElo();
             if (playerAttacker != null)
                 playerAttacker.sendMessage(TranslationKeys.COC_ATTACK_FINISHED,
-                    Arrays.asList("${name}", "${stars}", "${elo}", "${gold}", "${food}"),
-                    Arrays.asList(PlayerDataUtil.getPlayerName(defender.getUniqueId()), getStars(), "0",
-                            Math.round(resourcesGathered.get(ResourceTypes.GOLD)) + "",
-                            Math.round(resourcesGathered.get(ResourceTypes.FOOD)) + ""));
+                        Arrays.asList("${name}", "${stars}", "${elo}", "${gold}", "${food}"),
+                        Arrays.asList(PlayerDataUtil.getPlayerName(defender.getUniqueId()), getStars(), elo + "",
+                                Math.round(resourcesGathered.get(ResourceTypes.GOLD)) + "",
+                                Math.round(resourcesGathered.get(ResourceTypes.FOOD)) + ""));
 
             for (Map.Entry<ResourceTypes, Double> entry : this.resourcesGathered.entrySet()) {
                 if (entry.getValue() > 0) {
@@ -176,12 +180,21 @@ public class PlayerAttackingManager {
                 }
             }
 
-            if (playerAttacker != null)
-                Bukkit.getScheduler().runTaskLater(ClashOfClubs.getInstance(), () -> {
-                    if (playerAttacker.getPlayer().isOnline())
-                        Bukkit.dispatchCommand(playerAttacker.getPlayer(), "home");
-                }, 20*5);
+            AttackHistoryDatabase.getInstance().addNewAttack(new AttackHistory(getAttacker(), getDefender(), OffsetDateTime.now(), getStarsAmount(), elo, this.resourcesGathered, false));
+
+            AttackingHandler.removeManager(getAttacker());
+            Bukkit.getScheduler().runTaskLater(ClashOfClubs.getInstance(), () -> {
+                if (playerAttacker.getPlayer().isOnline())
+                    Bukkit.dispatchCommand(playerAttacker.getPlayer(), "home");
+            }, 20 * 5);
         });
+    }
+
+    private int getElo() {
+        int stars = getStarsAmount();
+        return buildingsOnField.stream().anyMatch(b -> b.getBuilding() == Buildings.TOWN_HALL) || stars > 2 ?
+                stars * 5 * destroyedBuildingsAmount / (getBuildingsOnField().size() + destroyedBuildingsAmount) * (attacker.getTownHallLevel() / defender.getTownHallLevel() * attacker.getExp() / defender.getExp()) :
+                stars * 5 * destroyedBuildingsAmount / (getBuildingsOnField().size() + destroyedBuildingsAmount) * (attacker.getTownHallLevel() / defender.getTownHallLevel() * attacker.getExp() / defender.getExp());
     }
 
     /**
@@ -215,17 +228,17 @@ public class PlayerAttackingManager {
         if (getBuildingsOnField().isEmpty())
             return 5;
 
-        int stars = (int) getBuildingsOnField().stream().filter(b -> b.getBuilding() == Buildings.TOWN_HALL).count() == 0 ? 1 : 0;
+        int townHallStar = (int) getBuildingsOnField().stream().filter(b -> b.getBuilding() == Buildings.TOWN_HALL).count() == 0 ? 1 : 0;
 
         int destroyPercentage = 100 * getBuildingsOnField().size() / (destroyedBuildingsAmount + getBuildingsOnField().size());
 
         if (destroyPercentage > 75)
-            return 3 + stars;
+            return 3 + townHallStar;
         if (destroyPercentage > 50)
-            return 2 + stars;
+            return 2 + townHallStar;
         if (destroyPercentage > 25)
-            return 1 + stars;
-        return stars;
+            return 1 + townHallStar;
+        return townHallStar;
     }
 
     /**
@@ -256,8 +269,8 @@ public class PlayerAttackingManager {
         for (Map.Entry<ITroop, Integer> entry : inventoryTroops.entrySet())
             items.add(new ItemBuilder(entry.getKey().getRepresentativeItem(), entry.getValue()).setName(entry.getKey().getName(apiPlayer.getLanguage())).craft());
 
-        player.getInventory().addItem(items.toArray(new ItemStack[0]));
         player.getInventory().setItem(8, new ItemBuilder(Material.BARRIER).setName("§cFinish Attack").craft());
+        player.getInventory().addItem(items.toArray(new ItemStack[0]));
         player.setCollidable(false);
         Location teleport = base.clone().add(20, 0, 20);
         teleport.setY(LocationUtil.getBlockHeight(teleport) + 1);
@@ -319,5 +332,14 @@ public class PlayerAttackingManager {
      */
     public UUID getDefender() {
         return defender.getUniqueId();
+    }
+
+    /**
+     * Get the uuid of the attacker.
+     * @return UUID - uuid of the attacker.
+     * @since 0.0.1
+     */
+    public UUID getAttacker() {
+        return attacker.getUniqueId();
     }
 }

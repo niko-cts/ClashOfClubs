@@ -133,53 +133,8 @@ public class PlayerManager {
     public CoCPlayer getPlayer(UUID uuid) {
         if (this.playersMap.containsKey(uuid))
             return this.playersMap.get(uuid);
-        CoCPlayer coCPlayer;
-        try (ResultSet data = DatabasePlayer.getInstance().getPlayerData(uuid)) {
-            if (data != null && data.next()) {
 
-                int playerX = data.getInt("x");
-                int playerZ = data.getInt("z");
-                int xp = data.getInt("xp");
-
-                Map<ResourceTypes, Integer> resourceTypes = new EnumMap<>(ResourceTypes.class);
-                for (ResourceTypes type : ResourceTypes.values())
-                    resourceTypes.put(type, 0);
-
-                resourceTypes.put(ResourceTypes.GEMS, data.getInt("gems"));
-
-                coCPlayer = new CoCPlayer(uuid, new Location(ClashOfClubs.getInstance().getPlayWorld(), playerX, ClashOfClubs.getBaseYCoordinate(), playerZ), resourceTypes, xp);
-            } else
-                return null;
-        } catch (SQLException exception) {
-            ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
-            return null;
-        }
-
-
-        Map<Location, Double> amountContainers = new HashMap<>();
-        try (ResultSet dataBuildingsSet = DatabaseBuildings.getInstance().getResourceContainerDataBuildings(uuid)) {
-            while (dataBuildingsSet != null && dataBuildingsSet.next()) {
-                int x = dataBuildingsSet.getInt("x");
-                int z = dataBuildingsSet.getInt("z");
-                amountContainers.put(new Location(ClashOfClubs.getInstance().getPlayWorld(), x, ClashOfClubs.getBaseYCoordinate(), z), dataBuildingsSet.getDouble("amount"));
-            }
-        } catch (SQLException exception) {
-            ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
-        }
-
-        Map<Location, ConcurrentMap<ITroop, Integer>> troopsAmount = new HashMap<>();
-        try (ResultSet dataTroopsSet = DatabaseBuildings.getInstance().getTroopsDataBuildings(uuid)) {
-            while (dataTroopsSet != null && dataTroopsSet.next()) {
-                ConcurrentMap<ITroop, Integer> troops = new ConcurrentHashMap<>();
-                for (Troops troop : Troops.values())
-                    troops.put(troop, dataTroopsSet.getInt(troop.name().toLowerCase()));
-                int x = dataTroopsSet.getInt("x");
-                int z = dataTroopsSet.getInt("z");
-                troopsAmount.put(new Location(ClashOfClubs.getInstance().getPlayWorld(), x, ClashOfClubs.getBaseYCoordinate(), z), troops);
-            }
-        } catch (SQLException exception) {
-            ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
-        }
+        CoCPlayer coCPlayer = new CoCPlayer(getDataPlayer(uuid));
 
         try (ResultSet set = DatabaseBuildings.getInstance().getBuildings(uuid)) {
             while (set != null && set.next()) {
@@ -187,9 +142,12 @@ public class PlayerManager {
                 Location location = new Location(ClashOfClubs.getInstance().getPlayWorld(), set.getInt("x"), ClashOfClubs.getBaseYCoordinate(), set.getInt("z"));
                 if (buildingID instanceof IResourceContainerBuilding) {
                     coCPlayer.getBuildings().add(BuildingsManager.getInstance()
-                            .getBuildingInstance(uuid, buildingID, location, set.getByte("rotation"), set.getInt("level"), amountContainers.getOrDefault(location, 0.0)));
+                            .getBuildingInstance(uuid, buildingID, location, set.getByte("rotation"), set.getInt("level"), set.getInt("amount")));
                 } else if (buildingID instanceof ITroopBuilding) {
-                    coCPlayer.getBuildings().add(BuildingsManager.getInstance().getBuildingInstance(uuid, buildingID, location, set.getByte("rotation"), set.getInt("level"), troopsAmount.getOrDefault(location, new ConcurrentHashMap<>())));
+                    ConcurrentMap<ITroop, Integer> troops = new ConcurrentHashMap<>();
+                    for (Troops troop : Troops.values())
+                        troops.put(troop, set.getInt(troop.name().toLowerCase()));
+                    coCPlayer.getBuildings().add(BuildingsManager.getInstance().getBuildingInstance(uuid, buildingID, location, set.getByte("rotation"), set.getInt("level"), troops));
                 } else {
                     coCPlayer.getBuildings().add(BuildingsManager.getInstance()
                             .getBuildingInstance(uuid, buildingID, location, set.getByte("rotation"), set.getInt("level")));
@@ -215,6 +173,36 @@ public class PlayerManager {
             ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
         }
         return coCPlayer;
+    }
+
+    /**
+     * Get the data player instance.
+     * @param uuid UUID - uuid of player.
+     * @return {@link CoCDataPlayer} - the data of a player.
+     * @since 0.0.1
+     */
+    public CoCDataPlayer getDataPlayer(UUID uuid) {
+        if (playersMap.containsKey(uuid))
+            return playersMap.get(uuid);
+
+        try (ResultSet data = DatabasePlayer.getInstance().getPlayerData(uuid)) {
+            if (data != null && data.next()) {
+
+                int playerX = data.getInt("x");
+                int playerZ = data.getInt("z");
+                int xp = data.getInt("xp");
+                int elo = data.getInt("elo");
+
+                Map<ResourceTypes, Integer> resourceTypes = new EnumMap<>(ResourceTypes.class);
+                for (ResourceTypes type : ResourceTypes.values())
+                    resourceTypes.put(type, data.getInt(type.name().toLowerCase()));
+
+                return new CoCDataPlayer(uuid, new Location(ClashOfClubs.getInstance().getPlayWorld(), playerX, ClashOfClubs.getBaseYCoordinate(), playerZ), resourceTypes, xp, elo);
+            }
+        } catch (SQLException exception) {
+            ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
+        }
+        return null;
     }
 
     public boolean isCached(UUID uuid) {

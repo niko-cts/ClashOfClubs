@@ -120,6 +120,10 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_GUI_CONSTRUCTION_BUILDING_NAME, "&6Buildings menu");
         add(TranslationKeys.COC_GUI_CONSTRUCTION_BUILDING_LORE, "&7Building cost: &e${cost} ${type};&7Amounts of building;&7with town hall level ${level}: &e${amount}&7/&e${max}");
 
+        // ATTACK GUI
+        add(TranslationKeys.COC_GUI_ATTACK_NAME, "&6Start attack");
+        add(TranslationKeys.COC_GUI_ATTACKHISTORY_NAME, "&eView attack history");
+
 
         // TROOPS
         add(TranslationKeys.COC_GUI_TROOPS_CONTAINER_NAME, "&6Container");
@@ -133,6 +137,18 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_GUI_TRAIN_LORE, "&7Barracks minimum level: &e${minlevel};&7Train duration: &e${duration} seconds");
         add(TranslationKeys.COC_GUI_TRAIN_RELOAD, "&eReload this menu");
 
+        // ATTACK HISTORY GUI
+        add(TranslationKeys.COC_GUI_ATTACKHISTORY_TITLE, "&6Attack history");
+        add(TranslationKeys.COC_GUI_ATTACKHISTORY_NEW_NAME, "&6New &cAttacks&6!");
+        add(TranslationKeys.COC_GUI_ATTACKHISTORY_NEW_LORE, "${name}&7: &6${stars} Stars &7" + SpecialChars.DOUBLE_ARROW_RIGHT + " &c${elo} elo, &d${food} Food &7and &e${gold} Gold");
+        add(TranslationKeys.COC_GUI_ATTACKHISTORY_ATTACKS_NAME, "&cSee attacks");
+        add(TranslationKeys.COC_GUI_ATTACKHISTORY_ATTACKS_LORE, "&7Look up all of your attacks!");
+        add(TranslationKeys.COC_GUI_ATTACKHISTORY_DEFENSE_NAME, "&6See defenses");
+        add(TranslationKeys.COC_GUI_ATTACKHISTORY_DEFENSE_LORE, "&7Look up all of your defenses!");
+        add(TranslationKeys.COC_GUI_ATTACKHISTORY_ALL_ATTACK_TITLE, "&6CoC - All attacks");
+        add(TranslationKeys.COC_GUI_ATTACKHISTORY_ALL_DEFENSE_TITLE, "&6CoC - All defenses");
+        add(TranslationKeys.COC_GUI_ATTACKHISTORY_ALL_ATTACK_LORE, "&7Attacked at ${date};&7Stars: &6${stars};&7Elo: &c${elo}; ;&7Food gained: &d${food};&7Gold gained: &e${gold}");
+        add(TranslationKeys.COC_GUI_ATTACKHISTORY_ALL_DEFENSE_LORE, "&7Defensed at ${date};&7Stars: &6${stars};&7Elo loss: &c${elo}; ;&7Food lost: &d${food};&7Gold lost: &e${gold}");
 
 
         // TROOPS
@@ -170,6 +186,15 @@ public class EnglishMessages extends MessageList {
                         "&8------{ ${name} }--------\n" +
                         "\n" +
                         "&7You will be send back in 5 seconds...");
+        add(TranslationKeys.COC_ATTACK_START_ATTACKING, "&aThe attacking scenery was prepared! You will be send to the base.");
+        add(TranslationKeys.COC_ATTACK_REQUEST_SEND, "&aAttacking base set! You will be send to it in a few moments.");
+        add(TranslationKeys.COC_ATTACK_NO_BASES_FOUND, "&cThere was no base found.");
+        add(TranslationKeys.COC_ATTACK_BASE_FOUND, "&aA new base was found...");
+        add(TranslationKeys.COC_ATTACK_BASE_UNDERATTACK, "&eYour base is currently under attack! &7You need to wait until the attack is finished.");
+        add(TranslationKeys.COC_ATTACK_LOOKING_FOR_BASES, "&7Looking for bases to attack, please wait...");
+        add(TranslationKeys.COC_ATTACK_ITEM_NEXT, "&6Next base");
+        add(TranslationKeys.COC_ATTACK_ITEM_ACCEPT, "&aAttack this base");
+        add(TranslationKeys.COC_ATTACK_ITEM_CANCEL, "&cCancel search");
 
         insertIntoLanguage();
     }

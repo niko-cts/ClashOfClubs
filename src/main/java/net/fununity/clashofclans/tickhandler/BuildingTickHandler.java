@@ -31,14 +31,9 @@ public class BuildingTickHandler {
             try (ResultSet set = DatabaseBuildings.getInstance().getConstructionBuildings()) {
                 while (set != null && set.next()) {
                     Location location = new Location(ClashOfClubs.getInstance().getPlayWorld(), set.getInt("x"), 100, set.getInt("z"));
-                    try (ResultSet building = DatabaseBuildings.getInstance().getBuilding(location)) {
-                        if  (building != null && building.next()) {
-                            GeneralBuilding generalBuilding = new GeneralBuilding(UUID.fromString(set.getString("uuid")), BuildingsManager.getInstance().getBuildingById(building.getString("buildingID")), location, building.getByte("rotation"), building.getInt("level"));
-                            constructionBuildingList.add(new ConstructionBuilding(generalBuilding, (int) ChronoUnit.SECONDS.between(OffsetDateTime.now(), OffsetDateTime.parse(set.getString("date")))));
-                        }
-                    } catch (SQLException exception) {
-                        ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
-                    }
+                    constructionBuildingList.add(new ConstructionBuilding(new GeneralBuilding(UUID.fromString(set.getString("uuid")),
+                            BuildingsManager.getInstance().getBuildingById(set.getString("buildingID")), location, set.getByte("rotation"), set.getInt("level")),
+                            (int) ChronoUnit.SECONDS.between(OffsetDateTime.now(), OffsetDateTime.parse(set.getString("date")))));
                 }
             } catch (SQLException exception) {
                 ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());

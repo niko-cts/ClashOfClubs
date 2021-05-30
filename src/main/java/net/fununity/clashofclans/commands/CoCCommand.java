@@ -14,7 +14,9 @@ import net.fununity.main.api.util.LocationUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 public class CoCCommand extends APICommand {
 
@@ -45,7 +47,7 @@ public class CoCCommand extends APICommand {
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("attack")) {
                 apiPlayer.sendRawMessage("§aLoading please wait..");
-                Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), ()->{
+                Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
                     PlayerAttackingManager attackInstance = AttackingHandler.createAttackingInstance(apiPlayer.getUniqueId(), UUID.fromString("cf177f71-cd90-40c3-a5b4-d648c2e3b447"));
                     Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> attackInstance.playerJoined(apiPlayer));
                 });
@@ -56,7 +58,7 @@ public class CoCCommand extends APICommand {
             return;
         }
 
-        if(SCHEMATIC_SETTER.contains(apiPlayer.getUniqueId()))
+        if (SCHEMATIC_SETTER.contains(apiPlayer.getUniqueId()))
             SCHEMATIC_SETTER.remove(apiPlayer.getUniqueId());
         else
             SCHEMATIC_SETTER.add(apiPlayer.getUniqueId());

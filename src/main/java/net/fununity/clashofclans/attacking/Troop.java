@@ -66,7 +66,8 @@ public class Troop extends EntityCreature {
     @Override
     public void setHealth(float health) {
         this.health = health;
-        this.setCustomName(new ChatComponentText(ChatColor.RED + FORMAT.format(health) + SpecialChars.HEART));
+        if (health >= 0)
+            this.setCustomName(new ChatComponentText(ChatColor.RED + FORMAT.format(health) + SpecialChars.HEART));
     }
 
     @Override

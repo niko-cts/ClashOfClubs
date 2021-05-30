@@ -4,6 +4,7 @@ import net.fununity.clashofclans.buildings.classes.ConstructionBuilding;
 import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
 import net.fununity.clashofclans.buildings.classes.ResourceContainerBuilding;
 import net.fununity.clashofclans.buildings.classes.TroopsBuilding;
+import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.troops.ITroop;
 import net.fununity.clashofclans.troops.Troops;
 import net.fununity.misc.databasehandler.DatabaseHandler;
@@ -37,9 +38,16 @@ public class DatabaseBuildings {
 
     private static final String COL_INT = "INT NOT NULL";
     private static final String TABLE = "game_coc_building";
-    private static final String TABLE_CONTAINER = "game_coc_building_container";
+    public static final String TABLE_CONTAINER = "game_coc_building_container";
     private static final String TABLE_TROOPS = "game_coc_building_troops";
     private static final String TABLE_CONSTRUCTION = "game_coc_building_constructions";
+    private static final String INNER_JOIN_ON_ALL_BUILDINGS = new StringBuilder()
+                .append("LEFT JOIN ").append(TABLE_CONTAINER)
+                .append(" ON ").append(TABLE).append(".x=").append(TABLE_CONTAINER).append(".x AND ")
+                .append(TABLE).append(".z=").append(TABLE_CONTAINER).append(".z ")
+                .append("LEFT JOIN ").append(TABLE_TROOPS)
+                .append(" ON ").append(TABLE).append(".x=").append(TABLE_TROOPS).append(".x AND ")
+                .append(TABLE).append(".z=").append(TABLE_TROOPS).append(".z ").toString();
 
     private final DatabaseHandler databaseHandler;
 
@@ -54,8 +62,8 @@ public class DatabaseBuildings {
                     Arrays.asList("VARCHAR(36) NOT NULL", "VARCHAR(36) NOT NULL", COL_INT + " default 1", COL_INT, COL_INT, "TINY" + COL_INT + " default 0"));
         if (!this.databaseHandler.doesTableExist(TABLE_CONTAINER))
             this.databaseHandler.createTable(TABLE_CONTAINER,
-                    Arrays.asList("uuid", "x", "z", "amount"),
-                    Arrays.asList("VARCHAR(36) NOT NULL", COL_INT, COL_INT, "DOUBLE NOT NULL default 0"));
+                    Arrays.asList("uuid", "x", "z", "amount", "type"),
+                    Arrays.asList("VARCHAR(36) NOT NULL", COL_INT, COL_INT, "DOUBLE NOT NULL default 0", "VARCHAR(36) NOT NULL"));
         if (!this.databaseHandler.doesTableExist(TABLE_TROOPS)) {
             List<String> column = new ArrayList<>(Arrays.asList("uuid", "x", "z"));
             List<String> properties = new ArrayList<>(Arrays.asList("VARCHAR(36) NOT NULL", COL_INT, COL_INT));
@@ -83,8 +91,8 @@ public class DatabaseBuildings {
                 Arrays.asList("string", "string", "", "", "", ""));
         if (building instanceof ResourceContainerBuilding)
            this.databaseHandler.insertIntoTable(TABLE_CONTAINER,
-                   Arrays.asList(uuid.toString(), building.getCoordinate().getBlockX()+"", building.getCoordinate().getBlockZ()+"", ((ResourceContainerBuilding) building).getAmount() + ""),
-                   Arrays.asList("string", "", "", ""));
+                   Arrays.asList(uuid.toString(), building.getCoordinate().getBlockX()+"", building.getCoordinate().getBlockZ()+"", ((ResourceContainerBuilding) building).getAmount() + "", ((ResourceContainerBuilding) building).getContainingResourceType().name()),
+                   Arrays.asList("string", "", "", "", "string"));
         if (building instanceof TroopsBuilding) {
             List<String> column = new ArrayList<>(Arrays.asList(uuid.toString(), building.getCoordinate().getBlockX() + "", building.getCoordinate().getBlockZ() + ""));
             List<String> properties = new ArrayList<>(Arrays.asList("string", "", ""));
@@ -98,36 +106,32 @@ public class DatabaseBuildings {
 
 
     /**
-     * Get the building from the location.
-     * @param location Location - of the building.
-     * @return ResultSet - the result set with the buildingID and level.
-     * @since 0.0.1
-     */
-    public ResultSet getBuilding(Location location) {
-        return getBuilding(Collections.singletonList(location));
-    }
-
-    /**
      * Get the buildings from the locations.
-     * @param locations List<Location> - of the buildings.
+     * @param buildings IBuilding[] - of the buildings.
      * @return ResultSet - the result set with the buildingID and level.
      * @since 0.0.1
      */
-    public ResultSet getBuilding(Collection<Location> locations) {
-        if (locations.isEmpty())
-            return null;
-        StringBuilder builder = new StringBuilder().append("WHERE ");
-        Iterator<Location> iterator = locations.iterator();
+    public ResultSet getSpecifiedBuilding(IBuilding[] buildings) {
+        List<String> columns = new ArrayList<>(Arrays.asList("buildingID", "level", TABLE + ".x", TABLE + ".z", "rotation", "amount"));
+        for (Troops troops : Troops.values())
+            columns.add(troops.name().toLowerCase());
+
+        StringBuilder builder = new StringBuilder().append(INNER_JOIN_ON_ALL_BUILDINGS);
+
+        builder.append("WHERE buildingID in(");
+
+        Iterator<IBuilding> iterator = Arrays.asList(buildings).iterator();
 
         while (iterator.hasNext()) {
-            Location location = iterator.next();
-            builder.append("x=").append(location.getBlockX()).append(" AND z=").append(location.getBlockZ());
+            IBuilding building = iterator.next();
+            builder.append("'").append(building.getNameKey()).append("'");
             if (iterator.hasNext())
-                builder.append(" OR ");
+                builder.append(", ");
         }
 
-        builder.append(" LIMIT ").append(locations.size());
-        return this.databaseHandler.select(TABLE, Collections.singletonList("*"), builder.toString());
+        builder.append(")");
+
+        return this.databaseHandler.select(TABLE, columns, builder.toString());
     }
 
     /**
@@ -227,17 +231,14 @@ public class DatabaseBuildings {
      * @since 0.0.1
      */
     public ResultSet getBuildings(UUID uuid) {
-        return this.databaseHandler.select(TABLE, Collections.singletonList("*"), "WHERE uuid='" + uuid + "'");
-    }
+        List<String> columns = new ArrayList<>(Arrays.asList("buildingID", "level", TABLE + ".x", TABLE + ".z", "rotation", "amount"));
+        for (Troops troops : Troops.values())
+            columns.add(troops.name().toLowerCase());
 
-    /**
-     * Get all container data buildings of the uuid.
-     * @param uuid UUID - uuid of player.
-     * @return ResultSet - the result set.
-     * @since 0.0.1
-     */
-    public ResultSet getResourceContainerDataBuildings(UUID uuid) {
-        return this.databaseHandler.select(TABLE_CONTAINER, Collections.singletonList("*"), "WHERE uuid='" + uuid + "'");
+        StringBuilder whereClause = new StringBuilder().append(INNER_JOIN_ON_ALL_BUILDINGS)
+                .append("WHERE ").append(TABLE).append(".uuid='").append(uuid).append("'");
+
+        return this.databaseHandler.select(TABLE, columns, whereClause.toString());
     }
 
     /**
@@ -248,15 +249,6 @@ public class DatabaseBuildings {
      */
     public ResultSet getTroopsDataBuildings(UUID uuid) {
         return this.databaseHandler.select(TABLE_TROOPS, Collections.singletonList("*"), "WHERE uuid='" + uuid + "'");
-    }
-
-    /**
-     * Get all container data buildings.
-     * @return ResultSet - the result set.
-     * @since 0.0.1
-     */
-    public ResultSet getResourceContainerDataBuildings() {
-        return this.databaseHandler.select(TABLE_CONTAINER, Collections.singletonList("*"), "");
     }
 
     /**
@@ -277,10 +269,24 @@ public class DatabaseBuildings {
         this.databaseHandler.delete(TABLE_CONSTRUCTION, "WHERE x=" + location.getBlockX() + " AND z=" + location.getBlockZ() + " LIMIT 1");
     }
 
+    /**
+     * Get all construction buildings.
+     * @return ResultSet - the result set.
+     * @since 0.0.1
+     */
     public ResultSet getConstructionBuildings() {
-        return this.databaseHandler.select(TABLE_CONSTRUCTION, Collections.singletonList("*"), "");
+        return this.databaseHandler.select(TABLE_CONSTRUCTION,
+                Arrays.asList(TABLE_CONSTRUCTION + ".uuid", TABLE_CONSTRUCTION + ".x", TABLE_CONSTRUCTION + ".z", "date", "buildingID", "rotation", "level"),
+                new StringBuilder().append("LEFT JOIN ").append(TABLE).append(" ON ").append(TABLE_CONSTRUCTION).append(".x=").append(TABLE).append(".x AND ")
+                        .append(TABLE_CONSTRUCTION).append(".z=").append(TABLE).append(".z").toString());
     }
 
+    /**
+     * Get all construction buildings form one player.
+     * @param uuid UUID - the uuid of the player.
+     * @return ResultSet - the result set.
+     * @since 0.0.1
+     */
     public ResultSet getConstructionBuildings(UUID uuid) {
         return this.databaseHandler.select(TABLE_CONSTRUCTION, Collections.singletonList("*"), "WHERE uuid='" + uuid + "'");
     }

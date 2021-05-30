@@ -34,7 +34,6 @@ public class DefenseBuildingsAttacker {
         this.attackingManager = attackingManager;
         this.defenseBuildings = new HashMap<>();
         this.attackingTroop = new HashMap<>();
-        System.out.println(defenseBuildingList);
         for (DefenseBuilding defenseBuilding : defenseBuildingList) {
             BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimer(ClashOfClubs.getInstance(), () ->
                     checkBuildingAttack(defenseBuilding), defenseBuilding.getBuilding().getAttackSpeed(), defenseBuilding.getBuilding().getAttackSpeed());

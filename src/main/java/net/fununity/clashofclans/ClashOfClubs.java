@@ -1,5 +1,7 @@
 package net.fununity.clashofclans;
 
+import net.fununity.clashofclans.attacking.cloud.CloudAttackingListener;
+import net.fununity.clashofclans.attacking.cloud.CloudNormalListener;
 import net.fununity.clashofclans.attacking.listener.AttackingJoinListener;
 import net.fununity.clashofclans.attacking.listener.AttackingPlayerInteractListener;
 import net.fununity.clashofclans.attacking.listener.AttackingQuitListener;
@@ -16,6 +18,7 @@ import net.fununity.clashofclans.listener.QuitListener;
 import net.fununity.clashofclans.tickhandler.BuildingTickHandler;
 import net.fununity.clashofclans.tickhandler.ResourceTickHandler;
 import net.fununity.clashofclans.tickhandler.TroopsTickHandler;
+import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.util.RegisterUtil;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -49,6 +52,12 @@ public class ClashOfClubs extends JavaPlugin {
             WorldCreator attackWorld = new WorldCreator("attackWorld");
             attackWorld.type(WorldType.FLAT);
             this.attackWorld = getServer().createWorld(attackWorld);
+        }
+
+        if (getConfig().getBoolean("attacking-server")) {
+            FunUnityAPI.getInstance().getCloudClient().getCloudEventManager().addCloudListener(new CloudAttackingListener());
+        } else {
+            FunUnityAPI.getInstance().getCloudClient().getCloudEventManager().addCloudListener(new CloudNormalListener());
         }
 
         new EnglishMessages();

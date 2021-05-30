@@ -2,10 +2,8 @@ package net.fununity.clashofclans.attacking;
 
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.Schematics;
-import net.fununity.clashofclans.buildings.classes.DefenseBuilding;
 import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
 import net.fununity.clashofclans.buildings.classes.ResourceContainerBuilding;
-import net.fununity.clashofclans.buildings.classes.TroopsBuilding;
 import net.fununity.clashofclans.buildings.list.DecorativeBuildings;
 import net.fununity.clashofclans.buildings.list.RandomWorldBuildings;
 import net.fununity.clashofclans.player.CoCPlayer;
@@ -63,11 +61,12 @@ public class AttackingHandler {
      */
     public static PlayerAttackingManager createAttackingInstance(UUID attacker, UUID defender) {
         int id = 0;
-        for (; id < 10000; id++) {
-            if (!USED_IDS.contains(id))
+        for (; id < 1000; id++) {
+            if (!USED_IDS.contains(id)) {
+                USED_IDS.add(id);
                 break;
+            }
         }
-        USED_IDS.add(id);
 
         CoCPlayer attackingCoC = PlayerManager.getInstance().getPlayer(attacker);
         CoCPlayer defense = PlayerManager.getInstance().getPlayer(defender);
@@ -102,5 +101,14 @@ public class AttackingHandler {
         PlayerAttackingManager attackingManager = new PlayerAttackingManager(playerBase, defense, attackingCoC, fakeBuildings);
         MANAGER_MAP.put(attacker, attackingManager);
         return attackingManager;
+    }
+
+    /**
+     * Removes a manager from the list.
+     * @param uuid UUID - the uuid of the attacker
+     * @since 0.0.1
+     */
+    public static void removeManager(UUID uuid) {
+        MANAGER_MAP.remove(uuid);
     }
 }

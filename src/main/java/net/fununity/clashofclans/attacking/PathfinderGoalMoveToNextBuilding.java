@@ -1,5 +1,6 @@
 package net.fununity.clashofclans.attacking;
 
+import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
 import net.fununity.clashofclans.buildings.list.WallBuildings;
 import net.minecraft.server.v1_16_R3.PathfinderGoal;
@@ -25,7 +26,7 @@ public class PathfinderGoalMoveToNextBuilding extends PathfinderGoal {
             return false;
 
         if (troop.getAttackBuilding() != null) {
-            if (!TroopsUtil.canTroopAttackBuilding(troop, troop.getAttackBuilding())) {
+            if (!TroopsUtil.canTroopAttackBuilding(troop)) {
                 GeneralBuilding blockingBuilding = TroopsUtil.getBlockingBuilding(troop);
                 troop.setAttackBuilding(blockingBuilding);
                 return blockingBuilding != null;
@@ -52,7 +53,7 @@ public class PathfinderGoalMoveToNextBuilding extends PathfinderGoal {
     @Override
     public void c() {
         Location location = TroopsUtil.getAttackBuildingLocation(troop);
-        System.out.println("Walking to " + location + " (" + troop.getAttackBuilding().getBuilding() + ")");
+        ClashOfClubs.getInstance().getLogger().info(troop + " walking to " + location + " (" + troop.getAttackBuilding().getBuilding() + ")");
         this.troop.getNavigation().a(location.getX(), location.getY(), location.getZ(), STANDARD_SPEED);
     }
 

@@ -1,9 +1,11 @@
 package net.fununity.clashofclans.listener;
 
 import net.fununity.clashofclans.ClashOfClubs;
+import net.fununity.clashofclans.attacking.MatchmakingSystem;
 import net.fununity.clashofclans.buildings.BuildingsManager;
 import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
 import net.fununity.clashofclans.commands.CoCCommand;
+import net.fununity.clashofclans.gui.AttackHistoryGUI;
 import net.fununity.clashofclans.gui.BuildingBuyGUI;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.CoCPlayer;
@@ -22,6 +24,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,7 +36,8 @@ import java.util.List;
 public class PlayerInteractListener implements Listener {
 
     private static final Location[] SCHEMATIC_SAVER = new Location[2];
-    private static final List<Material> WHITELIST_MATERIALS = Arrays.asList(Material.BARRIER, Material.NETHER_STAR, Material.CLOCK, Material.PISTON, Material.STICK);
+    private static final List<Material> WHITELIST_MATERIALS = Arrays.asList(Material.BARRIER, Material.NETHER_STAR, Material.CLOCK,
+            Material.PISTON, Material.STICK, Material.IRON_SWORD, Material.PAPER);
 
     /**
      * Will be called, when a player interacts.
@@ -58,13 +62,23 @@ public class PlayerInteractListener implements Listener {
             return;
         }
 
+        if (MatchmakingSystem.getInstance().getAttackWatcher().containsKey(event.getPlayer().getUniqueId())) {
+            if (handMaterial == Material.BARRIER) {
+                MatchmakingSystem.getInstance().cancelWatching(FunUnityAPI.getInstance().getPlayerHandler().getPlayer(event.getPlayer()));
+            } else if (event.getPlayer().getInventory().getHeldItemSlot() == 0) {
+                MatchmakingSystem.getInstance().startAttack(FunUnityAPI.getInstance().getPlayerHandler().getPlayer(event.getPlayer()));
+            } else if(event.getPlayer().getInventory().getHeldItemSlot() == 1) {
+                MatchmakingSystem.getInstance().startMatchmakingLooking(FunUnityAPI.getInstance().getPlayerHandler().getPlayer(event.getPlayer()),
+                        MatchmakingSystem.getInstance().getVisitedAttacks().get(event.getPlayer().getUniqueId()));
+            }
+            return;
+        }
 
         if (!WHITELIST_MATERIALS.contains(handMaterial)) {
             if (event.getAction() != Action.LEFT_CLICK_BLOCK && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 
             CoCPlayer player = PlayerManager.getInstance().getPlayer(event.getPlayer().getUniqueId());
             if (player == null) return;
-
 
             GeneralBuilding clickedBuilding = player.getBuildings().stream()
                     .filter(b -> LocationUtil.isBetween(b.getCoordinate(), event.getClickedBlock().getLocation(),
@@ -81,26 +95,31 @@ public class PlayerInteractListener implements Listener {
         CoCPlayer player = PlayerManager.getInstance().getPlayer(event.getPlayer().getUniqueId());
         if (player == null) return;
 
-        if (handMaterial.equals(Material.BARRIER)) {
-            BuildingsManager.getInstance().quitEditorMode(player);
-            return;
-        }
-
-        if (handMaterial.equals(Material.CLOCK)) {
-            if (player.getTownHallLevel() == 0) {
-                FunUnityAPI.getInstance().getActionbarManager().addActionbar(player.getUniqueId(), new ActionbarMessage(TranslationKeys.COC_PLAYER_REPAIR_TOWNHALL_FIRST));
+        switch (handMaterial) {
+            case BARRIER:
+                BuildingsManager.getInstance().quitEditorMode(player);
                 return;
-            }
-            BuildingBuyGUI.open(player);
-            return;
-        }
-
-        if (handMaterial.equals(Material.STICK)) {
-            BuildingLocationUtil.removeBuildingGround(event.getPlayer(), player.getBuildingMode());
-            int rotate = (byte) player.getBuildingMode()[2];
-            player.setBuildingMode(player.getBuildingMode()[0], player.getBuildingMode()[1], rotate == 3 ? (byte) 0 : (byte) (rotate + 1));
-            BuildingLocationUtil.createFakeGround(event.getPlayer(), player);
-            return;
+            case CLOCK:
+                if (player.getTownHallLevel() == 0) {
+                    FunUnityAPI.getInstance().getActionbarManager().addActionbar(player.getUniqueId(), new ActionbarMessage(TranslationKeys.COC_PLAYER_REPAIR_TOWNHALL_FIRST));
+                    return;
+                }
+                BuildingBuyGUI.open(player);
+                return;
+            case STICK:
+                BuildingLocationUtil.removeBuildingGround(event.getPlayer(), player.getBuildingMode());
+                int rotate = (byte) player.getBuildingMode()[2];
+                player.setBuildingMode(player.getBuildingMode()[0], player.getBuildingMode()[1], rotate == 3 ? (byte) 0 : (byte) (rotate + 1));
+                BuildingLocationUtil.createFakeGround(event.getPlayer(), player);
+                return;
+            case PAPER:
+                AttackHistoryGUI.openHistory(FunUnityAPI.getInstance().getPlayerHandler().getPlayer(event.getPlayer()));
+                return;
+            case IRON_SWORD:
+                MatchmakingSystem.getInstance().startMatchmakingLooking(FunUnityAPI.getInstance().getPlayerHandler().getPlayer(event.getPlayer()), new ArrayList<>());
+                return;
+            default:
+                break;
         }
 
         Block targetBlock = event.getClickedBlock();

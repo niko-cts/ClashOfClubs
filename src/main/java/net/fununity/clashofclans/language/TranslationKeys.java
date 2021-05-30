@@ -71,10 +71,27 @@ public class TranslationKeys {
     public static final String COC_GUI_CONSTRUCTION_BUILDING_NAME = "coc.gui.construction.building.name";
     public static final String COC_GUI_CONSTRUCTION_BUILDING_LORE = "coc.gui.construction.building.lore";
 
+    public static final String COC_GUI_ATTACK_NAME = "coc.gui.attack.name";
+    public static final String COC_GUI_ATTACKHISTORY_NAME = "coc.gui.attackhistory.name";
+
+
     public static final String COC_GUI_TROOPS_CONTAINER_NAME = "coc.building.troops.container.name";
     public static final String COC_GUI_TROOPS_CONTAINER_LORE = "coc.building.troops.container.lore";
     public static final String COC_GUI_TROOPS_TRAIN_NAME = "coc.building.troops.train.name";
     public static final String COC_GUI_TROOPS_TRAIN_LORE = "coc.building.troops.train.lore";
+
+    // ATTACK HISTORY GUI
+    public static final String COC_GUI_ATTACKHISTORY_TITLE = "coc.gui.attackhistory.title";
+    public static final String COC_GUI_ATTACKHISTORY_NEW_NAME = "coc.gui.attackhistory.new.name";
+    public static final String COC_GUI_ATTACKHISTORY_NEW_LORE = "coc.gui.attackhistory.new.lore";
+    public static final String COC_GUI_ATTACKHISTORY_ATTACKS_NAME = "coc.gui.attackhistory.attacks.name";
+    public static final String COC_GUI_ATTACKHISTORY_ATTACKS_LORE = "coc.gui.attackhistory.attacks.lore";
+    public static final String COC_GUI_ATTACKHISTORY_DEFENSE_NAME = "coc.gui.attackhistory.defense.name";
+    public static final String COC_GUI_ATTACKHISTORY_DEFENSE_LORE = "coc.gui.attackhistory.defense.lore";
+    public static final String COC_GUI_ATTACKHISTORY_ALL_ATTACK_TITLE = "coc.gui.attackhistory.all.attack.title";
+    public static final String COC_GUI_ATTACKHISTORY_ALL_DEFENSE_TITLE = "coc.gui.attackhistory.all.defense.title";
+    public static final String COC_GUI_ATTACKHISTORY_ALL_ATTACK_LORE = "coc.gui.attackhistory.all.attack.lore";
+    public static final String COC_GUI_ATTACKHISTORY_ALL_DEFENSE_LORE = "coc.gui.attackhistory.all.defense.lore";
 
     // CONTAINER
     public static final String COC_GUI_CONTAINER_NAME = "coc.building.container.name";

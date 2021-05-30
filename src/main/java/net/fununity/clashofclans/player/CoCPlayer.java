@@ -12,6 +12,7 @@ import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.player.APIPlayer;
 import net.fununity.main.api.util.LocationUtil;
+import net.fununity.misc.translationhandler.translations.Language;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -23,35 +24,27 @@ import java.util.stream.Collectors;
 
 /**
  * The player class of clash of clans.
+ * This class stores buildings, visitors and building mode according to the owner.
+ * @see CoCDataPlayer
  * @author Niko
  * @since 0.0.1
  */
-public class CoCPlayer {
+public class CoCPlayer extends CoCDataPlayer {
 
-    private final UUID uuid;
     private final List<APIPlayer> visitors;
-    private final Location location;
-    private final Map<ResourceTypes, Integer> resourceMap;
     private final List<GeneralBuilding> buildings;
     private final Object[] buildingMode;
-    private int xp;
 
     /**
      * Instantiates the class.
-     * @param uuid UUID - uuid of the player.
-     * @param location Location - player base location.
-     * @param resourceMap Map<ResourceTypes, Integer> - the resource types with their amount.
-     * @param xp int - the players xp
+     * @param dataPlayer {@link CoCDataPlayer} - the data player.
      * @since 0.0.1
      */
-    public CoCPlayer(UUID uuid, Location location, Map<ResourceTypes, Integer> resourceMap, int xp) {
-        this.uuid = uuid;
+    public CoCPlayer(CoCDataPlayer dataPlayer) {
+        super(dataPlayer.uuid, dataPlayer.location, dataPlayer.resourceMap, dataPlayer.getExp(), dataPlayer.getElo());
         this.visitors = new ArrayList<>();
-        this.location = location;
-        this.resourceMap = resourceMap;
         this.buildings = new ArrayList<>();
         this.buildingMode = new Object[3];
-        this.xp = xp;
     }
 
     /**
@@ -64,7 +57,11 @@ public class CoCPlayer {
         this.visitors.add(apiPlayer);
         apiPlayer.getPlayer().getInventory().clear();
         if (apiPlayer.getUniqueId().equals(uuid)) {
-            apiPlayer.getPlayer().getInventory().setItem(8, new ItemBuilder(Material.CLOCK).setName(apiPlayer.getLanguage().getTranslation(TranslationKeys.COC_GUI_CONSTRUCTION_NAME)).craft());
+            Language lang = apiPlayer.getLanguage();
+            apiPlayer.getPlayer().getInventory().setItem(6, new ItemBuilder(Material.PAPER).setName(lang.getTranslation(TranslationKeys.COC_GUI_ATTACKHISTORY_NAME)).craft());
+            apiPlayer.getPlayer().getInventory().setItem(7, new ItemBuilder(Material.IRON_SWORD).setName(lang.getTranslation(TranslationKeys.COC_GUI_ATTACK_NAME)).craft());
+            apiPlayer.getPlayer().getInventory().setItem(8, new ItemBuilder(Material.CLOCK).setName(lang.getTranslation(TranslationKeys.COC_GUI_CONSTRUCTION_NAME)).craft());
+
             getBuildings().stream().filter(b -> b instanceof IBuildingWithHologram).forEach(b -> ((IBuildingWithHologram) b).getHolograms().forEach(apiPlayer::showHologram));
         }
         if (teleport) {
@@ -96,33 +93,6 @@ public class CoCPlayer {
     }
 
     /**
-     * Get the player base location.
-     * @return Location - the player base location.
-     * @since 0.0.1
-     */
-    public Location getLocation() {
-        return location.clone();
-    }
-
-    /**
-     * Get the player base location.
-     * @return Location - the player base location.
-     * @since 0.0.1
-     */
-    public Location getEndLocation() {
-        return getLocation().add(ClashOfClubs.getBaseSize(), 300, ClashOfClubs.getBaseSize());
-    }
-
-    /**
-     * The uuid of the player.
-     * @return UUID - owners uuid.
-     * @since 0.0.1
-     */
-    public UUID getUniqueId() {
-        return uuid;
-    }
-
-    /**
      * Get the owner of the base.
      * @return APIPlayer - the player.
      * @since 0.0.1
@@ -141,15 +111,10 @@ public class CoCPlayer {
         return townHall != null ? townHall.getLevel() : 0;
     }
 
-
-    /**
-     * Get the amount of a resource.
-     * @param resourceTypes ResourceTypes - the type of resource.
-     * @return int - amount of resource
-     * @since 0.0.1
-     */
-    public int getResource(ResourceTypes resourceTypes) {
-        return resourceMap.get(resourceTypes);
+    @Override
+    public void setGems(int amount) {
+        super.setGems(amount);
+        ScoreboardMenu.show(this);
     }
 
     /**
@@ -207,30 +172,12 @@ public class CoCPlayer {
     }
 
     /**
-     * Set the amount of gems for the player.
-     * @param amount int - amount of gems.
-     * @since 0.0.1
-     */
-    public void setGems(int amount) {
-        this.resourceMap.put(ResourceTypes.GEMS, amount);
-        ScoreboardMenu.show(this);
-        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> DatabasePlayer.getInstance().setGems(getUniqueId(), amount));
-    }
-
-    /**
-     * Get the amount of current gems the player has.
-     * @return int - amount of gems.
-     * @since 0.0.1
-     */
-    public int getGems() {
-        return this.resourceMap.get(ResourceTypes.GEMS);
-    }
-
-    /**
      * Updates the resource map from the {@link ResourceContainerBuilding}s.
      * @since 0.0.1
      */
     public void updateResources() {
+        for (ResourceTypes resourceTypes : Arrays.asList(ResourceTypes.FOOD, ResourceTypes.GOLD, ResourceTypes.ELECTRIC))
+            resourceMap.put(resourceTypes, 0);
         for (ResourceContainerBuilding containerBuilding : getContainerBuildings())
             resourceMap.put(containerBuilding.getContainingResourceType(),
                     (int) (resourceMap.getOrDefault(containerBuilding.getContainingResourceType(), 0) + containerBuilding.getAmount()));
@@ -264,23 +211,6 @@ public class CoCPlayer {
         return buildings;
     }
 
-    /**
-     * Add xp to the player's base.
-     * @param xp int - xp to add.
-     * @since 0.0.1
-     */
-    public int addXp(int xp) {
-        return this.xp += xp;
-    }
-
-    /**
-     * Get the xp from the player.
-     * @return int - the players xp
-     * @since 0.0.1
-     */
-    public int getExp() {
-        return xp;
-    }
 
     /**
      * Get the building mode data from the player.
@@ -297,8 +227,7 @@ public class CoCPlayer {
      * @since 0.0.1
      */
     public void setBuildingMode(Object... objects) {
-        for (int i = 0; i < objects.length; i++)
-            this.buildingMode[i] = objects[i];
+        System.arraycopy(objects, 0, this.buildingMode, 0, objects.length);
     }
 
     /**

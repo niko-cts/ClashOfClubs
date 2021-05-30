@@ -25,6 +25,7 @@ public class AttackingJoinListener implements Listener {
             attackingManager.playerJoined(event.getAPIPlayer());
             return;
         }
+
         attackingManager = AttackingHandler.getAttackingManagerByDefender(event.getAPIPlayer().getUniqueId());
         if(attackingManager == null) return;
         attackingManager.viewerJoined(event.getAPIPlayer());

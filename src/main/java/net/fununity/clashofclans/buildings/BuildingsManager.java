@@ -7,6 +7,7 @@ import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IDestroyableBuilding;
 import net.fununity.clashofclans.buildings.list.*;
 import net.fununity.clashofclans.language.TranslationKeys;
+import net.fununity.clashofclans.player.CoCDataPlayer;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.player.DatabasePlayer;
 import net.fununity.clashofclans.player.PlayerManager;
@@ -84,10 +85,9 @@ public class BuildingsManager {
         Map<ResourceTypes, Integer> resources = new EnumMap<>(ResourceTypes.class);
         for (ResourceTypes resource : ResourceTypes.values())
             resources.put(resource, 0);
-
         resources.put(ResourceTypes.GEMS, 200);
 
-        CoCPlayer coCPlayer = new CoCPlayer(uuid, baseLoc, resources, 0);
+        CoCPlayer coCPlayer = new CoCPlayer(new CoCDataPlayer(uuid, baseLoc, resources, 0, 100));
 
         Schematics.createPlayerBase(baseLoc);
         List<GeneralBuilding> startBuildings = new ArrayList<>(Arrays.asList(
@@ -213,7 +213,7 @@ public class BuildingsManager {
 
                 player.getBuildings().add(building);
                 player.getBuildings().remove(constructionBuilding);
-                DatabasePlayer.getInstance().setExp(uuid, player.addXp(building.getExp()));
+                DatabasePlayer.getInstance().setExp(uuid, player.addExp(building.getExp()));
             } else
                 DatabasePlayer.getInstance().addExp(uuid, building.getExp());
 
@@ -359,7 +359,8 @@ public class BuildingsManager {
     public void fillResource(ResourceGatherBuilding building) {
         CoCPlayer cocPlayer = PlayerManager.getInstance().getPlayer(building.getUuid());
 
-        int toAdd = Math.min(cocPlayer.getMaxResourceContainable(building.getContainingResourceType()) - cocPlayer.getResource(building.getContainingResourceType()), (int)building.getAmount());
+        int toAdd = Math.min(cocPlayer.getMaxResourceContainable(building.getContainingResourceType()) - cocPlayer.getResource(building.getContainingResourceType()),
+                (int) building.getAmount());
         if (toAdd == 0) {
             APIPlayer owner = cocPlayer.getOwner();
             if(owner != null)
