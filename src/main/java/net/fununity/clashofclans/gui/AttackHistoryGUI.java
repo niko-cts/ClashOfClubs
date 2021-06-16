@@ -16,6 +16,7 @@ import net.fununity.main.api.util.Utils;
 import net.fununity.misc.translationhandler.translations.Language;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
 import java.time.OffsetDateTime;
@@ -75,6 +76,7 @@ public class AttackHistoryGUI {
             }
 
             menu.setItem(9 + 4, new ItemBuilder(Material.IRON_SWORD)
+                    .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                     .setName(lang.getTranslation(TranslationKeys.COC_GUI_ATTACKHISTORY_ATTACKS_NAME))
                     .setLore(lang.getTranslation(TranslationKeys.COC_GUI_ATTACKHISTORY_ATTACKS_LORE).split(";")).craft(), new ClickAction(true) {
                 @Override

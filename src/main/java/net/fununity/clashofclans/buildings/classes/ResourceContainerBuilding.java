@@ -77,7 +77,7 @@ public class ResourceContainerBuilding extends GeneralBuilding implements IBuild
 
         String name = language.getTranslation(TranslationKeys.COC_GUI_CONTAINER_AMOUNT, Arrays.asList("${color}", "${max}", "${current}"), Arrays.asList(getContainingResourceType().getChatColor() + "", getMaximumResource() + "", ((int)getAmount()) + ""));
 
-        int fillTill = getCurrentBuildingVersion();
+        double fillTill = 90 * getAmount() / getMaximumResource();
         for (int i = 10 / 9, j = 27; j < 36; i += 10 / 9, j++)
             menu.setItem(j, new ItemBuilder(fillTill >= i ? getContainingResourceType().getGlass() : UsefulItems.BACKGROUND_GRAY).setName(name).craft());
 

@@ -125,14 +125,16 @@ public class Schematics {
 
             if(array[3].contains("wall") || array[3].contains("fence"))
                 blockData = Material.valueOf(array[3].split("\\[")[0].replace("minecraft:", "").toUpperCase()).createBlockData();
-            else if(array[3].contains("grass_block"))
-                blockData = RANDOM_FLOOR.get(RandomUtil.getRandomInt(RANDOM_FLOOR.size())).createBlockData();
             else
                 blockData = ClashOfClubs.getInstance().getServer().createBlockData(array[3]);
 
             Block blockToChange = coordinate.clone().add(x, y, z).getBlock();
-            if (!blockData.equals(blockToChange.getBlockData()))
-                Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> blockToChange.setBlockData(blockData));
+            if (!blockData.equals(blockToChange.getBlockData())) {
+                Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> {
+                    blockToChange.setBlockData(blockData);
+                    blockToChange.getState().update();
+                });
+            }
         }
     }
 

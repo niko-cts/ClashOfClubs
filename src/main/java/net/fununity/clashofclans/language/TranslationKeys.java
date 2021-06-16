@@ -60,6 +60,7 @@ public class TranslationKeys {
     public static final String COC_GUI_GATHER_TAKE_LORE = "coc.gui.gather.take.lore";
 
     public static final String COC_GUI_CONSTRUCTION_NAME = "coc.gui.construction.name";
+    public static final String COC_GUI_CONSTRUCTION_LORE = "coc.gui.construction.lore";
     public static final String COC_GUI_CONSTRUCTION_DECORATIVE_NAME = "coc.gui.construction.decorative.name";
     public static final String COC_GUI_CONSTRUCTION_DECORATIVE_LORE = "coc.gui.construction.decorative.lore";
     public static final String COC_GUI_CONSTRUCTION_DEFENSE_NAME = "coc.gui.construction.defense.name";
@@ -72,7 +73,9 @@ public class TranslationKeys {
     public static final String COC_GUI_CONSTRUCTION_BUILDING_LORE = "coc.gui.construction.building.lore";
 
     public static final String COC_GUI_ATTACK_NAME = "coc.gui.attack.name";
+    public static final String COC_GUI_ATTACK_LORE = "coc.gui.attack.lore";
     public static final String COC_GUI_ATTACKHISTORY_NAME = "coc.gui.attackhistory.name";
+    public static final String COC_GUI_ATTACKHISTORY_LORE = "coc.gui.attackhistory.lore";
 
 
     public static final String COC_GUI_TROOPS_CONTAINER_NAME = "coc.building.troops.container.name";

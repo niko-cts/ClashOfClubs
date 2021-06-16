@@ -4,6 +4,7 @@ import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.BuildingsManager;
 import net.fununity.clashofclans.buildings.DatabaseBuildings;
+import net.fununity.clashofclans.buildings.Schematics;
 import net.fununity.clashofclans.buildings.classes.ConstructionBuilding;
 import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
 import net.fununity.clashofclans.buildings.classes.ResourceGatherBuilding;
@@ -77,12 +78,17 @@ public class PlayerManager {
             ResourceTickHandler.removeFromCache(coCPlayer);
             TroopsTickHandler.removeFromCache(coCPlayer);
             BuildingTickHandler.removeFromCache(coCPlayer);
+            if (!ClashOfClubs.getInstance().getLoadedBases().contains(uuid)) {
+                Schematics.createPlayerBase(coCPlayer.getLocation());
+                coCPlayer.getBuildings().forEach(Schematics::createBuilding);
+            }
         } else {
             player.sendMessage(MessagePrefix.INFO, TranslationKeys.COC_PLAYER_LOADING_BASE);
             coCPlayer = BuildingsManager.getInstance().createNewIsland(uuid);
         }
         coCPlayer.updateResources();
         this.playersMap.put(uuid, coCPlayer);
+        ClashOfClubs.getInstance().getLoadedBases().add(uuid);
         Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> {
             coCPlayer.visit(player, !contains);
             coCPlayer.getBuildings().stream().filter(b -> b instanceof IBuildingWithHologram).forEach(b -> ((IBuildingWithHologram) b).updateHologram());

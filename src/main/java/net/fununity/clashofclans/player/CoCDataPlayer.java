@@ -92,7 +92,9 @@ public class CoCDataPlayer {
      * @since 0.0.1
      */
     public int addElo(int elo) {
-        return this.elo += elo;
+        this.elo += elo;
+        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> DatabasePlayer.getInstance().setElo(getUniqueId(), this.elo));
+        return this.elo;
     }
 
     /**

@@ -109,6 +109,7 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_GUI_BUILDING_UNDERCONSTRUCTION, "&eUnder construction: &e${left} left");
 
         add(TranslationKeys.COC_GUI_CONSTRUCTION_NAME, "&6Construction menu");
+        add(TranslationKeys.COC_GUI_CONSTRUCTION_LORE, "&7Open the construction menu;&7You can buy new buildings;&7and decorations there.");
         add(TranslationKeys.COC_GUI_CONSTRUCTION_DECORATIVE_NAME, "&2Decorative Buildings");
         add(TranslationKeys.COC_GUI_CONSTRUCTION_DECORATIVE_LORE, "&7Open the decorative buildings menu;&7Includes all decorations and builders!");
         add(TranslationKeys.COC_GUI_CONSTRUCTION_DEFENSE_NAME, "&eDefense");
@@ -121,8 +122,10 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_GUI_CONSTRUCTION_BUILDING_LORE, "&7Building cost: &e${cost} ${type};&7Amounts of building;&7with town hall level ${level}: &e${amount}&7/&e${max}");
 
         // ATTACK GUI
-        add(TranslationKeys.COC_GUI_ATTACK_NAME, "&6Start attack");
+        add(TranslationKeys.COC_GUI_ATTACK_NAME, "&6Start matchmaking search...");
+        add(TranslationKeys.COC_GUI_ATTACKHISTORY_LORE, "&7Click to start matchmaking.;&7You will be send to a;&7preview of the base you can attack.");
         add(TranslationKeys.COC_GUI_ATTACKHISTORY_NAME, "&eView attack history");
+        add(TranslationKeys.COC_GUI_ATTACKHISTORY_LORE, "&7Open the attack history menu.");
 
 
         // TROOPS

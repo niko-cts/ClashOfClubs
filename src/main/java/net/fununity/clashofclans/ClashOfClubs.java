@@ -25,6 +25,10 @@ import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 /**
  * Main class of the clash of clubs plugin.
  * @since 0.0.1
@@ -36,8 +40,13 @@ public class ClashOfClubs extends JavaPlugin {
     private static final int BASE_Y_COORDINATE = 50;
     private static final int BASE_SIZE = 100;
     private static final int BASE_BACKGROUND = 10;
+    private final List<UUID> loadedBases;
     private World playWorld;
     private World attackWorld;
+
+    public ClashOfClubs() {
+        this.loadedBases = new ArrayList<>();
+    }
 
     /**
      * Will be called, when the plugin enables.
@@ -92,6 +101,10 @@ public class ClashOfClubs extends JavaPlugin {
      */
     public static ClashOfClubs getInstance() {
         return instance;
+    }
+
+    public List<UUID> getLoadedBases() {
+        return loadedBases;
     }
 
     /**
@@ -149,5 +162,6 @@ public class ClashOfClubs extends JavaPlugin {
     public static String getColoredName() {
         return TITLE;
     }
+
 
 }

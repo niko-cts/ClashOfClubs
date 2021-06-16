@@ -50,14 +50,19 @@ public class AttackHistoryDatabase {
 
     /**
      * Adds a new history to the database.
-     * @param history {@link AttackHistory} - the attack history.
+     * @param attacker UUID - the uuid of the attacker.
+     * @param defender UUID - the uuid of the defender.
+     * @param date OffsetDateTime - the date time.
+     * @param stars int - the amount of stars.
+     * @param elo int - the elo the attacker gained.
+     * @param resourcesGathered Map<ResourceTypes, Double> - the resources gathered.
      * @since 0.0.1
      */
-    public void addNewAttack(AttackHistory history) {
+    public void addNewAttack(UUID attacker, UUID defender, OffsetDateTime date, int stars, int elo, Map<ResourceTypes, Double> resourcesGathered) {
         this.databaseHandler.insertIntoTable(TABLE,
-                Arrays.asList(history.getAttacker().toString(), history.getDefender().toString(), history.getDate().toString(),
-                        FORMAT.format(history.getResourcesGathered(ResourceTypes.GOLD)), FORMAT.format(history.getResourcesGathered(ResourceTypes.FOOD)),
-                        history.getStars()+"", history.getElo()+"", "0"),
+                Arrays.asList(attacker.toString(), defender.toString(), date.toString(),
+                        FORMAT.format(resourcesGathered.get(ResourceTypes.GOLD)), FORMAT.format(resourcesGathered.get(ResourceTypes.FOOD)),
+                        stars+"", elo+"", "0"),
                 Arrays.asList("string", "string", "string", "", "", "", "", ""));
     }
 

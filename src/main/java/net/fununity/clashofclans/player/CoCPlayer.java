@@ -16,6 +16,7 @@ import net.fununity.misc.translationhandler.translations.Language;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemFlag;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -58,9 +59,9 @@ public class CoCPlayer extends CoCDataPlayer {
         apiPlayer.getPlayer().getInventory().clear();
         if (apiPlayer.getUniqueId().equals(uuid)) {
             Language lang = apiPlayer.getLanguage();
-            apiPlayer.getPlayer().getInventory().setItem(6, new ItemBuilder(Material.PAPER).setName(lang.getTranslation(TranslationKeys.COC_GUI_ATTACKHISTORY_NAME)).craft());
-            apiPlayer.getPlayer().getInventory().setItem(7, new ItemBuilder(Material.IRON_SWORD).setName(lang.getTranslation(TranslationKeys.COC_GUI_ATTACK_NAME)).craft());
-            apiPlayer.getPlayer().getInventory().setItem(8, new ItemBuilder(Material.CLOCK).setName(lang.getTranslation(TranslationKeys.COC_GUI_CONSTRUCTION_NAME)).craft());
+            apiPlayer.getPlayer().getInventory().setItem(6, new ItemBuilder(Material.PAPER).setName(lang.getTranslation(TranslationKeys.COC_GUI_ATTACKHISTORY_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_GUI_ATTACKHISTORY_LORE).split(";")).craft());
+            apiPlayer.getPlayer().getInventory().setItem(7, new ItemBuilder(Material.IRON_SWORD).addItemFlags(ItemFlag.HIDE_ATTRIBUTES).setName(lang.getTranslation(TranslationKeys.COC_GUI_ATTACK_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_GUI_ATTACK_LORE).split(";")).craft());
+            apiPlayer.getPlayer().getInventory().setItem(8, new ItemBuilder(Material.CLOCK).setName(lang.getTranslation(TranslationKeys.COC_GUI_CONSTRUCTION_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_GUI_CONSTRUCTION_LORE).split(";")).craft());
 
             getBuildings().stream().filter(b -> b instanceof IBuildingWithHologram).forEach(b -> ((IBuildingWithHologram) b).getHolograms().forEach(apiPlayer::showHologram));
         }

@@ -2,7 +2,6 @@ package net.fununity.clashofclans.attacking;
 
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
-import net.fununity.clashofclans.attacking.history.AttackHistory;
 import net.fununity.clashofclans.attacking.history.AttackHistoryDatabase;
 import net.fununity.clashofclans.buildings.Schematics;
 import net.fununity.clashofclans.buildings.classes.DefenseBuilding;
@@ -13,11 +12,13 @@ import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.player.ScoreboardMenu;
 import net.fununity.clashofclans.troops.ITroop;
+import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.common.util.SpecialChars;
 import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.player.APIPlayer;
 import net.fununity.main.api.util.LocationUtil;
 import net.fununity.main.api.util.PlayerDataUtil;
+import net.fununity.misc.translationhandler.translations.Language;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -180,7 +181,10 @@ public class PlayerAttackingManager {
                 }
             }
 
-            AttackHistoryDatabase.getInstance().addNewAttack(new AttackHistory(getAttacker(), getDefender(), OffsetDateTime.now(), getStarsAmount(), elo, this.resourcesGathered, false));
+            defender.addElo(defender.getElo() - elo / 2);
+            attacker.addElo(attacker.getElo() + elo);
+
+            AttackHistoryDatabase.getInstance().addNewAttack(getAttacker(), getDefender(), OffsetDateTime.now(), getStarsAmount(), elo, this.resourcesGathered);
 
             AttackingHandler.removeManager(getAttacker());
             Bukkit.getScheduler().runTaskLater(ClashOfClubs.getInstance(), () -> {
@@ -190,6 +194,11 @@ public class PlayerAttackingManager {
         });
     }
 
+    /**
+     * Get the amount of elo the attacker gains.
+     * @return int - the amount of elo.
+     * @since 0.0.1
+     */
     private int getElo() {
         int stars = getStarsAmount();
         return buildingsOnField.stream().anyMatch(b -> b.getBuilding() == Buildings.TOWN_HALL) || stars > 2 ?
