@@ -24,6 +24,7 @@ public class CoCCommand extends APICommand {
 
     public CoCCommand() {
         super("coc", "command.coc", "usage", "description");
+        addSubCommand(new CoCAddCommand());
     }
 
     @Override
@@ -35,13 +36,6 @@ public class CoCCommand extends APICommand {
                 }
                 return;
             }
-
-            if(args.length == 3)
-                Schematics.saveSchematic(BuildingsManager.getInstance().getBuildingById(args[0]), Integer.parseInt(args[1]), LocationUtil.getMinAndMax(PlayerInteractListener.getSchematicSaver()[0], PlayerInteractListener.getSchematicSaver()[1]), args[2]);
-            else
-                Schematics.saveSchematic(BuildingsManager.getInstance().getBuildingById(args[0]), Integer.parseInt(args[1]), LocationUtil.getMinAndMax(PlayerInteractListener.getSchematicSaver()[0], PlayerInteractListener.getSchematicSaver()[1]));
-
-            apiPlayer.sendRawMessage("§aSuccessful");
             return;
         }
         if (args.length == 1) {
@@ -53,7 +47,6 @@ public class CoCCommand extends APICommand {
                 });
                 return;
             }
-            Schematics.saveSchematic(args[0], LocationUtil.getMinAndMax(PlayerInteractListener.getSchematicSaver()[0], PlayerInteractListener.getSchematicSaver()[1]));
             apiPlayer.sendRawMessage("§aSuccessful");
             return;
         }

@@ -27,12 +27,12 @@ public class Schematics {
         return saveSchematic("playerbase", minAndMax);
     }
 
-    public static boolean saveSchematic(IBuilding building, int level, Location[] minAndMax) {
-        return saveSchematic(building.name() + "-" + level, minAndMax);
+    public static void saveSchematic(IBuilding building, int level, Location[] minAndMax) {
+        saveSchematic(building.name() + "-" + level, minAndMax);
     }
 
-    public static boolean saveSchematic(IBuilding building, int level, Location[] minAndMax, String version) {
-        return saveSchematic(building.name() + "-" + level + "-" + version, minAndMax);
+    public static void saveSchematic(IBuilding building, int level, Location[] minAndMax, String version) {
+        saveSchematic(building.name() + "-" + level + "-" + version, minAndMax);
     }
 
     public static boolean saveSchematic(String id, Location[] minAndMax) {

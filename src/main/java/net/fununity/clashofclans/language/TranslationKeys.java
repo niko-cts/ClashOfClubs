@@ -110,7 +110,7 @@ public class TranslationKeys {
     public static final String COC_BUILDING_GENERAL_TOWN_HALL_NAME = "coc.building.general.town.hall.name";
     public static final String COC_BUILDING_GENERAL_TOWN_HALL_DESCRIPTION = "coc.building.general.town.hall.description";
     public static final String COC_BUILDING_GENERAL_BUILDER_NAME = "coc.building.general.builder.name";
-    public static final String COC_BUILDING_GENERAL_BUILDER_DESCRIPTION = "coc.building.general.builder.description";;
+    public static final String COC_BUILDING_GENERAL_BUILDER_DESCRIPTION = "coc.building.general.builder.description";
     public static final String COC_BUILDING_GENERAL_CLUB_TOWER_NAME = "coc.building.general.clantower.name";
     public static final String COC_BUILDING_GENERAL_CLUB_TOWER_DESCRIPTION = "coc.building.general.clantower.description";
 

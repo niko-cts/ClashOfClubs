@@ -86,6 +86,25 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_BUILDING_RANDOM_BUSH_NAME, "&2Bush");
         add(TranslationKeys.COC_BUILDING_RANDOM_BUSH_DESCRIPTION, "&7This is a random object,;&7which you can destroy.");
 
+        // TROOPS
+        add(TranslationKeys.COC_TROOPS_TYPE_LAND, "&eLand");
+        add(TranslationKeys.COC_TROOPS_TYPE_FLYING, "&aFlying");
+        add(TranslationKeys.COC_TROOPS_LOREDETAILS, ";&7Type: ${type};&7Max hp: &c${hp};&7Damage: &e${damage};&7Prioritize Defense: ${prioritize};&7Size: &e${size};&7Cost: ${cost}");
+        add(TranslationKeys.COC_TROOPS_BARBARIAN_NAME, "&eBarbarian");
+        add(TranslationKeys.COC_TROOPS_BARBARIAN_DESCRIPTION, "&7This idyet will run to the;&7next building and attacks it.");
+
+        // WALLS
+        add(TranslationKeys.COC_WALLS_STRAIGHT_WALL_NAME, "&6Normal wall &7(&e│&7)");
+        add(TranslationKeys.COC_WALLS_STRAIGHT_WALL_DESCRIPTION, "&7Normal wall to prevent enemy;&7troops from entering your base.");
+        add(TranslationKeys.COC_WALLS_CORNER_WALL_NAME, "&6Corner wall &7(&e∟&7)");
+        add(TranslationKeys.COC_WALLS_CORNER_WALL_DESCRIPTION, "&7Corner wall to prevent enemy;&7troops from entering your base.");
+        add(TranslationKeys.COC_WALLS_CROSS_WALL_NAME, "&6Cross wall &7(&e┼&7)");
+        add(TranslationKeys.COC_WALLS_CROSS_WALL_DESCRIPTION, "&7Cross wall to prevent enemy;&7troops from entering your base.");
+        add(TranslationKeys.COC_WALLS_HALFCROSS_WALL_NAME, "&6Half-Cross wall &7(&e┤&7)");
+        add(TranslationKeys.COC_WALLS_HALFCROSS_WALL_DESCRIPTION, "&7Half-Cross wall to prevent enemy;&7troops from entering your base.");
+        add(TranslationKeys.COC_WALLS_GATE_NAME, "&6Gate");
+        add(TranslationKeys.COC_WALLS_GATE_DESCRIPTION, "&7A gate, which opens;&7and closes automatically for your base.");
+
         // GUIS
         add(TranslationKeys.COC_GUI_BUILDING_NAME, "&6${name} &8" + SpecialChars.DOUBLE_ARROW_RIGHT + " &6Level ${level}");
         add(TranslationKeys.COC_GUI_BUILDING_HP_NAME, "&6Hitpoints");
@@ -154,12 +173,6 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_GUI_ATTACKHISTORY_ALL_DEFENSE_LORE, "&7Defensed at ${date};&7Stars: &6${stars};&7Elo loss: &c${elo}; ;&7Food lost: &d${food};&7Gold lost: &e${gold}");
 
 
-        // TROOPS
-        add(TranslationKeys.COC_TROOPS_TYPE_LAND, "&eLand");
-        add(TranslationKeys.COC_TROOPS_TYPE_FLYING, "&aFlying");
-        add(TranslationKeys.COC_TROOPS_LOREDETAILS, ";&7Type: ${type};&7Max hp: &c${hp};&7Damage: &e${damage};&7Prioritize Defense: ${prioritize};&7Size: &e${size};&7Cost: ${cost}");
-        add(TranslationKeys.COC_TROOPS_BARBARIAN_NAME, "&eBarbarian");
-        add(TranslationKeys.COC_TROOPS_BARBARIAN_DESCRIPTION, "&7This idyet will run to the;&7next building and attacks it.");
 
         // ITEMS
         add(TranslationKeys.COC_CONSTRUCTION_BUILDINGINWAY, "&cThere is a building in the way!");
