@@ -8,7 +8,7 @@ import net.fununity.clashofclans.language.TranslationKeys;
 import org.bukkit.Material;
 
 public enum Buildings implements IBuilding {
-    TOWN_HALL (TranslationKeys.COC_BUILDING_GENERAL_TOWN_HALL_NAME, TranslationKeys.COC_BUILDING_GENERAL_TOWN_HALL_DESCRIPTION, new int[]{8, 8}, ResourceTypes.GOLD, Material.AIR,
+    TOWN_HALL (TranslationKeys.COC_BUILDING_GENERAL_TOWN_HALL_NAME, TranslationKeys.COC_BUILDING_GENERAL_TOWN_HALL_DESCRIPTION, new int[]{28, 27}, ResourceTypes.GOLD, Material.AIR,
             new BuildingLevelData[]{new BuildingLevelData(500, 0, 10, 10),
                                     new BuildingLevelData(1000, 1, 500, 180),
                                     new BuildingLevelData(1500, 2, 2000, 1800),

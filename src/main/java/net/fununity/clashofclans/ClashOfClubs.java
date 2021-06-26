@@ -5,6 +5,7 @@ import net.fununity.clashofclans.attacking.cloud.CloudNormalListener;
 import net.fununity.clashofclans.attacking.listener.AttackingJoinListener;
 import net.fununity.clashofclans.attacking.listener.AttackingPlayerInteractListener;
 import net.fununity.clashofclans.attacking.listener.AttackingQuitListener;
+import net.fununity.clashofclans.buildings.Schematics;
 import net.fununity.clashofclans.commands.CoCCommand;
 import net.fununity.clashofclans.commands.HomeCommand;
 import net.fununity.clashofclans.commands.ResetCommand;
@@ -19,6 +20,7 @@ import net.fununity.clashofclans.tickhandler.BuildingTickHandler;
 import net.fununity.clashofclans.tickhandler.ResourceTickHandler;
 import net.fununity.clashofclans.tickhandler.TroopsTickHandler;
 import net.fununity.main.api.FunUnityAPI;
+import net.fununity.main.api.server.ServerSetting;
 import net.fununity.main.api.util.RegisterUtil;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -38,8 +40,9 @@ public class ClashOfClubs extends JavaPlugin {
     private static ClashOfClubs instance;
     private static final String TITLE = "§6Clash§0of§eClubs";
     private static final int BASE_Y_COORDINATE = 50;
-    private static final int BASE_SIZE = 100;
-    private static final int BASE_BACKGROUND = 10;
+    private static final int BASE_SIZE = 200;
+    private static final int BASE_BACKGROUND = 13;
+    private boolean attackingServer;
     private final List<UUID> loadedBases;
     private World playWorld;
     private World attackWorld;
@@ -55,6 +58,7 @@ public class ClashOfClubs extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+        FunUnityAPI.getInstance().getServerSettings().disable(ServerSetting.PLAYER_INTERACT_ENTITY);
         this.playWorld = getServer().getWorld("world");
         this.attackWorld = getServer().getWorld("attackWorld");
         if (attackWorld == null) {
@@ -63,7 +67,9 @@ public class ClashOfClubs extends JavaPlugin {
             this.attackWorld = getServer().createWorld(attackWorld);
         }
 
-        if (getConfig().getBoolean("attacking-server")) {
+        this.attackingServer = getConfig().getBoolean("attacking-server");
+
+        if (attackingServer) {
             FunUnityAPI.getInstance().getCloudClient().getCloudEventManager().addCloudListener(new CloudAttackingListener());
         } else {
             FunUnityAPI.getInstance().getCloudClient().getCloudEventManager().addCloudListener(new CloudNormalListener());
@@ -83,6 +89,7 @@ public class ClashOfClubs extends JavaPlugin {
         ResourceTickHandler.startTimer();
         TroopsTickHandler.startTimer();
         BuildingTickHandler.startTimer();
+        Schematics.cacheAllSchematics();
     }
 
     /**
@@ -163,5 +170,7 @@ public class ClashOfClubs extends JavaPlugin {
         return TITLE;
     }
 
-
+    public boolean isAttackingServer() {
+        return attackingServer;
+    }
 }

@@ -46,8 +46,8 @@ public class DatabasePlayer {
     private DatabasePlayer() {
         this.databaseHandler = DatabaseHandler.getInstance();
         if (!this.databaseHandler.doesTableExist(TABLE_DATA))
-            this.databaseHandler.createTable(TABLE_DATA, Arrays.asList("uuid", "elo", "xp", "x", "z", "gems"),
-                    Arrays.asList("VARCHAR(36) NOT NULL PRIMARY KEY", "INT NOT NULL DEFAULT 100", "INT NOT NULL DEFAULT 0", "INT NOT NULL", "INT NOT NULL", "INT NOT NULL default 0"));
+            this.databaseHandler.createTable(TABLE_DATA, Arrays.asList("uuid", "elo", "x", "z", "gems", "xp"),
+                    Arrays.asList("VARCHAR(36) NOT NULL PRIMARY KEY", "INT NOT NULL DEFAULT 100", "INT NOT NULL", "INT NOT NULL", "INT NOT NULL DEFAULT 50", "INT NOT NULL default 0"));
     }
 
     /**
@@ -72,7 +72,9 @@ public class DatabasePlayer {
      * @since 0.0.1
      */
     public void createUser(UUID uuid, Location coordinate) {
-        this.databaseHandler.insertIntoTable(TABLE_DATA, Arrays.asList(uuid.toString(), "1000", "0", coordinate.getBlockX()+"", coordinate.getBlockZ()+"", "200"), Arrays.asList("string", "", "", "", "", ""));
+        this.databaseHandler.insertIntoTable(TABLE_DATA,
+                Arrays.asList(uuid.toString(), "1000", coordinate.getBlockX()+"", coordinate.getBlockZ()+"", "50", "200"),
+                Arrays.asList("string", "", "", "", "", ""));
     }
 
     /**

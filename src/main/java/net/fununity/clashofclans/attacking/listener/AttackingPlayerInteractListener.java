@@ -1,9 +1,11 @@
 package net.fununity.clashofclans.attacking.listener;
 
 import net.fununity.clashofclans.attacking.AttackingHandler;
+import net.fununity.clashofclans.attacking.MatchmakingSystem;
 import net.fununity.clashofclans.attacking.PlayerAttackingManager;
 import net.fununity.clashofclans.troops.ITroop;
 import net.fununity.clashofclans.troops.Troops;
+import net.fununity.main.api.FunUnityAPI;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -41,6 +43,8 @@ public class AttackingPlayerInteractListener implements Listener {
         }
         if (event.getClickedBlock() == null)
             return;
+
+        event.setCancelled(true);
 
         ITroop troop = Troops.getByMaterial(handMaterial);
         if (troop != null) {

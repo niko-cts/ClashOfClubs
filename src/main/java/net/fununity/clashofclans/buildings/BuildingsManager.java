@@ -187,7 +187,9 @@ public class BuildingsManager {
         }
         Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
             if (building.getBuilding() == Buildings.TOWN_HALL || building.getLevel() != 0)
-                Schematics.removeBuilding(building.getCoordinate(), building.getBuilding().getSize());
+                Schematics.removeBuilding(building.getCoordinate(), building.getBuilding().getSize(), building.getRotation());
+
+            BuildingLocationUtil.savePlayerFromBuilding(building);
 
             Schematics.createBuilding(constructionBuilding);
             DatabaseBuildings.getInstance().constructBuilding(constructionBuilding);
@@ -217,9 +219,11 @@ public class BuildingsManager {
             } else
                 DatabasePlayer.getInstance().addExp(uuid, building.getExp());
 
-            Schematics.removeBuilding(building.getCoordinate(), building.getBuilding().getSize());
+            Schematics.removeBuilding(building.getCoordinate(), building.getBuilding().getSize(), building.getRotation());
 
             building.setLevel(building.getLevel() + 1);
+
+            BuildingLocationUtil.savePlayerFromBuilding(building);
 
             Schematics.createBuilding(building);
 
@@ -261,7 +265,7 @@ public class BuildingsManager {
             }
         }
         Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
-            Schematics.removeBuilding(building.getCoordinate(), building.getBuilding().getSize());
+            Schematics.removeBuilding(building.getCoordinate(), building.getBuilding().getSize(), building.getRotation());
             DatabaseBuildings.getInstance().deleteBuilding(building);
         });
     }
@@ -397,7 +401,7 @@ public class BuildingsManager {
 
         building.setCoordinate(BuildingLocationUtil.getCoordinate(building.getBuilding().getSize(), building.getRotation(), (Location) buildingMode[0]));
         Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
-            Schematics.removeBuilding(oldLocation, building.getBuilding().getSize());
+            Schematics.removeBuilding(oldLocation, building.getBuilding().getSize(), building.getRotation());
             Schematics.createBuilding(building);
             DatabaseBuildings.getInstance().moveBuilding(building, oldLocation, oldRotation);
         });

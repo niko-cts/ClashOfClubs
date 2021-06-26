@@ -8,6 +8,8 @@ import net.fununity.main.api.player.APIPlayer;
 import net.fununity.main.api.util.LocationUtil;
 import org.bukkit.command.CommandSender;
 
+import java.util.UUID;
+
 public class CoCAddCommand extends APISubCommand {
 
     public CoCAddCommand() {
@@ -16,25 +18,25 @@ public class CoCAddCommand extends APISubCommand {
 
     @Override
     public void onCommand(APIPlayer apiPlayer, String[] args) {
-        if (PlayerInteractListener.getSchematicSaver()[0] == null ||
-                PlayerInteractListener.getSchematicSaver()[1] == null) {
+        UUID uuid = apiPlayer.getUniqueId();
+        if (PlayerInteractListener.getSchematicSaver(uuid)[0] == null ||
+                PlayerInteractListener.getSchematicSaver(uuid)[1] == null) {
             apiPlayer.sendRawMessage("§cEs wurden nicht alle locations angeklickt");
             return;
         }
         if (args.length == 3) {
             Schematics.saveSchematic(BuildingsManager.getInstance().getBuildingById(args[0]),
                     Integer.parseInt(args[1]),
-                    LocationUtil.getMinAndMax(PlayerInteractListener.getSchematicSaver()[0],
-                            PlayerInteractListener.getSchematicSaver()[1]), args[2]);
+                    LocationUtil.getMinAndMax(PlayerInteractListener.getSchematicSaver(uuid)[0],
+                            PlayerInteractListener.getSchematicSaver(uuid)[1]), args[2]);
             apiPlayer.sendRawMessage("§aSuccessful added " + args[0] + " level " + args[1] + " version " + args[2]);
         } else if (args.length == 2) {
             Schematics.saveSchematic(BuildingsManager.getInstance().getBuildingById(args[0]),
-                    Integer.parseInt(args[1]), LocationUtil.getMinAndMax(PlayerInteractListener.getSchematicSaver()[0],
-                            PlayerInteractListener.getSchematicSaver()[1]));
-
+                    Integer.parseInt(args[1]), LocationUtil.getMinAndMax(PlayerInteractListener.getSchematicSaver(uuid)[0],
+                            PlayerInteractListener.getSchematicSaver(uuid)[1]));
             apiPlayer.sendRawMessage("§aSuccessful added " + args[0] + " level " + args[1]);
         } else if (args.length == 1) {
-            Schematics.saveSchematic(args[0], LocationUtil.getMinAndMax(PlayerInteractListener.getSchematicSaver()[0], PlayerInteractListener.getSchematicSaver()[1]));
+            Schematics.saveSchematic(args[0], LocationUtil.getMinAndMax(PlayerInteractListener.getSchematicSaver(uuid)[0], PlayerInteractListener.getSchematicSaver(uuid)[1]));
             apiPlayer.sendRawMessage("§aSuccessful added " + args[0]);
         } else
             apiPlayer.sendRawMessage("§cUsage: /coc add <building> (<level>) (<version>)");

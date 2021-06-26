@@ -2,6 +2,7 @@ package net.fununity.clashofclans.buildings.list;
 
 import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
+import net.fununity.clashofclans.buildings.classes.WallBuilding;
 import net.fununity.clashofclans.buildings.interfaces.BuildingLevelData;
 import net.fununity.clashofclans.buildings.interfaces.IWall;
 import net.fununity.clashofclans.language.TranslationKeys;
@@ -24,7 +25,7 @@ public enum WallBuildings implements IWall {
             new BuildingLevelData[]{new BuildingLevelData(300, 1, 50, 0),
                     new BuildingLevelData(500, 1, 75, 0),
                     new BuildingLevelData(700, 2, 100, 0)}),
-    GATE(TranslationKeys.COC_WALLS_GATE_NAME, TranslationKeys.COC_WALLS_GATE_DESCRIPTION, new int[]{3, 3}, ResourceTypes.GOLD, Material.OAK_FENCE_GATE,
+    GATE(TranslationKeys.COC_WALLS_GATE_NAME, TranslationKeys.COC_WALLS_GATE_DESCRIPTION, new int[]{5, 3}, ResourceTypes.GOLD, Material.OAK_FENCE_GATE,
             new BuildingLevelData[]{new BuildingLevelData(300, 1, 75, 0),
                     new BuildingLevelData(500, 1, 100, 0),
                     new BuildingLevelData(700, 2, 150, 0)});
@@ -104,7 +105,7 @@ public enum WallBuildings implements IWall {
      */
     @Override
     public Class<? extends GeneralBuilding> getBuildingClass() {
-        return GeneralBuilding.class;
+        return WallBuilding.class;
     }
 
     /**

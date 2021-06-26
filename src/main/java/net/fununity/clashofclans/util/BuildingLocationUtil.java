@@ -6,6 +6,7 @@ import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.main.api.common.util.RandomUtil;
 import net.fununity.main.api.util.LocationUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -76,7 +77,7 @@ public class BuildingLocationUtil {
      * @return List<Block> - all blocks in the building area.
      * @since 0.0.1
      */
-    private static List<Block> getBlocksInBuildingGround(Location location, int[] size) {
+    public static List<Block> getBlocksInBuildingGround(Location location, int[] size) {
         List<Block> blocks = new ArrayList<>();
         int maxX = location.getBlockX() + size[0];
         boolean maxXBigger = location.getBlockX() < maxX;
@@ -226,5 +227,85 @@ public class BuildingLocationUtil {
             }
         }
         return false;
+    }
+
+    /**
+     * Transfers the 'facing' of a block.
+     * @param blockData String - block data the original block data.
+     * @param rotation byte - the rotation of the building.
+     * @return String - the rotated blockdata.
+     * @since 0.0.1
+     */
+    public static String getBlockDataFromRotation(String blockData, byte rotation) {
+        if (!blockData.contains("facing"))
+            return blockData;
+
+        StringBuilder currentFacing = new StringBuilder();
+        int i = blockData.lastIndexOf("facing=") + 7;
+        while(i<blockData.length()) {
+            if (blockData.charAt(i) == ',' || blockData.charAt(i) == ']')
+                break;
+            currentFacing.append(blockData.charAt(i));
+            i++;
+        }
+
+        switch (rotation) {
+            case 0:
+                return blockData;
+            case 1:
+                switch (currentFacing.toString()) {
+                    case "south":
+                        return blockData.replace("facing=" + currentFacing, "facing=east");
+                    case "west":
+                        return blockData.replace("facing=" + currentFacing, "facing=south");
+                    case "north":
+                        return blockData.replace("facing=" + currentFacing, "facing=west");
+                    case "east":
+                        return blockData.replace("facing=" + currentFacing, "facing=north");
+                    default:
+                        return blockData;
+                }
+            case 2:
+                switch (currentFacing.toString()) {
+                    case "south":
+                        return blockData.replace("facing=" + currentFacing, "facing=north");
+                    case "west":
+                        return blockData.replace("facing=" + currentFacing, "facing=east");
+                    case "north":
+                        return blockData.replace("facing=" + currentFacing, "facing=south");
+                    case "east":
+                        return blockData.replace("facing=" + currentFacing, "facing=west");
+                    default:
+                        return blockData;
+                }
+            default:
+                switch (currentFacing.toString()) {
+                    case "south":
+                        return blockData.replace("facing=" + currentFacing, "facing=west");
+                    case "west":
+                        return blockData.replace("facing=" + currentFacing, "facing=north");
+                    case "north":
+                        return blockData.replace("facing=" + currentFacing, "facing=east");
+                    case "east":
+                        return blockData.replace("facing=" + currentFacing, "facing=south");
+                    default:
+                        return blockData;
+                }
+        }
+    }
+
+    /**
+     * Teleports any player next to the given building, if standing in there
+     * @param building {@link GeneralBuilding} - the building to check.
+     * @since 0.0.1
+     */
+    public static void savePlayerFromBuilding(GeneralBuilding building) {
+        for (Player visitor : Bukkit.getOnlinePlayers()) {
+            if (LocationUtil.isBetween(building.getCoordinate(), visitor.getLocation(), building.getMaxCoordinate().add(0, 80, 0))) {
+                Location teleport = building.getCoordinate().subtract(1, 0, 1);
+                teleport.setY(LocationUtil.getBlockHeight(teleport) + 1);
+                Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> visitor.teleport(teleport));
+            }
+        }
     }
 }

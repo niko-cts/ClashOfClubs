@@ -3,9 +3,11 @@ package net.fununity.clashofclans.buildings;
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.classes.ConstructionBuilding;
 import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
+import net.fununity.clashofclans.buildings.classes.WallBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.util.BuildingLocationUtil;
 import net.fununity.main.api.common.util.RandomUtil;
+import net.fununity.main.api.util.LocationUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -14,6 +16,7 @@ import org.bukkit.block.data.BlockData;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.Level;
 
 public class Schematics {
 
@@ -50,7 +53,9 @@ public class Schematics {
 
         File file = new File(ClashOfClubs.getInstance().getDataFolder().getAbsolutePath() + "/building-schematics", id + ".schematic");
         createPath();
-        if (file.exists()) return false;
+        if (file.exists())
+            file.delete();
+
         try {
             if (!file.createNewFile())
                 return false;
@@ -72,38 +77,37 @@ public class Schematics {
         return false;
     }
 
-    private static final List<Material> RANDOM_FLOOR = Arrays.asList(Material.LIME_TERRACOTTA, Material.GREEN_TERRACOTTA);
+    private static final List<Material> RANDOM_FLOOR = Collections.singletonList(Material.GRASS_BLOCK);
 
-    public static void removeBuilding(Location location, int[] size) {
-        boolean allAir = false;
-        int y = location.getBlockY();
-        while (!allAir) {
-            allAir = true;
-            for (int x = location.getBlockX(); x < location.getBlockX() + size[0]; x++) {
-                for (int z = location.getBlockZ(); z < location.getBlockZ() + size[1]; z++) {
-                    Location breakLoc = new Location(location.getWorld(), x, y, z);
-                    if (breakLoc.getBlock().getType() != Material.AIR || location.getBlockY() + 2 > breakLoc.getBlockY()) {
-                        allAir = false;
-                        Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> {
-                            if (location.getBlockY() + 2 > breakLoc.getBlockY())
-                                breakLoc.getBlock().setType(RANDOM_FLOOR.get(RandomUtil.getRandomInt(RANDOM_FLOOR.size())));
-                            else
-                                breakLoc.getBlock().setType(Material.AIR);
-                        });
-                    }
+    public static void removeBuilding(Location location, int[] size, byte rotation) {
+        List<Block> areaBlocks = BuildingLocationUtil.getBlocksInBuildingGround(location, BuildingLocationUtil.getCoordinateFromRotation(rotation, size[0], size[1]));
+
+        for (Block block : areaBlocks) {
+            Location highestLoc = block.getWorld().getHighestBlockAt(block.getLocation()).getLocation();
+            while (highestLoc.getBlock().getType() == Material.AIR || highestLoc.getBlock().getType() == Material.BARRIER)
+                highestLoc.subtract(0, 1, 0);
+
+            for (int y = highestLoc.getBlockY(); y >= ClashOfClubs.getBaseYCoordinate(); y--) {
+                Location breakLoc = block.getLocation().clone().add(0, y, 0);
+                if (breakLoc.getBlock().getType() != Material.AIR) {
+                    Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> {
+                        if (ClashOfClubs.getBaseYCoordinate() + 2 <= breakLoc.getBlockY())
+                            breakLoc.getBlock().setType(RANDOM_FLOOR.get(RandomUtil.getRandomInt(RANDOM_FLOOR.size())));
+                        else
+                            breakLoc.getBlock().setType(Material.AIR);
+                    });
                 }
             }
-            y++;
         }
     }
 
-    public static void createPlayerBase(Location highestCoordinate) {
-        createBuilding("playerbase", highestCoordinate, (byte) 0);
+    public static void createPlayerBase(Location location) {
+        createBuilding("playerbase", location, (byte) 0);
     }
 
     public static void createBuilding(GeneralBuilding building) {
         if (building instanceof ConstructionBuilding)
-            createBuilding("construction" + building.getBuilding().getSize()[0] + "-" + building.getBuilding().getSize()[1], building.getCoordinate(), building.getRotation());
+            createBuilding("construction" + building.getBuilding().getSize()[0] + "-" + building.getBuilding().getSize()[1], BuildingLocationUtil.getReversedCoordinate(building), building.getRotation());
         else
             createBuilding(building.getId(), BuildingLocationUtil.getReversedCoordinate(building), building.getRotation());
     }
@@ -123,10 +127,10 @@ public class Schematics {
 
             BlockData blockData;
 
-            if(array[3].contains("wall") || array[3].contains("fence"))
+            if (array[3].contains("wall") || array[3].contains("fence"))
                 blockData = Material.valueOf(array[3].split("\\[")[0].replace("minecraft:", "").toUpperCase()).createBlockData();
             else
-                blockData = ClashOfClubs.getInstance().getServer().createBlockData(array[3]);
+                blockData = ClashOfClubs.getInstance().getServer().createBlockData(BuildingLocationUtil.getBlockDataFromRotation(array[3], rotation));
 
             Block blockToChange = coordinate.clone().add(x, y, z).getBlock();
             if (!blockData.equals(blockToChange.getBlockData())) {
@@ -136,6 +140,24 @@ public class Schematics {
                 });
             }
         }
+    }
+
+    /**
+     * Caches all schematics that can be find in the building-schematics folder in the data folder of the plugin.
+     * @since 0.0.1
+     */
+    public static void cacheAllSchematics() {
+        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
+            File schematics = new File(ClashOfClubs.getInstance().getDataFolder() + "/building-schematics/");
+            if (schematics.exists()) {
+                String[] list = schematics.list();
+                if (list != null) {
+                    for (String s : list)
+                        load(s.replace(".schematic", ""));
+                    ClashOfClubs.getInstance().getLogger().log(Level.INFO, "Cached {0} schematics.", list.length);
+                }
+            }
+        });
     }
 
     private static boolean load(String id) {

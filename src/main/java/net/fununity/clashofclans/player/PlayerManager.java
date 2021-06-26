@@ -78,14 +78,11 @@ public class PlayerManager {
             ResourceTickHandler.removeFromCache(coCPlayer);
             TroopsTickHandler.removeFromCache(coCPlayer);
             BuildingTickHandler.removeFromCache(coCPlayer);
-            if (!ClashOfClubs.getInstance().getLoadedBases().contains(uuid)) {
-                Schematics.createPlayerBase(coCPlayer.getLocation());
-                coCPlayer.getBuildings().forEach(Schematics::createBuilding);
-            }
         } else {
             player.sendMessage(MessagePrefix.INFO, TranslationKeys.COC_PLAYER_LOADING_BASE);
             coCPlayer = BuildingsManager.getInstance().createNewIsland(uuid);
         }
+
         coCPlayer.updateResources();
         this.playersMap.put(uuid, coCPlayer);
         ClashOfClubs.getInstance().getLoadedBases().add(uuid);

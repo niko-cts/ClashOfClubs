@@ -77,9 +77,9 @@ public class ResourceContainerBuilding extends GeneralBuilding implements IBuild
 
         String name = language.getTranslation(TranslationKeys.COC_GUI_CONTAINER_AMOUNT, Arrays.asList("${color}", "${max}", "${current}"), Arrays.asList(getContainingResourceType().getChatColor() + "", getMaximumResource() + "", ((int)getAmount()) + ""));
 
-        double fillTill = 90 * getAmount() / getMaximumResource();
-        for (int i = 10 / 9, j = 27; j < 36; i += 10 / 9, j++)
-            menu.setItem(j, new ItemBuilder(fillTill >= i ? getContainingResourceType().getGlass() : UsefulItems.BACKGROUND_GRAY).setName(name).craft());
+        double fillTill = 9.0 * getAmount() / getMaximumResource();
+        for (double i = 0, j = 27; j < 36; i += 9.0, j++)
+            menu.setItem((int) j, new ItemBuilder(fillTill > i ? getContainingResourceType().getGlass() : UsefulItems.BACKGROUND_GRAY).setName(name).craft());
 
         return menu;
     }
@@ -148,8 +148,6 @@ public class ResourceContainerBuilding extends GeneralBuilding implements IBuild
      */
     @Override
     public int getCurrentBuildingVersion() {
-        return 0;
-        /**
         double percentage = 100 * getAmount() / getMaximumResource();
         if (percentage < 20)
             return 0;
@@ -159,9 +157,7 @@ public class ResourceContainerBuilding extends GeneralBuilding implements IBuild
             return 2;
         if (percentage < 80)
             return 3;
-        if (percentage < 100)
-            return 4;
-        return 5;*/
+        return 4;
     }
 
     /**

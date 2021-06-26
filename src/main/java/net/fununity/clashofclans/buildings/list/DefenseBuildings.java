@@ -13,11 +13,11 @@ import java.util.Arrays;
 import java.util.List;
 
 public enum DefenseBuildings implements IDefenseBuilding, IUpgradeDetails {
-    CANNON (TranslationKeys.COC_BUILDING_DEFENSE_CANNON_NAME, TranslationKeys.COC_BUILDING_DEFENSE_CANNON_DESCRIPTION, new int[]{5, 5}, ResourceTypes.GOLD, Material.FIRE_CHARGE, false, 7, 20, null,
+    CANNON (TranslationKeys.COC_BUILDING_DEFENSE_CANNON_NAME, TranslationKeys.COC_BUILDING_DEFENSE_CANNON_DESCRIPTION, new int[]{7, 7}, ResourceTypes.GOLD, Material.FIRE_CHARGE, false, 7, 20, null,
                     new DefenseLevelData[]{new DefenseLevelData(300, 1, 50, 15, 7),
                             new DefenseLevelData(400, 2, 100, 60, 15),
                             new DefenseLevelData(500, 2, 150, 300, 22)}),
-    ARCHER_TOWER (TranslationKeys.COC_BUILDING_DEFENSE_ARCHERTOWER_NAME, TranslationKeys.COC_BUILDING_DEFENSE_ARCHERTOWER_DESCRIPTION, new int[]{5, 5}, ResourceTypes.GOLD, Material.BOW, true, 15, 15,null,
+    ARCHER_TOWER (TranslationKeys.COC_BUILDING_DEFENSE_ARCHERTOWER_NAME, TranslationKeys.COC_BUILDING_DEFENSE_ARCHERTOWER_DESCRIPTION, new int[]{7, 7}, ResourceTypes.GOLD, Material.BOW, true, 15, 15,null,
             new DefenseLevelData[]{new DefenseLevelData(400, 1, 80, 25, 10),
                     new DefenseLevelData(500, 2, 500, 240, 20),
                     new DefenseLevelData(600, 3, 750, 1800, 30)});

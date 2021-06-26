@@ -4,13 +4,9 @@ import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.attacking.AttackingHandler;
 import net.fununity.clashofclans.attacking.PlayerAttackingManager;
-import net.fununity.clashofclans.buildings.BuildingsManager;
-import net.fununity.clashofclans.buildings.Schematics;
-import net.fununity.clashofclans.listener.PlayerInteractListener;
 import net.fununity.clashofclans.player.PlayerManager;
 import net.fununity.main.api.command.handler.APICommand;
 import net.fununity.main.api.player.APIPlayer;
-import net.fununity.main.api.util.LocationUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 

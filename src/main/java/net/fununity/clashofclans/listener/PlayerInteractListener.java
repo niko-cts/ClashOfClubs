@@ -24,9 +24,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Listener class for interaction.
@@ -35,7 +33,7 @@ import java.util.List;
  */
 public class PlayerInteractListener implements Listener {
 
-    private static final Location[] SCHEMATIC_SAVER = new Location[2];
+    private static final Map<UUID, Location[]> SCHEMATIC_SAVER = new HashMap<>();
     private static final List<Material> WHITELIST_MATERIALS = Arrays.asList(Material.BARRIER, Material.NETHER_STAR, Material.CLOCK,
             Material.PISTON, Material.STICK, Material.IRON_SWORD, Material.PAPER);
 
@@ -46,21 +44,25 @@ public class PlayerInteractListener implements Listener {
      */
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
+        event.setCancelled(true);
         if (event.getHand() != EquipmentSlot.HAND || event.getAction() == Action.PHYSICAL) return;
 
         Material handMaterial = event.getPlayer().getInventory().getItemInMainHand().getType();
 
-        // setup gui.
+        // setup stuff
         if (handMaterial == Material.IRON_AXE && CoCCommand.getSchematicSetter().contains(event.getPlayer().getUniqueId())) {
             if (event.getClickedBlock() == null) return;
             event.setCancelled(true);
+            Location[] map = SCHEMATIC_SAVER.getOrDefault(event.getPlayer().getUniqueId(), new Location[2]);
             if (event.getAction() == Action.LEFT_CLICK_BLOCK)
-                SCHEMATIC_SAVER[0] = event.getClickedBlock().getLocation();
+                map[0] = event.getClickedBlock().getLocation();
             else
-                SCHEMATIC_SAVER[1] = event.getClickedBlock().getLocation();
+                map[1] = event.getClickedBlock().getLocation();
+            SCHEMATIC_SAVER.put(event.getPlayer().getUniqueId(), map);
             event.getPlayer().sendMessage("§aSaved");
             return;
         }
+
 
         if (MatchmakingSystem.getInstance().getAttackWatcher().containsKey(event.getPlayer().getUniqueId())) {
             if (handMaterial == Material.BARRIER) {
@@ -151,7 +153,7 @@ public class PlayerInteractListener implements Listener {
         BuildingsManager.getInstance().quitEditorMode(player);
     }
 
-    public static Location[] getSchematicSaver() {
-        return SCHEMATIC_SAVER;
+    public static Location[] getSchematicSaver(UUID uuid) {
+        return SCHEMATIC_SAVER.get(uuid);
     }
 }

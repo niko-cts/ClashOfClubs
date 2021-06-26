@@ -12,13 +12,11 @@ import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.player.ScoreboardMenu;
 import net.fununity.clashofclans.troops.ITroop;
-import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.common.util.SpecialChars;
 import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.player.APIPlayer;
 import net.fununity.main.api.util.LocationUtil;
 import net.fununity.main.api.util.PlayerDataUtil;
-import net.fununity.misc.translationhandler.translations.Language;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -115,7 +113,7 @@ public class PlayerAttackingManager {
                 defenseBuildingsAttacker.removeBuilding((DefenseBuilding) attackBuilding);
 
             Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () ->
-                    Schematics.removeBuilding(attackBuilding.getCoordinate(), attackBuilding.getBuilding().getSize()));
+                    Schematics.removeBuilding(attackBuilding.getCoordinate(), attackBuilding.getBuilding().getSize(), attackBuilding.getRotation()));
 
             if (buildingsOnField.isEmpty())
                 finishAttack();

@@ -4,7 +4,10 @@ import net.fununity.clashofclans.buildings.BuildingsManager;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IDifferentVersionBuildings;
 import net.fununity.clashofclans.buildings.interfaces.IUpgradeDetails;
+import net.fununity.clashofclans.buildings.list.Buildings;
 import net.fununity.clashofclans.language.TranslationKeys;
+import net.fununity.clashofclans.player.PlayerManager;
+import net.fununity.clashofclans.util.BuildingLocationUtil;
 import net.fununity.main.api.common.util.SpecialChars;
 import net.fununity.main.api.hologram.APIHologram;
 import net.fununity.main.api.inventory.ClickAction;
@@ -22,7 +25,8 @@ import java.text.DecimalFormat;
 import java.util.*;
 
 /**
- * The general building class.
+ * Class, which represents a general building.
+ * Lookup all general buildings here: {@link net.fununity.clashofclans.buildings.list.Buildings}
  * @author Niko
  * @since 0.0.1
  */
@@ -69,8 +73,9 @@ public class GeneralBuilding {
         if (getLevel() != 0)
             menu.setItem(12, new ItemBuilder(Material.HEART_OF_THE_SEA).setName(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_HP_NAME)).setLore(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_HP_LORE, Arrays.asList("${max}", "${current}"), Arrays.asList(getMaxHP()+"", getCurrentHP()+"")).split(";")).craft());
 
-        if (getUpgradeCost() != -1) {
-
+        if (getBuilding() != Buildings.TOWN_HALL && PlayerManager.getInstance().getPlayer(getUuid()).getTownHallLevel() == 0) {
+            menu.setItem(14, new ItemBuilder(UsefulItems.UP_ARROW).setName(language.getTranslation(TranslationKeys.COC_PLAYER_REPAIR_TOWNHALL_FIRST)).craft());
+        } else if (getUpgradeCost() != -1) {
             List<String> upgradeLore = new ArrayList<>(Arrays.asList(language.getTranslation(getLevel() == 0 ? TranslationKeys.COC_GUI_BUILDING_REPAIR_LORE : TranslationKeys.COC_GUI_BUILDING_UPGRADE_LORE, "${cost}", "" + getBuilding().getResourceType().getChatColor() + getUpgradeCost() + " " + language.getTranslation(getBuilding().getResourceType().getNameKey())).split(";")));
             if (building instanceof IUpgradeDetails)
                 upgradeLore.addAll(((IUpgradeDetails) building).getLoreDetails(building.getBuildingLevelData()[getLevel()], language));
@@ -186,6 +191,17 @@ public class GeneralBuilding {
      */
     public Location getCenterCoordinate() {
         return getCoordinate().add(getBuilding().getSize()[0] / 2.0, 0, getBuilding().getSize()[1] / 2.0);
+    }
+
+    /**
+     * Get the maximum location of the building. (Max location)
+     * Note: Y is still on minimum level.
+     * @return Location - the maximum coordinate of the building.
+     * @since 0.0.1
+     */
+    public Location getMaxCoordinate() {
+        int[] coordinateFromRotation = BuildingLocationUtil.getCoordinateFromRotation(getRotation(), getBuilding().getSize()[0], getBuilding().getSize()[1]);
+        return getCoordinate().add(coordinateFromRotation[0], 0, coordinateFromRotation[1]);
     }
 
     /**
