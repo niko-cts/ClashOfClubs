@@ -12,10 +12,10 @@ import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.player.ScoreboardMenu;
 import net.fununity.clashofclans.troops.ITroop;
+import net.fununity.clashofclans.util.BuildingLocationUtil;
 import net.fununity.main.api.common.util.SpecialChars;
 import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.player.APIPlayer;
-import net.fununity.main.api.util.LocationUtil;
 import net.fununity.main.api.util.PlayerDataUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -280,7 +280,7 @@ public class PlayerAttackingManager {
         player.getInventory().addItem(items.toArray(new ItemStack[0]));
         player.setCollidable(false);
         Location teleport = base.clone().add(20, 0, 20);
-        teleport.setY(LocationUtil.getBlockHeight(teleport) + 1);
+        teleport.setY(BuildingLocationUtil.getHighestYCoordinate(teleport) + 1);
         player.teleport(teleport);
 
         ScoreboardMenu.showAttacking(playerAttacker, attacker, this);
@@ -295,7 +295,7 @@ public class PlayerAttackingManager {
      */
     public void viewerJoined(APIPlayer apiPlayer) {
         Location teleport = base.clone().add(20, 0, 20);
-        teleport.setY(LocationUtil.getBlockHeight(teleport) + 1);
+        teleport.setY(BuildingLocationUtil.getHighestYCoordinate(teleport) + 1);
         Player player = apiPlayer.getPlayer();
         player.teleport(teleport);
         player.setCollidable(false);

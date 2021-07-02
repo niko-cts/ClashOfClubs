@@ -15,7 +15,6 @@ import net.fununity.main.api.inventory.CustomInventory;
 import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.item.UsefulItems;
 import net.fununity.main.api.player.APIPlayer;
-import net.fununity.main.api.util.LocationUtil;
 import net.fununity.misc.translationhandler.translations.Language;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -160,7 +159,7 @@ public class GeneralBuilding {
         if (this.healthHologram != null)
             attacker.hideHologram(healthHologram);
         Location centerCoordinate = getCenterCoordinate();
-        centerCoordinate.setY(LocationUtil.getBlockHeight(centerCoordinate) + 2);
+        centerCoordinate.setY(BuildingLocationUtil.getHighestYCoordinate(centerCoordinate) + 2);
         DecimalFormat format = new DecimalFormat("0.0");
         this.healthHologram = new APIHologram(centerCoordinate, Collections.singletonList("§e" + format.format(currentHP) + "§7/§e" + getMaxHP() + " §c" + SpecialChars.HEART));
         attacker.showHologram(this.healthHologram);
@@ -200,8 +199,8 @@ public class GeneralBuilding {
      * @since 0.0.1
      */
     public Location getMaxCoordinate() {
-        int[] coordinateFromRotation = BuildingLocationUtil.getCoordinateFromRotation(getRotation(), getBuilding().getSize()[0], getBuilding().getSize()[1]);
-        return getCoordinate().add(coordinateFromRotation[0], 0, coordinateFromRotation[1]);
+        return getCoordinate().add(getBuilding().getSize()[rotation == 1 || rotation == 3 ? 1 : 0] - 1, 0,
+                getBuilding().getSize()[rotation == 1 || rotation == 3 ? 0 : 1] - 1);
     }
 
     /**

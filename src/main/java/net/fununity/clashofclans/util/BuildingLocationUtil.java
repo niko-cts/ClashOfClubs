@@ -237,12 +237,12 @@ public class BuildingLocationUtil {
      * @since 0.0.1
      */
     public static String getBlockDataFromRotation(String blockData, byte rotation) {
-        if (!blockData.contains("facing"))
+        if (!blockData.contains("facing=") || rotation == 0)
             return blockData;
 
         StringBuilder currentFacing = new StringBuilder();
         int i = blockData.lastIndexOf("facing=") + 7;
-        while(i<blockData.length()) {
+        while (i < blockData.length()) {
             if (blockData.charAt(i) == ',' || blockData.charAt(i) == ']')
                 break;
             currentFacing.append(blockData.charAt(i));
@@ -250,8 +250,6 @@ public class BuildingLocationUtil {
         }
 
         switch (rotation) {
-            case 0:
-                return blockData;
             case 1:
                 switch (currentFacing.toString()) {
                     case "south":
@@ -303,9 +301,24 @@ public class BuildingLocationUtil {
         for (Player visitor : Bukkit.getOnlinePlayers()) {
             if (LocationUtil.isBetween(building.getCoordinate(), visitor.getLocation(), building.getMaxCoordinate().add(0, 80, 0))) {
                 Location teleport = building.getCoordinate().subtract(1, 0, 1);
-                teleport.setY(LocationUtil.getBlockHeight(teleport) + 1);
+                teleport.setY(BuildingLocationUtil.getHighestYCoordinate(teleport) + 1);
                 Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> visitor.teleport(teleport));
             }
         }
+    }
+
+    /**
+     * Get the highest y coordinate of the given location without the barriers.
+     * @param location Location - the location.
+     * @return int - highest y coordinate without barriers.
+     * @since 0.0.1
+     */
+    public static int getHighestYCoordinate(Location location) {
+        Location highestLoc = location.getWorld().getHighestBlockAt(location).getLocation();
+        while (highestLoc.getBlockY() >= ClashOfClubs.getBaseYCoordinate() &&
+                (highestLoc.getBlock().getType() == Material.AIR || highestLoc.getBlock().getType() == Material.BARRIER)) {
+            highestLoc.subtract(0, 1, 0);
+        }
+        return highestLoc.getBlockY();
     }
 }

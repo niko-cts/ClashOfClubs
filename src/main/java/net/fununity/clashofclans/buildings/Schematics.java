@@ -3,11 +3,9 @@ package net.fununity.clashofclans.buildings;
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.classes.ConstructionBuilding;
 import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
-import net.fununity.clashofclans.buildings.classes.WallBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.util.BuildingLocationUtil;
 import net.fununity.main.api.common.util.RandomUtil;
-import net.fununity.main.api.util.LocationUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -80,18 +78,17 @@ public class Schematics {
     private static final List<Material> RANDOM_FLOOR = Collections.singletonList(Material.GRASS_BLOCK);
 
     public static void removeBuilding(Location location, int[] size, byte rotation) {
-        List<Block> areaBlocks = BuildingLocationUtil.getBlocksInBuildingGround(location, BuildingLocationUtil.getCoordinateFromRotation(rotation, size[0], size[1]));
+        List<Block> areaBlocks = BuildingLocationUtil.getBlocksInBuildingGround(location,
+                new int[]{size[rotation == 1 || rotation == 3 ? 1 : 0], size[rotation == 1 || rotation == 3 ? 0 : 1]});
 
         for (Block block : areaBlocks) {
-            Location highestLoc = block.getWorld().getHighestBlockAt(block.getLocation()).getLocation();
-            while (highestLoc.getBlock().getType() == Material.AIR || highestLoc.getBlock().getType() == Material.BARRIER)
-                highestLoc.subtract(0, 1, 0);
+            for (int y = BuildingLocationUtil.getHighestYCoordinate(block.getLocation()); y >= ClashOfClubs.getBaseYCoordinate(); y--) {
+                Location breakLoc = block.getLocation().clone();
+                breakLoc.setY(y);
 
-            for (int y = highestLoc.getBlockY(); y >= ClashOfClubs.getBaseYCoordinate(); y--) {
-                Location breakLoc = block.getLocation().clone().add(0, y, 0);
                 if (breakLoc.getBlock().getType() != Material.AIR) {
                     Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> {
-                        if (ClashOfClubs.getBaseYCoordinate() + 2 <= breakLoc.getBlockY())
+                        if (ClashOfClubs.getBaseYCoordinate() + 2 >= breakLoc.getBlockY())
                             breakLoc.getBlock().setType(RANDOM_FLOOR.get(RandomUtil.getRandomInt(RANDOM_FLOOR.size())));
                         else
                             breakLoc.getBlock().setType(Material.AIR);
@@ -125,16 +122,18 @@ public class Schematics {
             int y = Integer.parseInt(array[1]);
             int z = coords[1];
 
+            Material material = Material.valueOf(array[3].split("\\[")[0].replace("minecraft:", "").toUpperCase());
             BlockData blockData;
 
-            if (array[3].contains("wall") || array[3].contains("fence"))
-                blockData = Material.valueOf(array[3].split("\\[")[0].replace("minecraft:", "").toUpperCase()).createBlockData();
+            if ((array[3].contains("wall") && !array[3].contains("face=wall") && !array[3].contains("wall_sign")) || array[3].contains("fence"))
+                blockData = material.createBlockData();
             else
                 blockData = ClashOfClubs.getInstance().getServer().createBlockData(BuildingLocationUtil.getBlockDataFromRotation(array[3], rotation));
 
             Block blockToChange = coordinate.clone().add(x, y, z).getBlock();
             if (!blockData.equals(blockToChange.getBlockData())) {
                 Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> {
+                    blockToChange.setType(material);
                     blockToChange.setBlockData(blockData);
                     blockToChange.getState().update();
                 });

@@ -84,7 +84,7 @@ public class PlayerInteractListener implements Listener {
 
             GeneralBuilding clickedBuilding = player.getBuildings().stream()
                     .filter(b -> LocationUtil.isBetween(b.getCoordinate(), event.getClickedBlock().getLocation(),
-                    b.getCoordinate().clone().add(b.getBuilding().getSize()[0], event.getClickedBlock().getLocation().getBlockY()+1, b.getBuilding().getSize()[1]))).findFirst().orElse(null);
+                            b.getMaxCoordinate().add(0, 50, 0))).findFirst().orElse(null);
 
             if (clickedBuilding != null) {
                 APIPlayer apiPlayer = player.getOwner();

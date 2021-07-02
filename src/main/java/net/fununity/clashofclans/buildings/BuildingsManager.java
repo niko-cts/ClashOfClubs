@@ -111,11 +111,11 @@ public class BuildingsManager {
             for (int i = 0; i < RandomUtil.getRandomInt(15) + 10; i++) {
                 RandomWorldBuildings building = RandomWorldBuildings.getStartBuildings()[RandomUtil.getRandomInt(RandomWorldBuildings.getStartBuildings().length)];
                 Location randomBuildingLocation = BuildingLocationUtil.getRandomBuildingLocation(baseLoc, startBuildings, building.getSize());
+                byte rotation = (byte) RandomUtil.getRandomInt(4);
                 if (randomBuildingLocation != null)
-                    rdmBuildings.add(new RandomWorldBuilding(uuid, building, randomBuildingLocation, (byte) 1, 1));
+                    rdmBuildings.add(new RandomWorldBuilding(uuid, building, BuildingLocationUtil.getCoordinate(building.getSize(), rotation, randomBuildingLocation), rotation, 1));
             }
             for (RandomWorldBuilding building : rdmBuildings) {
-                building.setCoordinate(BuildingLocationUtil.getCoordinate(building));
                 coCPlayer.getBuildings().add(building);
                 DatabaseBuildings.getInstance().buildBuilding(uuid, building);
                 Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> Schematics.createBuilding(building));
@@ -138,7 +138,8 @@ public class BuildingsManager {
 
         byte rotation = (byte) player.getBuildingMode()[2];
 
-        GeneralBuilding generalBuilding = getBuildingInstance(player.getUniqueId(), building, BuildingLocationUtil.getCoordinate(building.getSize(), rotation, (Location) player.getBuildingMode()[0]), rotation, 0);
+        GeneralBuilding generalBuilding = getBuildingInstance(player.getUniqueId(), building,
+                BuildingLocationUtil.getCoordinate(building.getSize(), rotation, (Location) player.getBuildingMode()[0]), rotation, 0);
         if (generalBuilding == null)
             return;
 
@@ -394,14 +395,14 @@ public class BuildingsManager {
 
     public void moveBuilding(Object[] buildingMode) {
         GeneralBuilding building = (GeneralBuilding) buildingMode[1];
-        int oldRotation = building.getRotation();
         Location oldLocation = building.getCoordinate().clone();
+        byte oldRotation = building.getRotation();
         if (building.getRotation() != (byte) buildingMode[2])
             building.setRotation((byte) buildingMode[2]);
 
         building.setCoordinate(BuildingLocationUtil.getCoordinate(building.getBuilding().getSize(), building.getRotation(), (Location) buildingMode[0]));
         Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
-            Schematics.removeBuilding(oldLocation, building.getBuilding().getSize(), building.getRotation());
+            Schematics.removeBuilding(oldLocation, building.getBuilding().getSize(), oldRotation);
             Schematics.createBuilding(building);
             DatabaseBuildings.getInstance().moveBuilding(building, oldLocation, oldRotation);
         });

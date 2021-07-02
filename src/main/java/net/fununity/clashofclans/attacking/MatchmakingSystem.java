@@ -5,6 +5,7 @@ import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.CoCDataPlayer;
 import net.fununity.clashofclans.player.DatabasePlayer;
 import net.fununity.clashofclans.player.PlayerManager;
+import net.fununity.clashofclans.util.BuildingLocationUtil;
 import net.fununity.cloud.common.events.cloud.CloudEvent;
 import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.cloud.CloudManager;
@@ -76,7 +77,7 @@ public class MatchmakingSystem {
                 this.attackWatcher.put(uuid, attackingBase.getUniqueId());
 
                 Location loc = attackingBase.getLocation().add(20, 0, 20);
-                loc.setY(LocationUtil.getBlockHeight(loc));
+                loc.setY(BuildingLocationUtil.getHighestYCoordinate(loc));
                 attacker.getPlayer().teleport(loc);
                 attacker.getPlayer().getInventory().clear();
                 Language lang = attacker.getLanguage();

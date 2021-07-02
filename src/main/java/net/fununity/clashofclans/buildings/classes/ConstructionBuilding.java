@@ -4,20 +4,20 @@ import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.interfaces.IBuildingWithHologram;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.PlayerManager;
+import net.fununity.clashofclans.util.BuildingLocationUtil;
 import net.fununity.main.api.FunUnityAPI;
+import net.fununity.main.api.common.util.DurationUtil;
 import net.fununity.main.api.hologram.APIHologram;
 import net.fununity.main.api.inventory.CustomInventory;
 import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.item.UsefulItems;
 import net.fununity.main.api.player.APIPlayer;
-import net.fununity.main.api.util.LocationUtil;
 import net.fununity.misc.translationhandler.translations.Language;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class ConstructionBuilding extends GeneralBuilding implements IBuildingWithHologram {
 
@@ -38,7 +38,7 @@ public class ConstructionBuilding extends GeneralBuilding implements IBuildingWi
         this.buildingDuration = buildingDuration;
 
         hologramLocation = getCoordinate().clone().add(getBuilding().getSize()[0] / 2.0, 0, getBuilding().getSize()[1] / 2.0);
-        hologramLocation.setY(LocationUtil.getBlockHeight(hologramLocation) + 2);
+        hologramLocation.setY(BuildingLocationUtil.getHighestYCoordinate(hologramLocation) + 2);
         this.updateHologram();
     }
 
@@ -59,7 +59,7 @@ public class ConstructionBuilding extends GeneralBuilding implements IBuildingWi
 
         menu.setItem(14, UsefulItems.BACKGROUND_GRAY);
 
-        String name = language.getTranslation(TranslationKeys.COC_GUI_BUILDING_UNDERCONSTRUCTION, "${left}", getDuration());
+        String name = language.getTranslation(TranslationKeys.COC_GUI_BUILDING_UNDERCONSTRUCTION, "${left}", DurationUtil.getDuration(getBuildingDuration()));
         int finished = getCurrentBuildingVersion();
         for (int i = 10 / 9, j = 27; j < menu.getInventory().getSize(); i += 10 / 9, j++)
             menu.setItem(j, new ItemBuilder(i <= finished ? UsefulItems.BACKGROUND_GREEN : UsefulItems.BACKGROUND_BLACK).setName(name).craft());
@@ -79,26 +79,9 @@ public class ConstructionBuilding extends GeneralBuilding implements IBuildingWi
             if (this.hologram != null)
                 onlinePlayer.hideHolograms(this.hologram.getLocation());
 
-            this.hologram = new APIHologram(this.hologramLocation, Collections.singletonList("" + getDuration()));
+            this.hologram = new APIHologram(this.hologramLocation, Collections.singletonList(DurationUtil.getDuration(getBuildingDuration())));
             getHolograms().forEach(onlinePlayer::showHologram);
         }
-    }
-
-    /**
-     * Gets the duration in string.
-     * @return String - the duration.
-     * @since 0.0.1
-     */
-    private String getDuration() {
-        int uptime = getBuildingDuration();
-        long days = TimeUnit.SECONDS.toDays(uptime);
-        uptime -= TimeUnit.DAYS.toSeconds(days);
-        long hours = TimeUnit.SECONDS.toHours(uptime);
-        uptime -= TimeUnit.HOURS.toSeconds(hours);
-        long minutes = TimeUnit.SECONDS.toMinutes(uptime);
-        uptime -= TimeUnit.MINUTES.toSeconds(minutes);
-        long seconds = TimeUnit.SECONDS.toSeconds(uptime);
-        return (days > 0 ? days + "d " : "") + (hours > 0 ? hours + "h " : "") + (minutes > 0 ? minutes + "min " : "") + (seconds != 0 ? seconds + "s " : "");
     }
 
     /**

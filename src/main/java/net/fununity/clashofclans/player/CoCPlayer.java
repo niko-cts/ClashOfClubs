@@ -8,6 +8,7 @@ import net.fununity.clashofclans.buildings.interfaces.IBuildingWithHologram;
 import net.fununity.clashofclans.buildings.list.Buildings;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.troops.ITroop;
+import net.fununity.clashofclans.util.BuildingLocationUtil;
 import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.player.APIPlayer;
@@ -67,7 +68,7 @@ public class CoCPlayer extends CoCDataPlayer {
         }
         if (teleport) {
             Location visitorLoc = getLocation().add(20, 0, 20);
-            visitorLoc.setY(LocationUtil.getBlockHeight(location.getWorld(), visitorLoc.getBlockX(), visitorLoc.getBlockZ()) + 1);
+            visitorLoc.setY(BuildingLocationUtil.getHighestYCoordinate(visitorLoc) + 1);
             apiPlayer.getPlayer().teleport(visitorLoc);
         }
 
