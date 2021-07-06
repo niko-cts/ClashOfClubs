@@ -102,7 +102,6 @@ public class BuildingsManager {
         for (GeneralBuilding building : startBuildings) {
             building.setCoordinate(BuildingLocationUtil.getCoordinate(building));
             coCPlayer.getBuildings().add(building);
-            DatabaseBuildings.getInstance().buildBuilding(uuid, building);
             Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> Schematics.createBuilding(building));
         }
 
@@ -117,9 +116,10 @@ public class BuildingsManager {
             }
             for (RandomWorldBuilding building : rdmBuildings) {
                 coCPlayer.getBuildings().add(building);
-                DatabaseBuildings.getInstance().buildBuilding(uuid, building);
                 Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> Schematics.createBuilding(building));
             }
+            startBuildings.addAll(rdmBuildings);
+            DatabaseBuildings.getInstance().buildBuilding(uuid, startBuildings.toArray(new GeneralBuilding[0]));
         });
 
         return coCPlayer;

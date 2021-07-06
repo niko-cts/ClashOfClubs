@@ -14,6 +14,7 @@ import java.sql.ResultSet;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * The database class for buildings.
@@ -80,28 +81,54 @@ public class DatabaseBuildings {
     }
 
     /**
-     * Creates the building.
+     * Inserts the given buildings into the database.
      * @param uuid UUID - uuid of player.
-     * @param building {@link GeneralBuilding} - the building instance.
+     * @param buildings {@link GeneralBuilding}[] - the building instances.
      * @since 0.0.1
      */
-    public void buildBuilding(UUID uuid, GeneralBuilding building) {
-        this.databaseHandler.insertIntoTable(TABLE,
-                Arrays.asList(uuid.toString(), building.getBuilding().name()+"", building.getLevel()+"", building.getCoordinate().getBlockX() + "", building.getCoordinate().getBlockZ() + "", building.getRotation()+""),
-                Arrays.asList("string", "string", "", "", "", ""));
-        if (building instanceof ResourceContainerBuilding)
-           this.databaseHandler.insertIntoTable(TABLE_CONTAINER,
-                   Arrays.asList(uuid.toString(), building.getCoordinate().getBlockX()+"", building.getCoordinate().getBlockZ()+"", ((ResourceContainerBuilding) building).getAmount() + "", ((ResourceContainerBuilding) building).getContainingResourceType().name()),
-                   Arrays.asList("string", "", "", "", "string"));
-        if (building instanceof TroopsBuilding) {
-            List<String> column = new ArrayList<>(Arrays.asList(uuid.toString(), building.getCoordinate().getBlockX() + "", building.getCoordinate().getBlockZ() + ""));
-            List<String> properties = new ArrayList<>(Arrays.asList("string", "", ""));
-            for (Troops ignored : Troops.values()) {
-                column.add("0");
-                properties.add("");
+    public void buildBuilding(UUID uuid, GeneralBuilding... buildings) {
+        Iterator<GeneralBuilding> normalBuildings = Arrays.asList(buildings).iterator();
+        Iterator<GeneralBuilding> resourceBuildings = Arrays.stream(buildings).filter(b -> b instanceof ResourceContainerBuilding).collect(Collectors.toList()).iterator();
+        Iterator<GeneralBuilding> troopsBuildings = Arrays.stream(buildings).filter(b -> b instanceof TroopsBuilding).collect(Collectors.toList()).iterator();
+
+        List<String> values = new ArrayList<>();
+        List<String> dataTypes = new ArrayList<>();
+        while (normalBuildings.hasNext()) {
+            GeneralBuilding building = normalBuildings.next();
+            values.addAll(Arrays.asList(uuid.toString(), building.getBuilding().name()+"", building.getLevel()+"", building.getCoordinate().getBlockX() + "", building.getCoordinate().getBlockZ() + "", building.getRotation()+""));
+            dataTypes.addAll(Arrays.asList("string", "string", "", "", "", ""));
+            if (normalBuildings.hasNext()) {
+                values.add(null);
+                dataTypes.add(null);
             }
-            this.databaseHandler.insertIntoTable(TABLE_TROOPS, column, properties);
         }
+        this.databaseHandler.insertIntoTable(TABLE, values, dataTypes);
+        values.clear();
+        dataTypes.clear();
+        while (resourceBuildings.hasNext()) {
+            GeneralBuilding building = resourceBuildings.next();
+            values.addAll(Arrays.asList(uuid.toString(), building.getCoordinate().getBlockX() + "", building.getCoordinate().getBlockZ() + "", ((ResourceContainerBuilding) building).getAmount() + "", ((ResourceContainerBuilding) building).getContainingResourceType().name()));
+            dataTypes.addAll(Arrays.asList("string", "", "", "", "string"));
+            if (resourceBuildings.hasNext()) {
+                values.add(null);
+                dataTypes.add(null);
+            }
+        }
+        if (!values.isEmpty())
+            this.databaseHandler.insertIntoTable(TABLE_CONTAINER, values, dataTypes);
+        values.clear();
+        dataTypes.clear();
+        while (troopsBuildings.hasNext()) {
+            GeneralBuilding building = troopsBuildings.next();
+            values.addAll(Arrays.asList(uuid.toString(), building.getCoordinate().getBlockX() + "", building.getCoordinate().getBlockZ() + ""));
+            dataTypes.addAll(Arrays.asList("string", "", ""));
+            if (troopsBuildings.hasNext()) {
+                values.add(null);
+                dataTypes.add(null);
+            }
+        }
+        if (!values.isEmpty())
+            this.databaseHandler.insertIntoTable(TABLE_TROOPS, values, dataTypes);
     }
 
 
