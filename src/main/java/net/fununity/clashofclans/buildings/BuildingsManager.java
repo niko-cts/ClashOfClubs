@@ -91,12 +91,14 @@ public class BuildingsManager {
 
         Schematics.createPlayerBase(baseLoc);
         List<GeneralBuilding> startBuildings = new ArrayList<>(Arrays.asList(
-                new GeneralBuilding(uuid, Buildings.TOWN_HALL, baseLoc.clone().add(50, 0, 50), (byte) 0, 0),
-                new GeneralBuilding(uuid, Buildings.BUILDER, baseLoc.clone().add(15, 0, 15), (byte) 0, 1),
-                new ResourceGatherBuilding(uuid, ResourceGathererBuildings.GOLD_MINER, baseLoc.clone().add(30, 0, 50), (byte) 1, 1),
-                new ResourceContainerBuilding(uuid, ResourceContainerBuildings.GOLD_STOCK, baseLoc.clone().add(50, 0, 30), (byte) 0, 1, 350),
-                new ResourceContainerBuilding(uuid, ResourceContainerBuildings.BARN_STOCK, baseLoc.clone().add(40, 0, 30), (byte) 1, 1, 350),
-                new GeneralBuilding(uuid, Buildings.CLUB_TOWER, baseLoc.clone().add(50, 0, 10), (byte) 0, 0)));
+                new GeneralBuilding(uuid, Buildings.TOWN_HALL, baseLoc.clone().add(82, 0, 90), (byte) 0, 0),
+                new GeneralBuilding(uuid, Buildings.BUILDER, baseLoc.clone().add(77, 0, 80), (byte) 0, 1),
+                new ResourceGatherBuilding(uuid, ResourceGathererBuildings.GOLD_MINER, baseLoc.clone().add(113, 0, 117), (byte) 0, 1),
+                new ResourceGatherBuilding(uuid, ResourceGathererBuildings.FARM, baseLoc.clone().add(68, 0, 118), (byte) 1, 1),
+                new ResourceContainerBuilding(uuid, ResourceContainerBuildings.GOLD_STOCK, baseLoc.clone().add(117, 0, 104), (byte) 0, 1, 350),
+                new ResourceContainerBuilding(uuid, ResourceContainerBuildings.BARN_STOCK, baseLoc.clone().add(105, 0, 139), (byte) 2, 1, 350),
+                new DefenseBuilding(uuid, DefenseBuildings.CANNON, baseLoc.clone().add(72, 0, 92), (byte) 2, 1),
+                new DefenseBuilding(uuid, DefenseBuildings.CANNON, baseLoc.clone().add(116, 0, 83), (byte) 0, 1)));
 
 
         for (GeneralBuilding building : startBuildings) {
@@ -160,7 +162,7 @@ public class BuildingsManager {
             return false;
         }
 
-        if(player.getBuildings().stream().filter(b -> b.getBuilding() == Buildings.BUILDER).count() <= player.getBuildings().stream().filter(b -> b instanceof ConstructionBuilding).count()) {
+        if (player.getBuildings().stream().filter(b -> b.getBuilding() == Buildings.BUILDER).count() <= player.getBuildings().stream().filter(b -> b instanceof ConstructionBuilding).count()) {
             FunUnityAPI.getInstance().getActionbarManager().addActionbar(building.getUuid(), new ActionbarMessage(TranslationKeys.COC_PLAYER_BUILDERS_WORKING));
             return false;
         }
@@ -185,6 +187,10 @@ public class BuildingsManager {
             finishedBuilding(constructionBuilding);
             return;
         }
+
+        if (building.getBuilding() == Buildings.TOWN_HALL && building.getLevel() == 0)
+            FunUnityAPI.getInstance().getActionbarManager().clearActionbar(player.getUniqueId());
+
         Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
             if (building.getBuilding() == Buildings.TOWN_HALL || building.getLevel() != 0)
                 Schematics.removeBuilding(building.getCoordinate(), building.getBuilding().getSize(), building.getRotation());
@@ -222,6 +228,7 @@ public class BuildingsManager {
             Schematics.removeBuilding(building.getCoordinate(), building.getBuilding().getSize(), building.getRotation());
 
             building.setLevel(building.getLevel() + 1);
+            building.setCurrentHP(null, building.getMaxHP());
 
             BuildingLocationUtil.savePlayerFromBuilding(building);
 

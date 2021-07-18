@@ -12,9 +12,9 @@ import net.fununity.clashofclans.util.BuildingLocationUtil;
 import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.player.APIPlayer;
-import net.fununity.main.api.util.LocationUtil;
 import net.fununity.misc.translationhandler.translations.Language;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
@@ -61,17 +61,18 @@ public class CoCPlayer extends CoCDataPlayer {
         if (apiPlayer.getUniqueId().equals(uuid)) {
             Language lang = apiPlayer.getLanguage();
             apiPlayer.getPlayer().getInventory().setItem(6, new ItemBuilder(Material.PAPER).setName(lang.getTranslation(TranslationKeys.COC_GUI_ATTACKHISTORY_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_GUI_ATTACKHISTORY_LORE).split(";")).craft());
-            apiPlayer.getPlayer().getInventory().setItem(7, new ItemBuilder(Material.IRON_SWORD).addItemFlags(ItemFlag.HIDE_ATTRIBUTES).setName(lang.getTranslation(TranslationKeys.COC_GUI_ATTACK_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_GUI_ATTACK_LORE).split(";")).craft());
+            //apiPlayer.getPlayer().getInventory().setItem(7, new ItemBuilder(Material.IRON_SWORD).addItemFlags(ItemFlag.HIDE_ATTRIBUTES).setName(lang.getTranslation(TranslationKeys.COC_GUI_ATTACK_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_GUI_ATTACK_LORE).split(";")).craft());
             apiPlayer.getPlayer().getInventory().setItem(8, new ItemBuilder(Material.CLOCK).setName(lang.getTranslation(TranslationKeys.COC_GUI_CONSTRUCTION_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_GUI_CONSTRUCTION_LORE).split(";")).craft());
 
             getBuildings().stream().filter(b -> b instanceof IBuildingWithHologram).forEach(b -> ((IBuildingWithHologram) b).getHolograms().forEach(apiPlayer::showHologram));
         }
         if (teleport) {
-            Location visitorLoc = getLocation().add(20, 0, 20);
+            Location visitorLoc = getLocation().add(30, 0, 30);
             visitorLoc.setY(BuildingLocationUtil.getHighestYCoordinate(visitorLoc) + 1);
             apiPlayer.getPlayer().teleport(visitorLoc);
         }
 
+        apiPlayer.getPlayer().setGameMode(GameMode.SURVIVAL);
         apiPlayer.getPlayer().setAllowFlight(true);
     }
 
@@ -111,15 +112,6 @@ public class CoCPlayer extends CoCDataPlayer {
     public int getTownHallLevel() {
         GeneralBuilding townHall = getBuildings().stream().filter(b -> b.getBuilding() == Buildings.TOWN_HALL).findFirst().orElse(null);
         return townHall != null ? townHall.getLevel() : 0;
-    }
-
-    /**
-     * Get the amount of builders.
-     * @return int - builders amount.
-     * @since 0.0.1
-     */
-    public int getAmountOfBuilders() {
-        return (int) getBuildings().stream().filter(b -> b.getBuilding() == Buildings.BUILDER).count();
     }
 
     @Override

@@ -21,6 +21,7 @@ public class ResetCommand extends APICommand {
 
     public ResetCommand() {
         super("reset", "command.reset", TranslationKeys.COC_COMMAND_RESET_USAGE, TranslationKeys.COC_COMMAND_RESET_DESCRIPTION);
+        setTabRecommendPlayers(true);
     }
 
     @Override

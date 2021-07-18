@@ -19,10 +19,13 @@ import net.fununity.clashofclans.tickhandler.TroopsTickHandler;
 import net.fununity.clashofclans.troops.ITroop;
 import net.fununity.clashofclans.troops.Troops;
 import net.fununity.main.api.FunUnityAPI;
+import net.fununity.main.api.actionbar.ActionbarMessage;
+import net.fununity.main.api.actionbar.ActionbarMessageType;
 import net.fununity.main.api.inventory.CustomInventory;
 import net.fununity.main.api.messages.MessagePrefix;
 import net.fununity.main.api.player.APIPlayer;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 
 import java.sql.ResultSet;
@@ -71,22 +74,23 @@ public class PlayerManager {
         UUID uuid = player.getUniqueId();
         CoCPlayer coCPlayer;
 
-        boolean contains = DatabasePlayer.getInstance().contains(uuid);
-        if (contains) {
+        if (DatabasePlayer.getInstance().contains(uuid)) {
             coCPlayer = getPlayer(uuid);
             ResourceTickHandler.removeFromCache(coCPlayer);
             TroopsTickHandler.removeFromCache(coCPlayer);
             BuildingTickHandler.removeFromCache(coCPlayer);
         } else {
             player.sendMessage(MessagePrefix.INFO, TranslationKeys.COC_PLAYER_LOADING_BASE);
+            Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), ()->player.getPlayer().setGameMode(GameMode.SPECTATOR));
             coCPlayer = BuildingsManager.getInstance().createNewIsland(uuid);
+            player.sendActionbar(new ActionbarMessage(TranslationKeys.COC_PLAYER_REPAIR_TOWNHALL_FIRST).setType(ActionbarMessageType.STATIC));
         }
 
         coCPlayer.updateResources();
         this.playersMap.put(uuid, coCPlayer);
         ClashOfClubs.getInstance().getLoadedBases().add(uuid);
         Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> {
-            coCPlayer.visit(player, !contains);
+            coCPlayer.visit(player, true);
             coCPlayer.getBuildings().stream().filter(b -> b instanceof IBuildingWithHologram).forEach(b -> ((IBuildingWithHologram) b).updateHologram());
             ScoreboardMenu.show(coCPlayer);
         });
@@ -119,7 +123,7 @@ public class PlayerManager {
 
         if (onlinePlayer.hasCustomData("openInv")) {
             CustomInventory menu = (CustomInventory) onlinePlayer.getCustomData("openInv");
-            if (menu.getSpecialHolder() != null && menu.getSpecialHolder().equals(building.getId() + "-" + building.getCoordinate().toString())) {
+            if (menu.getSpecialHolder() != null && menu.getSpecialHolder().equals(building.getCoordinate().toString())) {
                 onlinePlayer.getPlayer().closeInventory();
                 building.getInventory(onlinePlayer.getLanguage()).open(onlinePlayer);
             }

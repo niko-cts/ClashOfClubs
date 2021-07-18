@@ -65,7 +65,7 @@ public class GeneralBuilding {
      */
     public CustomInventory getInventory(Language language) {
         CustomInventory menu = new CustomInventory(getBuildingTitle(language), 9*3);
-        menu.setSpecialHolder(getId() + "-" + getCoordinate().toString());
+        menu.setSpecialHolder(getCoordinate().toString());
         menu.fill(UsefulItems.BACKGROUND_GRAY);
         menu.setItem(11, new ItemBuilder(Material.WRITABLE_BOOK).setName(language.getTranslation(getBuilding().getNameKey())).setLore(language.getTranslation(getBuilding().getDescriptionKey()).split(";")).craft());
 
@@ -156,6 +156,7 @@ public class GeneralBuilding {
      */
     public void setCurrentHP(APIPlayer attacker, double currentHP) {
         this.currentHP = currentHP;
+        if (attacker == null) return;
         if (this.healthHologram != null)
             attacker.hideHologram(healthHologram);
         Location centerCoordinate = getCenterCoordinate();

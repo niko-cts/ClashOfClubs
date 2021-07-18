@@ -44,10 +44,7 @@ public class JoinListener implements Listener {
 
         this.betaInfo.addPlayer(event.getAPIPlayer().getPlayer());
 
-        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
-            CoCPlayer coCPlayer = PlayerManager.getInstance().playerJoins(event.getAPIPlayer());
-            Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> ScoreboardMenu.show(coCPlayer));
-        });
+        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> PlayerManager.getInstance().playerJoins(event.getAPIPlayer()));
     }
 
 }

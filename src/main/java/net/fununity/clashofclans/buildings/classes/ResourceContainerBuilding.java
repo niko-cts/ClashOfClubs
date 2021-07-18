@@ -74,7 +74,6 @@ public class ResourceContainerBuilding extends GeneralBuilding implements IBuild
         }
         menu.fill(UsefulItems.BACKGROUND_GRAY);
 
-
         String name = language.getTranslation(TranslationKeys.COC_GUI_CONTAINER_AMOUNT, Arrays.asList("${color}", "${max}", "${current}"), Arrays.asList(getContainingResourceType().getChatColor() + "", getMaximumResource() + "", ((int)getAmount()) + ""));
 
         double fillTill = 90.0 * getAmount() / getMaximumResource();
@@ -94,7 +93,7 @@ public class ResourceContainerBuilding extends GeneralBuilding implements IBuild
         int oldVersion = getCurrentBuildingVersion();
         this.currentAmount = currentAmount;
         if (!change) return;
-        Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> updateVersion(oldVersion != getCurrentBuildingVersion()));
+        updateVersion(oldVersion != getCurrentBuildingVersion());
         this.updateHologram();
     }
     /**
@@ -123,7 +122,7 @@ public class ResourceContainerBuilding extends GeneralBuilding implements IBuild
             if (this.hologram != null)
                 onlinePlayer.hideHolograms(this.hologram.getLocation());
 
-            this.hologram = new APIHologram(getCoordinate().clone().add(0.1, 2.5, 0.1), Collections.singletonList("" + getContainingResourceType().getChatColor() + ((int) getAmount()) + "§7/" + getContainingResourceType().getChatColor() + getMaximumResource()));
+            this.hologram = new APIHologram(getCoordinate().clone().add(0.75, 2.5, 0.75), Collections.singletonList("" + getContainingResourceType().getChatColor() + ((int) getAmount()) + "§7/" + getContainingResourceType().getChatColor() + getMaximumResource()));
             onlinePlayer.showHologram(this.hologram);
         }
     }
@@ -135,7 +134,7 @@ public class ResourceContainerBuilding extends GeneralBuilding implements IBuild
      */
     @Override
     public void updateVersion(boolean schematic) {
-        PlayerManager.getInstance().forceUpdateInventory(this);
+        Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> PlayerManager.getInstance().forceUpdateInventory(this));;
         if (schematic)
             Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> Schematics.createBuilding(this));
     }

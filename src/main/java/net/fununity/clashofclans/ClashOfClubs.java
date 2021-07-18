@@ -17,6 +17,7 @@ import net.fununity.clashofclans.listener.PlayerInteractListener;
 import net.fununity.clashofclans.listener.PlayerMoveListener;
 import net.fununity.clashofclans.listener.QuitListener;
 import net.fununity.clashofclans.tickhandler.BuildingTickHandler;
+import net.fununity.clashofclans.tickhandler.RealTimerHandler;
 import net.fununity.clashofclans.tickhandler.ResourceTickHandler;
 import net.fununity.clashofclans.tickhandler.TroopsTickHandler;
 import net.fununity.main.api.FunUnityAPI;
@@ -57,6 +58,7 @@ public class ClashOfClubs extends JavaPlugin {
         instance = this;
         this.saveDefaultConfig();
         FunUnityAPI.getInstance().getServerSettings().disable(ServerSetting.PLAYER_INTERACT_ENTITY);
+        FunUnityAPI.getInstance().getActionbarManager().start();
         this.playWorld = getServer().getWorld("world");
 
         this.attackingServer = getConfig().getBoolean("attacking-server");
@@ -78,6 +80,7 @@ public class ClashOfClubs extends JavaPlugin {
             BuildingTickHandler.startTimer();
         }
         registerUtil.register();
+        RealTimerHandler.startTimer();
 
         Schematics.cacheAllSchematics();
     }

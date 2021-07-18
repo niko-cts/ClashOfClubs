@@ -5,7 +5,6 @@ import net.fununity.clashofclans.buildings.classes.ConstructionBuilding;
 import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.util.BuildingLocationUtil;
-import net.fununity.main.api.common.util.RandomUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -13,7 +12,10 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 public class Schematics {
@@ -75,8 +77,6 @@ public class Schematics {
         return false;
     }
 
-    private static final List<Material> RANDOM_FLOOR = Arrays.asList(Material.GRASS_BLOCK, Material.GRASS_PATH);
-
     public static void removeBuilding(Location location, int[] size, byte rotation) {
         List<Block> areaBlocks = BuildingLocationUtil.getBlocksInBuildingGround(location,
                 new int[]{size[rotation == 1 || rotation == 3 ? 1 : 0], size[rotation == 1 || rotation == 3 ? 0 : 1]});
@@ -89,7 +89,7 @@ public class Schematics {
                 if (breakLoc.getBlock().getType() != Material.AIR) {
                     Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> {
                         if (ClashOfClubs.getBaseYCoordinate() + 1 >= breakLoc.getBlockY())
-                            breakLoc.getBlock().setType(RANDOM_FLOOR.get(RandomUtil.getRandomInt(RANDOM_FLOOR.size())));
+                            breakLoc.getBlock().setType(GroundMaterials.getRandomMaterial());
                         else
                             breakLoc.getBlock().setType(Material.AIR);
                     });

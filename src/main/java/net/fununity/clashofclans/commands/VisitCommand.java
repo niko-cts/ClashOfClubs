@@ -17,6 +17,7 @@ public class VisitCommand extends APICommand {
 
     public VisitCommand() {
         super("visit", "", TranslationKeys.COC_COMMAND_VISIT_USAGE, TranslationKeys.COC_COMMAND_VISIT_DESCRIPTION, "besuchen");
+        setTabRecommendPlayers(true);
     }
 
     @Override

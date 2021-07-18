@@ -56,7 +56,6 @@ public class ConstructionBuilding extends GeneralBuilding implements IBuildingWi
         for (int i = 0; i < inventory.getInventory().getSize() && i < 15; i++)
             menu.addItem(inventory.getInventory().getItem(i), inventory.getClickAction(i));
 
-
         menu.setItem(14, UsefulItems.BACKGROUND_GRAY);
 
         String name = language.getTranslation(TranslationKeys.COC_GUI_BUILDING_UNDERCONSTRUCTION, "${left}", DurationUtil.getDuration(getBuildingDuration()));
