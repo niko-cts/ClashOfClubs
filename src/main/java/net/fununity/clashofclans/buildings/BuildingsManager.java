@@ -102,25 +102,24 @@ public class BuildingsManager {
         for (GeneralBuilding building : startBuildings) {
             building.setCoordinate(BuildingLocationUtil.getCoordinate(building));
             coCPlayer.getBuildings().add(building);
-            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> Schematics.createBuilding(building));
+            Schematics.createBuilding(building);
         }
 
-        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
-            List<RandomWorldBuilding> rdmBuildings = new ArrayList<>();
-            for (int i = 0; i < RandomUtil.getRandomInt(15) + 10; i++) {
-                RandomWorldBuildings building = RandomWorldBuildings.getStartBuildings()[RandomUtil.getRandomInt(RandomWorldBuildings.getStartBuildings().length)];
-                Location randomBuildingLocation = BuildingLocationUtil.getRandomBuildingLocation(baseLoc, startBuildings, building.getSize());
-                byte rotation = (byte) RandomUtil.getRandomInt(4);
-                if (randomBuildingLocation != null)
-                    rdmBuildings.add(new RandomWorldBuilding(uuid, building, BuildingLocationUtil.getCoordinate(building.getSize(), rotation, randomBuildingLocation), rotation, 1));
-            }
-            for (RandomWorldBuilding building : rdmBuildings) {
-                coCPlayer.getBuildings().add(building);
-                Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> Schematics.createBuilding(building));
-            }
-            startBuildings.addAll(rdmBuildings);
-            DatabaseBuildings.getInstance().buildBuilding(uuid, startBuildings.toArray(new GeneralBuilding[0]));
-        });
+        List<RandomWorldBuilding> rdmBuildings = new ArrayList<>();
+        for (int i = 0; i < RandomUtil.getRandomInt(15) + 10; i++) {
+            RandomWorldBuildings building = RandomWorldBuildings.getStartBuildings()[RandomUtil.getRandomInt(RandomWorldBuildings.getStartBuildings().length)];
+            Location randomBuildingLocation = BuildingLocationUtil.getRandomBuildingLocation(baseLoc, startBuildings, building.getSize());
+            byte rotation = (byte) RandomUtil.getRandomInt(4);
+            if (randomBuildingLocation != null)
+                rdmBuildings.add(new RandomWorldBuilding(uuid, building, BuildingLocationUtil.getCoordinate(building.getSize(), rotation, randomBuildingLocation), rotation, 1));
+        }
+        for (RandomWorldBuilding building : rdmBuildings) {
+            coCPlayer.getBuildings().add(building);
+            Schematics.createBuilding(building);
+        }
+
+        startBuildings.addAll(rdmBuildings);
+        DatabaseBuildings.getInstance().buildBuilding(uuid, startBuildings.toArray(new GeneralBuilding[0]));
 
         return coCPlayer;
     }

@@ -75,7 +75,7 @@ public class Schematics {
         return false;
     }
 
-    private static final List<Material> RANDOM_FLOOR = Collections.singletonList(Material.GRASS_BLOCK);
+    private static final List<Material> RANDOM_FLOOR = Arrays.asList(Material.GRASS_BLOCK, Material.GRASS_PATH);
 
     public static void removeBuilding(Location location, int[] size, byte rotation) {
         List<Block> areaBlocks = BuildingLocationUtil.getBlocksInBuildingGround(location,
@@ -88,7 +88,7 @@ public class Schematics {
 
                 if (breakLoc.getBlock().getType() != Material.AIR) {
                     Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> {
-                        if (ClashOfClubs.getBaseYCoordinate() + 2 >= breakLoc.getBlockY())
+                        if (ClashOfClubs.getBaseYCoordinate() + 1 >= breakLoc.getBlockY())
                             breakLoc.getBlock().setType(RANDOM_FLOOR.get(RandomUtil.getRandomInt(RANDOM_FLOOR.size())));
                         else
                             breakLoc.getBlock().setType(Material.AIR);
@@ -113,9 +113,7 @@ public class Schematics {
         if (!SCHEMATICS.containsKey(id) && !load(id))
             return;
 
-        List<String> list = SCHEMATICS.get(id);
-
-        for (String str : list) {
+        for (String str : SCHEMATICS.get(id)) {
             String[] array = str.split(";");
             int[] coords = BuildingLocationUtil.getCoordinateFromRotation(rotation, Integer.parseInt(array[0]), Integer.parseInt(array[2]));
             int x = coords[0];
@@ -127,8 +125,9 @@ public class Schematics {
 
             if ((array[3].contains("wall") && !array[3].contains("face=wall") && !array[3].contains("wall_sign")) || array[3].contains("fence"))
                 blockData = material.createBlockData();
-            else
+            else {
                 blockData = ClashOfClubs.getInstance().getServer().createBlockData(BuildingLocationUtil.getBlockDataFromRotation(array[3], rotation));
+            }
 
             Block blockToChange = coordinate.clone().add(x, y, z).getBlock();
             if (!blockData.equals(blockToChange.getBlockData())) {

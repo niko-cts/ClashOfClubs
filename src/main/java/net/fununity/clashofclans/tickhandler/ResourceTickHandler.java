@@ -38,7 +38,7 @@ public class ResourceTickHandler {
                     IBuilding buildingID = BuildingsManager.getInstance().getBuildingById(set.getString("buildingID"));
 
                     resourceGatherBuildingList.add(new ResourceGatherBuilding(UUID.fromString(set.getString("uuid")), buildingID,
-                            new Location(ClashOfClubs.getInstance().getPlayWorld(), set.getInt("x"), ClashOfClubs.getBaseYCoordinate(), set.getInt("z")),
+                            new Location(ClashOfClubs.getInstance().getWorld(), set.getInt("x"), ClashOfClubs.getBaseYCoordinate(), set.getInt("z")),
                             set.getByte("rotation"), set.getInt("level"), set.getDouble("amount")));
                 }
             } catch (SQLException exception) {

@@ -15,6 +15,7 @@ import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.actionbar.ActionbarMessage;
 import net.fununity.main.api.player.APIPlayer;
 import net.fununity.main.api.util.LocationUtil;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -50,17 +51,20 @@ public class PlayerInteractListener implements Listener {
         Material handMaterial = event.getPlayer().getInventory().getItemInMainHand().getType();
 
         // setup stuff
-        if (handMaterial == Material.IRON_AXE && CoCCommand.getSchematicSetter().contains(event.getPlayer().getUniqueId())) {
-            if (event.getClickedBlock() == null) return;
-            event.setCancelled(true);
-            Location[] map = SCHEMATIC_SAVER.getOrDefault(event.getPlayer().getUniqueId(), new Location[2]);
-            if (event.getAction() == Action.LEFT_CLICK_BLOCK)
-                map[0] = event.getClickedBlock().getLocation();
-            else
-                map[1] = event.getClickedBlock().getLocation();
-            SCHEMATIC_SAVER.put(event.getPlayer().getUniqueId(), map);
-            event.getPlayer().sendMessage("§aSaved");
-            return;
+        if(CoCCommand.getSchematicSetter().contains(event.getPlayer().getUniqueId())) {
+            event.setCancelled(false);
+            if (handMaterial == Material.IRON_AXE) {
+                if (event.getClickedBlock() == null) return;
+                event.setCancelled(true);
+                Location[] map = SCHEMATIC_SAVER.getOrDefault(event.getPlayer().getUniqueId(), new Location[2]);
+                if (event.getAction() == Action.LEFT_CLICK_BLOCK)
+                    map[0] = event.getClickedBlock().getLocation();
+                else
+                    map[1] = event.getClickedBlock().getLocation();
+                SCHEMATIC_SAVER.put(event.getPlayer().getUniqueId(), map);
+                event.getPlayer().sendMessage("§aSaved");
+                return;
+            }
         }
 
 

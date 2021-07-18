@@ -162,14 +162,14 @@ public class DatabasePlayer {
     public Location getHighestCoordinate() {
         try (ResultSet set = this.databaseHandler.select(TABLE_DATA, Arrays.asList("x", "z"), "WHERE 1=1 ORDER BY x DESC, z DESC LIMIT 1")) {
             if (set != null && set.next()) {
-                Location location = new Location(ClashOfClubs.getInstance().getPlayWorld(), set.getInt("x"), ClashOfClubs.getBaseYCoordinate(), set.getInt("z"));
+                Location location = new Location(ClashOfClubs.getInstance().getWorld(), set.getInt("x"), ClashOfClubs.getBaseYCoordinate(), set.getInt("z"));
                 return location.getBlockX() >= 20000000 ? location.add(-40000000, 0, ClashOfClubs.getBaseSize() * 3) : location.add(ClashOfClubs.getBaseSize() * 3, 0, 0);
             }
         } catch (SQLException exception) {
             ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
         }
 
-        return new Location(ClashOfClubs.getInstance().getPlayWorld(), -20000000, ClashOfClubs.getBaseYCoordinate(), -20000000);
+        return new Location(ClashOfClubs.getInstance().getWorld(), -20000000, ClashOfClubs.getBaseYCoordinate(), -20000000);
     }
 
 
@@ -195,7 +195,7 @@ public class DatabasePlayer {
                     resourceTypes.put(type, data.getInt(type.name().toLowerCase()));
 
                 list.add(new CoCDataPlayer(UUID.fromString(data.getString(TABLE_DATA + ".uuid")),
-                        new Location(ClashOfClubs.getInstance().getPlayWorld(), playerX, ClashOfClubs.getBaseYCoordinate(), playerZ), resourceTypes, xp, elo));
+                        new Location(ClashOfClubs.getInstance().getWorld(), playerX, ClashOfClubs.getBaseYCoordinate(), playerZ), resourceTypes, xp, elo));
             }
         } catch (SQLException exception) {
             ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());

@@ -142,6 +142,7 @@ public class EnglishMessages extends MessageList {
 
         // ATTACK GUI
         add(TranslationKeys.COC_GUI_ATTACK_NAME, "&6Start matchmaking search...");
+        add(TranslationKeys.COC_GUI_ATTACK_LORE, "&7Click this to show the attacking GUI.");
         add(TranslationKeys.COC_GUI_ATTACKHISTORY_LORE, "&7Click to start matchmaking.;&7You will be send to a;&7preview of the base you can attack.");
         add(TranslationKeys.COC_GUI_ATTACKHISTORY_NAME, "&eView attack history");
         add(TranslationKeys.COC_GUI_ATTACKHISTORY_LORE, "&7Open the attack history menu.");

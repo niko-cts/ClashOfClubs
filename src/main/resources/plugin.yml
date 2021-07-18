@@ -7,4 +7,3 @@ depend:
   - FunUnityAPI
   - DatabaseHandler
   - TranslationHandler
-  - NPCSystem

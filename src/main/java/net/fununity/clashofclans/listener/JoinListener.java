@@ -10,6 +10,9 @@ import net.fununity.main.api.cloud.CloudManager;
 import net.fununity.main.api.event.player.APIPlayerJoinEvent;
 import net.fununity.main.api.messages.MessagePrefix;
 import org.bukkit.Bukkit;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
@@ -19,6 +22,12 @@ import org.bukkit.event.Listener;
  * @since 0.0.1
  */
 public class JoinListener implements Listener {
+
+    private final BossBar betaInfo;
+
+    public JoinListener() {
+        this.betaInfo = ClashOfClubs.getInstance().getServer().createBossBar("§7This game is in beta stage!", BarColor.WHITE, BarStyle.SOLID);
+    }
 
     /**
      * Will be called, when a player joins.
@@ -32,6 +41,8 @@ public class JoinListener implements Listener {
             CloudManager.getInstance().sendPlayerToServer(MatchmakingSystem.ATTACKER_SERVER, event.getAPIPlayer().getUniqueId());
             return;
         }
+
+        this.betaInfo.addPlayer(event.getAPIPlayer().getPlayer());
 
         Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
             CoCPlayer coCPlayer = PlayerManager.getInstance().playerJoins(event.getAPIPlayer());

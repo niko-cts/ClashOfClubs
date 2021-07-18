@@ -138,7 +138,7 @@ public class TroopsBuildingManager {
             while (building != null && building.next()) {
                 int x = building.getInt("x");
                 int z = building.getInt("z");
-                Location location = new Location(ClashOfClubs.getInstance().getPlayWorld(), x, ClashOfClubs.getBaseYCoordinate(), z);
+                Location location = new Location(ClashOfClubs.getInstance().getWorld(), x, ClashOfClubs.getBaseYCoordinate(), z);
 
                 ConcurrentMap<ITroop, Integer> amount = new ConcurrentHashMap<>();
                 for (Troops troop : Troops.values())

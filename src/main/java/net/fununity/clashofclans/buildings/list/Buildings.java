@@ -8,12 +8,12 @@ import net.fununity.clashofclans.language.TranslationKeys;
 import org.bukkit.Material;
 
 public enum Buildings implements IBuilding {
-    TOWN_HALL (TranslationKeys.COC_BUILDING_GENERAL_TOWN_HALL_NAME, TranslationKeys.COC_BUILDING_GENERAL_TOWN_HALL_DESCRIPTION, new int[]{28, 27}, ResourceTypes.GOLD, Material.AIR,
+    TOWN_HALL(TranslationKeys.COC_BUILDING_GENERAL_TOWN_HALL_NAME, TranslationKeys.COC_BUILDING_GENERAL_TOWN_HALL_DESCRIPTION, new int[]{28, 27}, ResourceTypes.GOLD, Material.AIR,
             new BuildingLevelData[]{new BuildingLevelData(500, 0, 10, 10),
                                     new BuildingLevelData(1000, 1, 500, 180),
                                     new BuildingLevelData(1500, 2, 2000, 1800),
                                     new BuildingLevelData(2500, 3, 12500, 7200)}),
-    BUILDER (TranslationKeys.COC_BUILDING_GENERAL_BUILDER_NAME, TranslationKeys.COC_BUILDING_GENERAL_BUILDER_DESCRIPTION, new int[]{2, 2}, ResourceTypes.GEMS, Material.WOODEN_AXE,
+    BUILDER (TranslationKeys.COC_BUILDING_GENERAL_BUILDER_NAME, TranslationKeys.COC_BUILDING_GENERAL_BUILDER_DESCRIPTION, new int[]{7, 7}, ResourceTypes.GEMS, Material.WOODEN_AXE,
             new BuildingLevelData[]{new BuildingLevelData(250, 1, 500, 0)}),
     CLUB_TOWER (TranslationKeys.COC_BUILDING_GENERAL_CLUB_TOWER_NAME, TranslationKeys.COC_BUILDING_GENERAL_CLUB_TOWER_DESCRIPTION, new int[]{5, 5}, ResourceTypes.GOLD, Material.AIR,
             new BuildingLevelData[]{new BuildingLevelData(1500, 5, 250000, 3600*3)});

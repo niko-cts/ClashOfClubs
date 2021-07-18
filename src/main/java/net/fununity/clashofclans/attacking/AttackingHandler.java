@@ -71,7 +71,7 @@ public class AttackingHandler {
         CoCPlayer attackingCoC = PlayerManager.getInstance().getPlayer(attacker);
         CoCPlayer defense = PlayerManager.getInstance().getPlayer(defender);
         Location oldBase = defense.getLocation();
-        Location playerBase = new Location(ClashOfClubs.getInstance().getAttackWorld(), (id * ClashOfClubs.getBaseSize() + 200) + MIN_X_COORDINATE, ClashOfClubs.getBaseYCoordinate(), 0);
+        Location playerBase = new Location(ClashOfClubs.getInstance().getWorld(), (id * ClashOfClubs.getBaseSize() + 200) + MIN_X_COORDINATE, ClashOfClubs.getBaseYCoordinate(), 0);
         List<GeneralBuilding> realBuilding = new ArrayList<>(defense.getBuildings());
         List<GeneralBuilding> fakeBuildings = new ArrayList<>();
 
@@ -81,7 +81,7 @@ public class AttackingHandler {
             int xDif = oldLoc.getBlockX() - oldBase.getBlockX();
             int zDif = oldLoc.getBlockZ() - oldBase.getBlockZ();
 
-            Location buildingLoc = playerBase.clone().add(new Location(ClashOfClubs.getInstance().getAttackWorld(), xDif, 0, zDif));
+            Location buildingLoc = playerBase.clone().add(new Location(ClashOfClubs.getInstance().getWorld(), xDif, 0, zDif));
 
             generalBuilding.setCoordinate(buildingLoc);
             generalBuilding.setCoordinate(BuildingLocationUtil.getCoordinate(generalBuilding));

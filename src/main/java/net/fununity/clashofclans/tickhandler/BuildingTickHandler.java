@@ -30,7 +30,7 @@ public class BuildingTickHandler {
         Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
             try (ResultSet set = DatabaseBuildings.getInstance().getConstructionBuildings()) {
                 while (set != null && set.next()) {
-                    Location location = new Location(ClashOfClubs.getInstance().getPlayWorld(), set.getInt("x"), 100, set.getInt("z"));
+                    Location location = new Location(ClashOfClubs.getInstance().getWorld(), set.getInt("x"), 100, set.getInt("z"));
                     constructionBuildingList.add(new ConstructionBuilding(new GeneralBuilding(UUID.fromString(set.getString("uuid")),
                             BuildingsManager.getInstance().getBuildingById(set.getString("buildingID")), location, set.getByte("rotation"), set.getInt("level")),
                             (int) ChronoUnit.SECONDS.between(OffsetDateTime.now(), OffsetDateTime.parse(set.getString("date")))));

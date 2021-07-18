@@ -23,8 +23,6 @@ import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.server.ServerSetting;
 import net.fununity.main.api.util.RegisterUtil;
 import org.bukkit.World;
-import org.bukkit.WorldCreator;
-import org.bukkit.WorldType;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -45,7 +43,6 @@ public class ClashOfClubs extends JavaPlugin {
     private boolean attackingServer;
     private final List<UUID> loadedBases;
     private World playWorld;
-    private World attackWorld;
 
     public ClashOfClubs() {
         this.loadedBases = new ArrayList<>();
@@ -58,37 +55,30 @@ public class ClashOfClubs extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+        this.saveDefaultConfig();
         FunUnityAPI.getInstance().getServerSettings().disable(ServerSetting.PLAYER_INTERACT_ENTITY);
         this.playWorld = getServer().getWorld("world");
-        this.attackWorld = getServer().getWorld("attackWorld");
-        if (attackWorld == null) {
-            WorldCreator attackWorld = new WorldCreator("attackWorld");
-            attackWorld.type(WorldType.FLAT);
-            this.attackWorld = getServer().createWorld(attackWorld);
-        }
 
         this.attackingServer = getConfig().getBoolean("attacking-server");
-
-        if (attackingServer) {
-            FunUnityAPI.getInstance().getCloudClient().getCloudEventManager().addCloudListener(new CloudAttackingListener());
-        } else {
-            FunUnityAPI.getInstance().getCloudClient().getCloudEventManager().addCloudListener(new CloudNormalListener());
-        }
 
         new EnglishMessages();
         new GermanMessages();
 
         RegisterUtil registerUtil = new RegisterUtil(this);
-        registerUtil.addListeners(new JoinListener(), new QuitListener(), new PlayerInteractListener(), new PlayerMoveListener());
-        registerUtil.addCommands(new CoCCommand(), new HomeCommand(), new VisitCommand(), new ResetCommand());
+        if (attackingServer) {
+            FunUnityAPI.getInstance().getCloudClient().getCloudEventManager().addCloudListener(new CloudAttackingListener());
+            registerUtil.addListeners(new AttackingJoinListener(), new AttackingQuitListener(), new AttackingPlayerInteractListener());
+        } else {
+            FunUnityAPI.getInstance().getCloudClient().getCloudEventManager().addCloudListener(new CloudNormalListener());
+            registerUtil.addListeners(new JoinListener(), new QuitListener(), new PlayerInteractListener(), new PlayerMoveListener());
+            registerUtil.addCommands(new CoCCommand(), new HomeCommand(), new VisitCommand(), new ResetCommand());
 
-        registerUtil.addListeners(new AttackingJoinListener(), new AttackingQuitListener(), new AttackingPlayerInteractListener());
-
+            ResourceTickHandler.startTimer();
+            TroopsTickHandler.startTimer();
+            BuildingTickHandler.startTimer();
+        }
         registerUtil.register();
 
-        ResourceTickHandler.startTimer();
-        TroopsTickHandler.startTimer();
-        BuildingTickHandler.startTimer();
         Schematics.cacheAllSchematics();
     }
 
@@ -98,7 +88,8 @@ public class ClashOfClubs extends JavaPlugin {
      */
     @Override
     public void onDisable() {
-        ResourceTickHandler.syncResources();
+        if (!attackingServer)
+            ResourceTickHandler.syncResources();
     }
 
     /**
@@ -119,19 +110,8 @@ public class ClashOfClubs extends JavaPlugin {
      * @return World - the play world.
      * @since 0.0.1
      */
-    public World getPlayWorld() {
+    public World getWorld() {
         return playWorld;
-    }
-
-    /**
-     * Get the world, where the attacking happens.
-     * @return World - the attacking world.
-     * @deprecated attacking and normal part will be split on two servers.
-     * @since 0.0.1
-     */
-    @Deprecated
-    public World getAttackWorld() {
-        return attackWorld;
     }
 
     /**

@@ -4,7 +4,6 @@ import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.BuildingsManager;
 import net.fununity.clashofclans.buildings.DatabaseBuildings;
-import net.fununity.clashofclans.buildings.Schematics;
 import net.fununity.clashofclans.buildings.classes.ConstructionBuilding;
 import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
 import net.fununity.clashofclans.buildings.classes.ResourceGatherBuilding;
@@ -142,7 +141,7 @@ public class PlayerManager {
         try (ResultSet set = DatabaseBuildings.getInstance().getBuildings(uuid)) {
             while (set != null && set.next()) {
                 IBuilding buildingID = BuildingsManager.getInstance().getBuildingById(set.getString("buildingID"));
-                Location location = new Location(ClashOfClubs.getInstance().getPlayWorld(), set.getInt("x"), ClashOfClubs.getBaseYCoordinate(), set.getInt("z"));
+                Location location = new Location(ClashOfClubs.getInstance().getWorld(), set.getInt("x"), ClashOfClubs.getBaseYCoordinate(), set.getInt("z"));
                 if (buildingID instanceof IResourceContainerBuilding) {
                     coCPlayer.getBuildings().add(BuildingsManager.getInstance()
                             .getBuildingInstance(uuid, buildingID, location, set.getByte("rotation"), set.getInt("level"), set.getInt("amount")));
@@ -200,7 +199,7 @@ public class PlayerManager {
                 for (ResourceTypes type : ResourceTypes.values())
                     resourceTypes.put(type, data.getInt(type.name().toLowerCase()));
 
-                return new CoCDataPlayer(uuid, new Location(ClashOfClubs.getInstance().getPlayWorld(), playerX, ClashOfClubs.getBaseYCoordinate(), playerZ), resourceTypes, xp, elo);
+                return new CoCDataPlayer(uuid, new Location(ClashOfClubs.getInstance().getWorld(), playerX, ClashOfClubs.getBaseYCoordinate(), playerZ), resourceTypes, xp, elo);
             }
         } catch (SQLException exception) {
             ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());

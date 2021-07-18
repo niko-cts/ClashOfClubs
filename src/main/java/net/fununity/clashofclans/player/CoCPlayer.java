@@ -113,6 +113,15 @@ public class CoCPlayer extends CoCDataPlayer {
         return townHall != null ? townHall.getLevel() : 0;
     }
 
+    /**
+     * Get the amount of builders.
+     * @return int - builders amount.
+     * @since 0.0.1
+     */
+    public int getAmountOfBuilders() {
+        return (int) getBuildings().stream().filter(b -> b.getBuilding() == Buildings.BUILDER).count();
+    }
+
     @Override
     public void setGems(int amount) {
         super.setGems(amount);
