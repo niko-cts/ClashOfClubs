@@ -55,7 +55,7 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_BUILDING_CONTAINER_GOLD_STOCK_NAME, "&6Gold stock");
         add(TranslationKeys.COC_BUILDING_CONTAINER_GOLD_STOCK_DESCRIPTION, "&7Your gold is stored in this;&7vault. It is absolutly burglarproof.;&7Well... almost.");
         add(TranslationKeys.COC_BUILDING_CONTAINER_BARN_NAME, "&dBarn");
-        add(TranslationKeys.COC_BUILDING_CONTAINER_BARN_DESCRIPTION, "&7This building stores all of your;&7food. You need food to;&7train your troops.);
+        add(TranslationKeys.COC_BUILDING_CONTAINER_BARN_DESCRIPTION, "&7This building stores all of your;&7food. You need food to;&7train your troops.");
         add(TranslationKeys.COC_BUILDING_CONTAINER_GENERATOR_NAME, "&eGenerator");
         add(TranslationKeys.COC_BUILDING_CONTAINER_GENERATOR_DESCRIPTION, "&7This building generates &eelectricity;&7while consuming &8coal&7.");
         add(TranslationKeys.COC_BUILDING_CONTAINER_LOREDETAILS, ";&7ResourceType: ${type};&7Maximum amount: ${color}${max}");
