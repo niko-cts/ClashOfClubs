@@ -79,7 +79,7 @@ public class EnglishMessages extends MessageList {
         // BARACK BUILDINGS
         add(TranslationKeys.COC_BUILDING_TROOPS_CREATION_BARRACKS_NORMAL_NAME, "&6Baracks");
         add(TranslationKeys.COC_BUILDING_TROOPS_CREATION_BARRACKS_NORMAL_DESCRIPTION, "&7This building trains your troops.");
-        add(TranslationKeys.COC_BUILDING_TROOPS_ARMYCAMP_NAME, "&6Armycamp");
+        add(TranslationKeys.COC_BUILDING_TROOPS_ARMYCAMP_NAME, "&6Army Camp");
         add(TranslationKeys.COC_BUILDING_TROOPS_ARMYCAMP_DESCRIPTION, "&7This building stores your troops.");
 
         // RANDOM
