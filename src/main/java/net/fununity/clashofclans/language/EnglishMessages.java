@@ -15,13 +15,13 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_COMMAND_VISIT_USAGE, "visit <User>");
         add(TranslationKeys.COC_COMMAND_VISIT_DESCRIPTION, "&7Visit another base.");
         add(TranslationKeys.COC_COMMAND_VISIT_ILLEGAL_HASNOBUILDING, "&cThis user has not played " + ClashOfClubs.getColoredName().replace("§", "&") + " &cyet.");
-        add(TranslationKeys.COC_COMMAND_VISIT_ILLEGAL_NOTONLINE, "&cThis user is not online! &7Buy &6premium &7to visit offline player bases.");
-        add(TranslationKeys.COC_COMMAND_VISIT_SUCCESS, "&aYou will be send to the base!");
+        add(TranslationKeys.COC_COMMAND_VISIT_ILLEGAL_NOTONLINE, "&7This user is &coffline&7! You can visit offline players by buying a rank!");
+        add(TranslationKeys.COC_COMMAND_VISIT_SUCCESS, "&aBoarding plane...;");
 
         // HOME
         add(TranslationKeys.COC_COMMAND_HOME_USAGE, "home");
-        add(TranslationKeys.COC_COMMAND_HOME_DESCRIPTION, "&7Sends you back to your home.");
-        add(TranslationKeys.COC_COMMAND_HOME_SUCCESS, "&aYou will be send back to your home.");
+        add(TranslationKeys.COC_COMMAND_HOME_DESCRIPTION, "&7Back to your home base.");
+        add(TranslationKeys.COC_COMMAND_HOME_SUCCESS, "&aBoarding plane...");
 
         // RESET
         add(TranslationKeys.COC_COMMAND_RESET_USAGE, "reset (<User>)");
@@ -30,43 +30,43 @@ public class EnglishMessages extends MessageList {
 
 
         // PLAYER
-        add(TranslationKeys.COC_PLAYER_LOADING_BASE, "&7Loading up your base... Please wait!");
-        add(TranslationKeys.COC_PLAYER_NOT_ENOUGH_RESOURCE, "&cYou have not enough ${type}&c!");
-        add(TranslationKeys.COC_PLAYER_NO_MORE_BUILDINGS, "&cYou can only build that &e${max} &ctimes at this town hall level.");
-        add(TranslationKeys.COC_PLAYER_NO_RESOURCE_TANKS, "&cYou have no free container space for this resource!");
-        add(TranslationKeys.COC_PLAYER_BUILDERS_WORKING, "&cAll of your builders are currently working!");
-        add(TranslationKeys.COC_PLAYER_REPAIR_TOWNHALL_FIRST, "&cRepair your town hall first!");
+        add(TranslationKeys.COC_PLAYER_LOADING_BASE, "&7;&6&lWelcome!;&7I'm &eTheodore&7, your new builder! Let me prepare the base for you!;&7Removing trees... &aFinished!;&7Building town hall... &aFinished!;&7Luchbreak... &aFinished!;&7Making beds... &aFinished!;&7Finding hammer... &aFinished!;&7Digging mine... &aFinished!;&7;&7Your base should be ready now! I'll just make a few more adjustments...");
+        add(TranslationKeys.COC_PLAYER_NOT_ENOUGH_RESOURCE, "&eTheodore&7: Seems like we need &emore &7${type}&7!");
+        add(TranslationKeys.COC_PLAYER_NO_MORE_BUILDINGS, "&eTheodore&7: I'm sorry! &e:/ &7I can only build that &e${max} times &7at this town hall level...");
+        add(TranslationKeys.COC_PLAYER_NO_RESOURCE_TANKS, "&eTheodore&7: Chief, we &cdon't &7have any more capacity!");
+        add(TranslationKeys.COC_PLAYER_BUILDERS_WORKING, "&eTheodore&7: We're trying our best, but at this point, all builder are bussy!");
+        add(TranslationKeys.COC_PLAYER_REPAIR_TOWNHALL_FIRST, "&eTheodore&7: I'll have to repair your town hall first!");
 
         // RESOURCE
         add(TranslationKeys.COC_RESOURCE_FOOD, "&dFood");
         add(TranslationKeys.COC_RESOURCE_GOLD, "&6Gold");
-        add(TranslationKeys.COC_RESOURCE_ELECTRIC, "&eYellow");
-        add(TranslationKeys.COC_RESOURCE_GEMS, "&2Gems");
+        add(TranslationKeys.COC_RESOURCE_ELECTRIC, "&eElectricity");
+        add(TranslationKeys.COC_RESOURCE_GEMS, "&bChocolate");
 
         // BUILDINGS
         add(TranslationKeys.COC_BUILDING_GENERAL_TOWN_HALL_NAME, "&6Town Hall");
-        add(TranslationKeys.COC_BUILDING_GENERAL_TOWN_HALL_DESCRIPTION, "&7The town hall is the main building;&7in your city");
+        add(TranslationKeys.COC_BUILDING_GENERAL_TOWN_HALL_DESCRIPTION, "&7The town hall is the main building;&7in your village.");
         add(TranslationKeys.COC_BUILDING_GENERAL_BUILDER_NAME, "&6Builder");
-        add(TranslationKeys.COC_BUILDING_GENERAL_BUILDER_DESCRIPTION, "&7The town hall is the main building;&7in your city");
+        add(TranslationKeys.COC_BUILDING_GENERAL_BUILDER_DESCRIPTION, "&7The builders live here.;Yes, our beloved Theodore as well!");
         add(TranslationKeys.COC_BUILDING_GENERAL_CLUB_TOWER_NAME, "&6Club Tower");
-        add(TranslationKeys.COC_BUILDING_GENERAL_CLUB_TOWER_DESCRIPTION, "&7The club tower represents the ");
+        add(TranslationKeys.COC_BUILDING_GENERAL_CLUB_TOWER_DESCRIPTION, "&7The club tower is of utmost;&7importance to conduct all the;&7tasks surrounding your club! ");
 
         // CONTAINER
         add(TranslationKeys.COC_BUILDING_CONTAINER_GOLD_STOCK_NAME, "&6Gold stock");
-        add(TranslationKeys.COC_BUILDING_CONTAINER_GOLD_STOCK_DESCRIPTION, "&7This building stores your gold.");
-        add(TranslationKeys.COC_BUILDING_CONTAINER_BARN_NAME, "&dCarrot Barn");
-        add(TranslationKeys.COC_BUILDING_CONTAINER_BARN_DESCRIPTION, "&7This building stores your carrots.");
+        add(TranslationKeys.COC_BUILDING_CONTAINER_GOLD_STOCK_DESCRIPTION, "&7Your gold is stored in this;&7vault. It is absolutly burglarproof.;&7Well... almost.");
+        add(TranslationKeys.COC_BUILDING_CONTAINER_BARN_NAME, "&dBarn");
+        add(TranslationKeys.COC_BUILDING_CONTAINER_BARN_DESCRIPTION, "&7This building stores all of your;&7food. You need food to;&7train your troops.");
         add(TranslationKeys.COC_BUILDING_CONTAINER_GENERATOR_NAME, "&eGenerator");
         add(TranslationKeys.COC_BUILDING_CONTAINER_GENERATOR_DESCRIPTION, "&7This building generates &eelectricity;&7while consuming &8coal&7.");
         add(TranslationKeys.COC_BUILDING_CONTAINER_LOREDETAILS, ";&7ResourceType: ${type};&7Maximum amount: ${color}${max}");
 
         // GATHER
         add(TranslationKeys.COC_BUILDING_GATHER_GOLD_MINER_NAME, "&6Gold miner");
-        add(TranslationKeys.COC_BUILDING_GATHER_GOLD_MINER_DESCRIPTION, "&7The miner mines gold for you.");
+        add(TranslationKeys.COC_BUILDING_GATHER_GOLD_MINER_DESCRIPTION, "&7This mine produces gold;&7for you. How convenient!");
         add(TranslationKeys.COC_BUILDING_GATHER_FARM_NAME, "&dFarm");
-        add(TranslationKeys.COC_BUILDING_GATHER_FARM_DESCRIPTION, "&7Farms your food.");
+        add(TranslationKeys.COC_BUILDING_GATHER_FARM_DESCRIPTION, "&7This is your food production;&7facility. No rats and mice;&7are allowed in here.");
         add(TranslationKeys.COC_BUILDING_GATHER_COAL_DRILL_NAME, "&8Coal drill");
-        add(TranslationKeys.COC_BUILDING_GATHER_COAL_DRILL_DESCRIPTION, "&7This building gathers coal for the &6Generator&7.");
+        add(TranslationKeys.COC_BUILDING_GATHER_COAL_DRILL_DESCRIPTION, "&7This building gathers coal for the &eGenerator&7.");
         add(TranslationKeys.COC_BUILDING_GATHER_LOREDETAILS, ";&7Gathers ${type};&7Maximum storage amount: ${color}${max};&7Resource per hour: ${color}${max}");
 
         // DEFENSE
@@ -79,7 +79,7 @@ public class EnglishMessages extends MessageList {
         // BARACK BUILDINGS
         add(TranslationKeys.COC_BUILDING_TROOPS_CREATION_BARRACKS_NORMAL_NAME, "&6Baracks");
         add(TranslationKeys.COC_BUILDING_TROOPS_CREATION_BARRACKS_NORMAL_DESCRIPTION, "&7This building trains your troops.");
-        add(TranslationKeys.COC_BUILDING_TROOPS_ARMYCAMP_NAME, "&6Armycamp");
+        add(TranslationKeys.COC_BUILDING_TROOPS_ARMYCAMP_NAME, "&6Army Camp");
         add(TranslationKeys.COC_BUILDING_TROOPS_ARMYCAMP_DESCRIPTION, "&7This building stores your troops.");
 
         // RANDOM

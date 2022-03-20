@@ -37,7 +37,7 @@ import java.util.UUID;
 public class ClashOfClubs extends JavaPlugin {
 
     private static ClashOfClubs instance;
-    private static final String TITLE = "§6Clash§0of§eClubs";
+    private static final String TITLE = "§6§lClash§6of§b§lClubs";
     private static final int BASE_Y_COORDINATE = 50;
     private static final int BASE_SIZE = 200;
     private static final int BASE_BACKGROUND = 13;
