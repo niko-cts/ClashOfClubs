@@ -89,7 +89,7 @@ public class GermanMessages extends MessageList {
         add(TranslationKeys.COC_GUI_CONTAINER_AMOUNT, "&6Amount: ${color}${current}&7/${color}${max}");
 
         add(TranslationKeys.COC_GUI_BUILDING_DESTROY_NAME, "&cDestroy");
-        add(TranslationKeys.COC_GUI_BUILDING_DESTROY_LORE, "&7Destroy this building.;&7Destroy cost: ${cost}");
+        add(TranslationKeys.COC_GUI_BUILDING_DESTROY_LORE, "&7Zerstöre das Gebäude.;&7Zerstörungs kosten: ${cost}");
 
         add(TranslationKeys.COC_GUI_GATHER_CLOCK_NAME, "${type} &6per hour");
         add(TranslationKeys.COC_GUI_GATHER_CLOCK_LORE, "&7This building gathers;${resource}&7/hour");
