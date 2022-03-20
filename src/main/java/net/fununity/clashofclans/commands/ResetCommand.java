@@ -36,6 +36,7 @@ public class ResetCommand extends APICommand {
             reset(apiPlayer.getUniqueId());
             return;
         }
+
         if (!apiPlayer.getPlayer().hasPermission(getPermission() + ".other")) {
             super.sendNoPermissionMessage(apiPlayer);
             return;

@@ -6,7 +6,7 @@ import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.PlayerManager;
 import net.fununity.clashofclans.util.BuildingLocationUtil;
 import net.fununity.main.api.FunUnityAPI;
-import net.fununity.main.api.common.util.DurationUtil;
+import net.fununity.main.api.common.util.FormatterUtil;
 import net.fununity.main.api.hologram.APIHologram;
 import net.fununity.main.api.inventory.CustomInventory;
 import net.fununity.main.api.item.ItemBuilder;
@@ -39,7 +39,7 @@ public class ConstructionBuilding extends GeneralBuilding implements IBuildingWi
 
         hologramLocation = getCoordinate().clone().add(getBuilding().getSize()[0] / 2.0, 0, getBuilding().getSize()[1] / 2.0);
         hologramLocation.setY(BuildingLocationUtil.getHighestYCoordinate(hologramLocation) + 2);
-        this.updateHologram();
+        this.hologram = new APIHologram(this.hologramLocation, Collections.singletonList(FormatterUtil.getDuration(getBuildingDuration())));
     }
 
     @Override
@@ -58,7 +58,7 @@ public class ConstructionBuilding extends GeneralBuilding implements IBuildingWi
 
         menu.setItem(14, UsefulItems.BACKGROUND_GRAY);
 
-        String name = language.getTranslation(TranslationKeys.COC_GUI_BUILDING_UNDERCONSTRUCTION, "${left}", DurationUtil.getDuration(getBuildingDuration()));
+        String name = language.getTranslation(TranslationKeys.COC_GUI_BUILDING_UNDERCONSTRUCTION, "${left}", FormatterUtil.getDuration(getBuildingDuration()));
         int finished = getCurrentBuildingVersion();
         for (int i = 10 / 9, j = 27; j < menu.getInventory().getSize(); i += 10 / 9, j++)
             menu.setItem(j, new ItemBuilder(i <= finished ? UsefulItems.BACKGROUND_GREEN : UsefulItems.BACKGROUND_BLACK).setName(name).craft());
@@ -78,7 +78,7 @@ public class ConstructionBuilding extends GeneralBuilding implements IBuildingWi
             if (this.hologram != null)
                 onlinePlayer.hideHolograms(this.hologram.getLocation());
 
-            this.hologram = new APIHologram(this.hologramLocation, Collections.singletonList(DurationUtil.getDuration(getBuildingDuration())));
+            this.hologram = new APIHologram(this.hologramLocation, Collections.singletonList(FormatterUtil.getDuration(getBuildingDuration())));
             getHolograms().forEach(onlinePlayer::showHologram);
         }
     }
@@ -113,7 +113,7 @@ public class ConstructionBuilding extends GeneralBuilding implements IBuildingWi
 
     @Override
     public List<APIHologram> getHolograms() {
-        return Collections.singletonList(this.hologram);
+        return this.hologram != null ? Collections.singletonList(this.hologram) : Collections.emptyList();
     }
 
     /**

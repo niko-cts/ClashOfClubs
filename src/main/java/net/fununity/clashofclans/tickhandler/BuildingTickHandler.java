@@ -41,9 +41,8 @@ public class BuildingTickHandler {
 
             Bukkit.getScheduler().runTaskTimerAsynchronously(ClashOfClubs.getInstance(), () -> {
                 for (ConstructionBuilding constructionBuilding : getConstructionBuildings()) {
-                    if (constructionBuilding.getBuildingDuration() > 0)
-                        constructionBuilding.setBuildingDuration(constructionBuilding.getBuildingDuration() - 1);
-                    else
+                    constructionBuilding.setBuildingDuration(constructionBuilding.getBuildingDuration() - 1);
+                    if (constructionBuilding.getBuildingDuration() == 0)
                         BuildingsManager.getInstance().finishedBuilding(constructionBuilding);
                 }
             }, 20L, 20L);
@@ -56,10 +55,10 @@ public class BuildingTickHandler {
      * @since 0.0.1
      */
     public static Set<ConstructionBuilding> getConstructionBuildings() {
-        Set<ConstructionBuilding> resourceGatherBuildings = new HashSet<>(constructionBuildingList);
+        Set<ConstructionBuilding> constructionBuildings = new HashSet<>(constructionBuildingList);
         for (Map.Entry<UUID, CoCPlayer> entry : PlayerManager.getInstance().getPlayers().entrySet())
-            resourceGatherBuildings.addAll(entry.getValue().getBuildings().stream().filter(b -> b instanceof ConstructionBuilding).map(list->(ConstructionBuilding) list).collect(Collectors.toList()));
-        return resourceGatherBuildings;
+            constructionBuildings.addAll(entry.getValue().getBuildings().stream().filter(b -> b instanceof ConstructionBuilding).map(list->(ConstructionBuilding) list).collect(Collectors.toList()));
+        return constructionBuildings;
     }
 
     /**

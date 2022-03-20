@@ -208,27 +208,29 @@ public class BuildingsManager {
      * @since 0.0.1
      */
     public void finishedBuilding(ConstructionBuilding constructionBuilding) {
+        UUID uuid = constructionBuilding.getUuid();
+        GeneralBuilding building = constructionBuilding.getConstructionBuilding();
+
+        if (PlayerManager.getInstance().isCached(uuid)) {
+            CoCPlayer player = PlayerManager.getInstance().getPlayer(uuid);
+            APIPlayer owner = player.getOwner();
+            if (owner != null)
+                constructionBuilding.getHolograms().forEach(owner::hideHologram);
+
+            player.getBuildings().remove(constructionBuilding);
+            player.getBuildings().add(building);
+        }
+
+        building.setLevel(building.getLevel() + 1);
+        building.setCurrentHP(null, building.getMaxHP());
+
         Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
-            UUID uuid = constructionBuilding.getUuid();
-
-            GeneralBuilding building = constructionBuilding.getConstructionBuilding();
-
-            if (PlayerManager.getInstance().isCached(uuid)) {
-                CoCPlayer player = PlayerManager.getInstance().getPlayer(uuid);
-                APIPlayer owner = player.getOwner();
-                if (owner != null)
-                    constructionBuilding.getHolograms().forEach(owner::hideHologram);
-
-                player.getBuildings().add(building);
-                player.getBuildings().remove(constructionBuilding);
-                DatabasePlayer.getInstance().setExp(uuid, player.addExp(building.getExp()));
-            } else
+            if (PlayerManager.getInstance().isCached(uuid))
+                DatabasePlayer.getInstance().setExp(uuid, PlayerManager.getInstance().getPlayer(uuid).addExp(building.getExp()));
+            else
                 DatabasePlayer.getInstance().addExp(uuid, building.getExp());
 
             Schematics.removeBuilding(building.getCoordinate(), building.getBuilding().getSize(), building.getRotation());
-
-            building.setLevel(building.getLevel() + 1);
-            building.setCurrentHP(null, building.getMaxHP());
 
             BuildingLocationUtil.savePlayerFromBuilding(building);
 

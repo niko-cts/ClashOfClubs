@@ -10,21 +10,21 @@
 
     <repositories>
         <repository>
-            <id>marco-hajek</id>
-            <name>FunUnity</name>
-            <url>https://artifactory.marco-hajek.me/artifactory/FunUnity</url>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
     </repositories>
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>16</maven.compiler.source>
+        <maven.compiler.target>16</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.16.5-R0.1-20210211.193333-1</version>
+            <version>1.16.5-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>net.fununity.misc</groupId>
@@ -34,12 +34,12 @@
         <dependency>
             <groupId>net.fununity.main</groupId>
             <artifactId>FunUnityAPI</artifactId>
-            <version>MC16</version>
+            <version>MASTER</version>
         </dependency>
         <dependency>
             <groupId>net.fununity.misc</groupId>
             <artifactId>NPCSystem</artifactId>
-            <version>MC16</version>
+            <version>MASTER</version>
         </dependency>
     </dependencies>
 
@@ -65,13 +65,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <distributionManagement>
-        <repository>
-            <id>marco-hajek</id>
-            <name>Artifactory-releases</name>
-            <url>https://artifactory.marco-hajek.me/artifactory/FunUnity</url>
-        </repository>
-    </distributionManagement>
 
 </project>

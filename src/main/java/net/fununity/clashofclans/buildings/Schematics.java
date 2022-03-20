@@ -5,6 +5,10 @@ import net.fununity.clashofclans.buildings.classes.ConstructionBuilding;
 import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.util.BuildingLocationUtil;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.minecraft.server.v1_16_R3.Entity;
+import net.minecraft.server.v1_16_R3.IChatBaseComponent;
+import net.minecraft.server.v1_16_R3.PacketPlayOutEntityMetadata;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -121,22 +125,21 @@ public class Schematics {
             int z = coords[1];
 
             Material material = Material.valueOf(array[3].split("\\[")[0].replace("minecraft:", "").toUpperCase());
-            BlockData blockData;
 
-            if ((array[3].contains("wall") && !array[3].contains("face=wall") && !array[3].contains("wall_sign")) || array[3].contains("fence"))
-                blockData = material.createBlockData();
-            else {
-                blockData = ClashOfClubs.getInstance().getServer().createBlockData(BuildingLocationUtil.getBlockDataFromRotation(array[3], rotation));
-            }
+            Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> {
+                BlockData blockData;
+                if ((array[3].contains("wall") && !array[3].contains("face=wall") && !array[3].contains("wall_sign")) || array[3].contains("fence"))
+                    blockData = material.createBlockData();
+                else
+                    blockData = ClashOfClubs.getInstance().getServer().createBlockData(BuildingLocationUtil.getBlockDataFromRotation(array[3], rotation));
 
-            Block blockToChange = coordinate.clone().add(x, y, z).getBlock();
-            if (!blockData.equals(blockToChange.getBlockData())) {
-                Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> {
+                Block blockToChange = coordinate.clone().add(x, y, z).getBlock();
+                if (!blockData.equals(blockToChange.getBlockData())) {
                     blockToChange.setType(material);
                     blockToChange.setBlockData(blockData);
                     blockToChange.getState().update();
-                });
-            }
+                }
+            });
         }
     }
 
