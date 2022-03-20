@@ -13,20 +13,20 @@ public class GermanMessages extends MessageList {
         // COMMANDS
         // VISIT
         add(TranslationKeys.COC_COMMAND_VISIT_USAGE, "visit <User>");
-        add(TranslationKeys.COC_COMMAND_VISIT_DESCRIPTION, "&7Visit another base.");
-        add(TranslationKeys.COC_COMMAND_VISIT_ILLEGAL_HASNOBUILDING, "&cThis user has not played " + ClashOfClubs.getColoredName().replace("§", "&") + " &cyet.");
-        add(TranslationKeys.COC_COMMAND_VISIT_ILLEGAL_NOTONLINE, "&cThis user is not online! &7Buy &6premium &7to visit offline player bases.");
+        add(TranslationKeys.COC_COMMAND_VISIT_DESCRIPTION, "&7Besuche eine andere Basis");
+        add(TranslationKeys.COC_COMMAND_VISIT_ILLEGAL_HASNOBUILDING, "&cDieser Spieler hat noch nicht gespielt." + ClashOfClubs.getColoredName().replace("§", "&") + " ");
+        add(TranslationKeys.COC_COMMAND_VISIT_ILLEGAL_NOTONLINE, "&cDieser Spieler ist &coffline&7! &7Kauf &6premium &7um einen offline Spieler zu besuchen.");
         add(TranslationKeys.COC_COMMAND_VISIT_SUCCESS, "&aYou will be send to the base!");
 
         // HOME
         add(TranslationKeys.COC_COMMAND_HOME_USAGE, "home");
-        add(TranslationKeys.COC_COMMAND_HOME_DESCRIPTION, "&7Sends you back to your home.");
-        add(TranslationKeys.COC_COMMAND_HOME_SUCCESS, "&aYou will be send back to your home.");
+        add(TranslationKeys.COC_COMMAND_HOME_DESCRIPTION, "&7Bringt dich zurück zu deiner Basis.");
+        add(TranslationKeys.COC_COMMAND_HOME_SUCCESS, "&aDu wirst zurück du deiner Basis geschickt.");
 
         // RESET
         add(TranslationKeys.COC_COMMAND_RESET_USAGE, "reset (<User>)");
-        add(TranslationKeys.COC_COMMAND_RESET_DESCRIPTION, "&7Resets a users home.");
-        add(TranslationKeys.COC_COMMAND_RESET_SUCCESS, "&aSuccessfully reset.");
+        add(TranslationKeys.COC_COMMAND_RESET_DESCRIPTION, "&7Setzt deine Basis zurück");
+        add(TranslationKeys.COC_COMMAND_RESET_SUCCESS, "&aZurücksetzung Erfolgreich.");
 
         // PLAYER
         add(TranslationKeys.COC_PLAYER_NOT_ENOUGH_RESOURCE, "&cYou have not enough ${type}&c!");
@@ -36,15 +36,15 @@ public class GermanMessages extends MessageList {
         add(TranslationKeys.COC_PLAYER_REPAIR_TOWNHALL_FIRST, "&cRepair your town hall first!");
 
         // RESOURCE
-        add(TranslationKeys.COC_RESOURCE_FOOD, "&dFood");
+        add(TranslationKeys.COC_RESOURCE_FOOD, "&dNahrung");
         add(TranslationKeys.COC_RESOURCE_GOLD, "&6Gold");
-        add(TranslationKeys.COC_RESOURCE_ELECTRIC, "&eYellow");
-        add(TranslationKeys.COC_RESOURCE_GEMS, "&2Gems");
+        add(TranslationKeys.COC_RESOURCE_ELECTRIC, "&eElektrizität");
+        add(TranslationKeys.COC_RESOURCE_GEMS, "&2Edelsteine");
 
         // BUILDINGS
-        add(TranslationKeys.COC_BUILDING_GENERAL_TOWN_HALL_NAME, "&6Town Hall");
-        add(TranslationKeys.COC_BUILDING_GENERAL_TOWN_HALL_DESCRIPTION, "&7The town hall is the main building;&7in your city");
-        add(TranslationKeys.COC_BUILDING_GENERAL_BUILDER_NAME, "&6Builder");
+        add(TranslationKeys.COC_BUILDING_GENERAL_TOWN_HALL_NAME, "&6Rathaus");
+        add(TranslationKeys.COC_BUILDING_GENERAL_TOWN_HALL_DESCRIPTION, "&7Das Rathaus ist das Hauptgebäude;&7in deinem Dorf.");
+        add(TranslationKeys.COC_BUILDING_GENERAL_BUILDER_NAME, "&6Bauarbeiter");
         add(TranslationKeys.COC_BUILDING_GENERAL_BUILDER_DESCRIPTION, "&7The town hall is the main building;&7in your city");
 
         // CONTAINER
