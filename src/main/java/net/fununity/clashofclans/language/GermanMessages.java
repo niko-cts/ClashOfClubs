@@ -29,11 +29,11 @@ public class GermanMessages extends MessageList {
         add(TranslationKeys.COC_COMMAND_RESET_SUCCESS, "&aZurücksetzung Erfolgreich.");
 
         // PLAYER
-        add(TranslationKeys.COC_PLAYER_NOT_ENOUGH_RESOURCE, "&cYou have not enough ${type}&c!");
-        add(TranslationKeys.COC_PLAYER_NO_MORE_BUILDINGS, "&cYou can only build that &e${max} &ctimes at this town hall level.");
-        add(TranslationKeys.COC_PLAYER_NO_RESOURCE_TANKS, "&cYou have no free container space for this resource!");
-        add(TranslationKeys.COC_PLAYER_BUILDERS_WORKING, "&cAll of your builders are currently working!");
-        add(TranslationKeys.COC_PLAYER_REPAIR_TOWNHALL_FIRST, "&cRepair your town hall first!");
+        add(TranslationKeys.COC_PLAYER_NOT_ENOUGH_RESOURCE, "&cDu hast nicht genug ${type}&c!");
+        add(TranslationKeys.COC_PLAYER_NO_MORE_BUILDINGS, "&cDu kannst davon nur &e${max} &cmit deinem Rathaus level bauen.");
+        add(TranslationKeys.COC_PLAYER_NO_RESOURCE_TANKS, "&cDeine Lager sind voll!");
+        add(TranslationKeys.COC_PLAYER_BUILDERS_WORKING, "&cAlle Bauarbeiter sind derzeit beschäftigt.");
+        add(TranslationKeys.COC_PLAYER_REPAIR_TOWNHALL_FIRST, "&cRepariere dein Rathaus als erstes!");
 
         // RESOURCE
         add(TranslationKeys.COC_RESOURCE_FOOD, "&dNahrung");
@@ -45,11 +45,11 @@ public class GermanMessages extends MessageList {
         add(TranslationKeys.COC_BUILDING_GENERAL_TOWN_HALL_NAME, "&6Rathaus");
         add(TranslationKeys.COC_BUILDING_GENERAL_TOWN_HALL_DESCRIPTION, "&7Das Rathaus ist das Hauptgebäude;&7in deinem Dorf.");
         add(TranslationKeys.COC_BUILDING_GENERAL_BUILDER_NAME, "&6Bauarbeiter");
-        add(TranslationKeys.COC_BUILDING_GENERAL_BUILDER_DESCRIPTION, "&7The town hall is the main building;&7in your city");
+        add(TranslationKeys.COC_BUILDING_GENERAL_BUILDER_DESCRIPTION, "&7Die Bauarbeiter bauen die Gebäude;&7in deinem Dorf.");
 
         // CONTAINER
-        add(TranslationKeys.COC_BUILDING_CONTAINER_GOLD_STOCK_NAME, "&6Gold stock");
-        add(TranslationKeys.COC_BUILDING_CONTAINER_GOLD_STOCK_DESCRIPTION, "&7This building stores your gold.");
+        add(TranslationKeys.COC_BUILDING_CONTAINER_GOLD_STOCK_NAME, "&6Goldlager");
+        add(TranslationKeys.COC_BUILDING_CONTAINER_GOLD_STOCK_DESCRIPTION, "&7In diesem Lager wird dein Gold gelagert.");
         add(TranslationKeys.COC_BUILDING_CONTAINER_BARN_NAME, "&dCarrot Barn");
         add(TranslationKeys.COC_BUILDING_CONTAINER_BARN_DESCRIPTION, "&7This building stores your carrots.");
         add(TranslationKeys.COC_BUILDING_CONTAINER_GENERATOR_NAME, "&eGenerator");
