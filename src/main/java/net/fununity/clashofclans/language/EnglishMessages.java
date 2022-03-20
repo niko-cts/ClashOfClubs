@@ -40,8 +40,8 @@ public class EnglishMessages extends MessageList {
         // RESOURCE
         add(TranslationKeys.COC_RESOURCE_FOOD, "&dFood");
         add(TranslationKeys.COC_RESOURCE_GOLD, "&6Gold");
-        add(TranslationKeys.COC_RESOURCE_ELECTRIC, "&eElectricity");
-        add(TranslationKeys.COC_RESOURCE_GEMS, "&bChocolate");
+        add(TranslationKeys.COC_RESOURCE_ELECTRIC, "&e");
+        add(TranslationKeys.COC_RESOURCE_GEMS, "&2Gems");
 
         // BUILDINGS
         add(TranslationKeys.COC_BUILDING_GENERAL_TOWN_HALL_NAME, "&6Town Hall");
