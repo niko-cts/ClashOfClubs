@@ -127,24 +127,37 @@ public class CoCPlayer extends CoCDataPlayer {
      * @since 0.0.1
      */
     public void removeResource(ResourceTypes type, int remove) {
-        if(remove == 0) return;
-        int newResource = getResource(type) - remove;
-        resourceMap.put(type, newResource);
-        ScoreboardMenu.show(this);
-
+        if (remove == 0) return;
         List<ResourceContainerBuilding> containerBuildings = getContainerBuildings(type);
+        if (containerBuildings.isEmpty()) return;
 
         int needToRemovePerBuilding = remove / containerBuildings.size();
 
-        for (ResourceContainerBuilding resourceContainerBuilding : containerBuildings) {
-            int removing = (int) resourceContainerBuilding.getAmount() - needToRemovePerBuilding;
-            int max = Math.max(removing, 0);
-            needToRemovePerBuilding += removing - max;
-            if (resourceContainerBuilding.getAmount() == 0)
+        for (int i = 0; i < containerBuildings.size(); i++) {
+            if (remove <= 0)
+                break;
+
+            ResourceContainerBuilding resourceContainerBuilding = containerBuildings.get(i);
+            if (resourceContainerBuilding.getMaximumResource() == resourceContainerBuilding.getAmount())
                 continue;
-            resourceContainerBuilding.setAmount(removing);
-            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> DatabaseBuildings.getInstance().updateData(resourceContainerBuilding.getCoordinate(), (int) resourceContainerBuilding.getAmount()));
+
+            int newAmount;
+            int summedAmount = (int) resourceContainerBuilding.getAmount() - needToRemovePerBuilding;
+
+            if (summedAmount >= 0) {
+                newAmount = summedAmount;
+                remove -= needToRemovePerBuilding;
+            } else {
+                newAmount = 0;
+                remove -= resourceContainerBuilding.getAmount();
+                needToRemovePerBuilding = remove / (containerBuildings.size() - i);
+            }
+
+            resourceContainerBuilding.setAmount(newAmount);
+            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> DatabaseBuildings.getInstance().updateData(resourceContainerBuilding.getCoordinate(), newAmount));
         }
+
+        updateResources();
     }
 
     /**
@@ -158,20 +171,33 @@ public class CoCPlayer extends CoCDataPlayer {
         List<ResourceContainerBuilding> containerBuildings = getContainerBuildings(type);
         if (containerBuildings.isEmpty()) return;
 
-        resourceMap.put(type, getResource(type) + add);
-        ScoreboardMenu.show(this);
-
         int needToAddPerBuilding = add / containerBuildings.size();
 
-        for (ResourceContainerBuilding resourceContainerBuilding : containerBuildings) {
-            int adding = (int) resourceContainerBuilding.getAmount() + needToAddPerBuilding;
-            int min = Math.min(adding, resourceContainerBuilding.getMaximumResource());
-            needToAddPerBuilding += adding - min;
+        for (int i = 0; i < containerBuildings.size(); i++) {
+            if (add <= 0)
+                break;
+
+            ResourceContainerBuilding resourceContainerBuilding = containerBuildings.get(i);
             if (resourceContainerBuilding.getMaximumResource() == resourceContainerBuilding.getAmount())
                 continue;
-            resourceContainerBuilding.setAmount(min);
-            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> DatabaseBuildings.getInstance().updateData(resourceContainerBuilding.getCoordinate(), (int) resourceContainerBuilding.getAmount()));
+
+            int newAmount;
+            int summedAmount = needToAddPerBuilding + (int) resourceContainerBuilding.getAmount();
+
+            if (summedAmount <= resourceContainerBuilding.getMaximumResource()) {
+                newAmount = summedAmount;
+                add -= needToAddPerBuilding;
+            } else {
+                newAmount = resourceContainerBuilding.getMaximumResource();
+                add -= summedAmount - resourceContainerBuilding.getMaximumResource();
+                needToAddPerBuilding = add / (containerBuildings.size() - i);
+            }
+
+            resourceContainerBuilding.setAmount(newAmount);
+            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> DatabaseBuildings.getInstance().updateData(resourceContainerBuilding.getCoordinate(), newAmount));
         }
+
+        updateResources();
     }
 
     /**
@@ -184,6 +210,7 @@ public class CoCPlayer extends CoCDataPlayer {
         for (ResourceContainerBuilding containerBuilding : getContainerBuildings())
             resourceMap.put(containerBuilding.getContainingResourceType(),
                     (int) (resourceMap.getOrDefault(containerBuilding.getContainingResourceType(), 0) + containerBuilding.getAmount()));
+        ScoreboardMenu.show(this);
     }
 
     /**
@@ -193,7 +220,7 @@ public class CoCPlayer extends CoCDataPlayer {
      * @since 0.0.1
      */
     private List<ResourceContainerBuilding> getContainerBuildings(ResourceTypes type) {
-        return getBuildings().stream().filter(b -> b instanceof ResourceContainerBuilding && !(b instanceof ResourceGatherBuilding)).map(list -> (ResourceContainerBuilding) list).filter(b -> b.getContainingResourceType() == type).sorted(Comparator.comparingInt(ResourceContainerBuilding::getMaximumResource)).collect(Collectors.toList());
+        return getContainerBuildings().stream().filter(b -> b.getContainingResourceType() == type).sorted(Comparator.comparingInt(ResourceContainerBuilding::getMaximumResource)).collect(Collectors.toList());
     }
 
     /**
@@ -241,10 +268,8 @@ public class CoCPlayer extends CoCDataPlayer {
      */
     public int getMaxResourceContainable(ResourceTypes resourceType) {
         int max = 0;
-        for (GeneralBuilding building : getBuildings()) {
-            if (building instanceof ResourceContainerBuilding && !(building instanceof ResourceGatherBuilding) && ((ResourceContainerBuilding) building).getContainingResourceType() == resourceType)
-               max += ((ResourceContainerBuilding) building).getMaximumResource();
-        }
+        for (ResourceContainerBuilding containerBuilding : getContainerBuildings(resourceType))
+            max += containerBuilding.getMaximumResource();
         return max;
     }
 

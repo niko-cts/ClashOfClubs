@@ -45,7 +45,7 @@ public class BuildingBuyGUI {
         if (player == null) return;
         Language lang = player.getLanguage();
         CustomInventory menu = new CustomInventory(lang.getTranslation(TranslationKeys.COC_GUI_CONSTRUCTION_NAME), 9 * 3);
-        menu.fill(UsefulItems.BACKGROUND_GRAY);
+        menu.fill(UsefulItems.BACKGROUND_BLACK);
 
         menu.setItem(10, new ItemBuilder(Material.GOLD_INGOT).setName(lang.getTranslation(TranslationKeys.COC_GUI_CONSTRUCTION_RESOURCE_NAME))
                 .setLore(lang.getTranslation(TranslationKeys.COC_GUI_CONSTRUCTION_RESOURCE_LORE).split(";")).craft(), new ClickAction() {

@@ -65,7 +65,7 @@ public class TroopsGUI {
         });
 
         for (int i = menu.getInventory().getSize() - 8; i < menu.getInventory().getSize(); i++)
-            menu.setItem(i, UsefulItems.BACKGROUND_GRAY);
+            menu.setItem(i, UsefulItems.BACKGROUND_BLACK);
 
         menu.open(apiPlayer);
     }

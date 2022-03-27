@@ -225,9 +225,11 @@ public class BuildingsManager {
         building.setCurrentHP(null, building.getMaxHP());
 
         Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
-            if (PlayerManager.getInstance().isCached(uuid))
-                DatabasePlayer.getInstance().setExp(uuid, PlayerManager.getInstance().getPlayer(uuid).addExp(building.getExp()));
-            else
+            if (PlayerManager.getInstance().isCached(uuid)) {
+                CoCPlayer player = PlayerManager.getInstance().getPlayer(uuid);
+                DatabasePlayer.getInstance().setExp(uuid, player.addExp(building.getExp()));
+                player.getOwner().getPlayer().setLevel(player.getExp());
+            } else
                 DatabasePlayer.getInstance().addExp(uuid, building.getExp());
 
             Schematics.removeBuilding(building.getCoordinate(), building.getBuilding().getSize(), building.getRotation());
@@ -372,17 +374,19 @@ public class BuildingsManager {
     public void fillResource(ResourceGatherBuilding building) {
         CoCPlayer cocPlayer = PlayerManager.getInstance().getPlayer(building.getUuid());
 
-        int toAdd = Math.min(cocPlayer.getMaxResourceContainable(building.getContainingResourceType()) - cocPlayer.getResource(building.getContainingResourceType()),
+        int toAdd = Math.min(cocPlayer.getMaxResourceContainable(building.getContainingResourceType()) -
+                        cocPlayer.getResource(building.getContainingResourceType()),
                 (int) building.getAmount());
-        if (toAdd == 0) {
+        if (toAdd <= 0) {
             APIPlayer owner = cocPlayer.getOwner();
             if(owner != null)
                 owner.sendActionbar(new ActionbarMessage(TranslationKeys.COC_PLAYER_NO_RESOURCE_TANKS));
             return;
         }
+
         building.setAmount(building.getAmount() - toAdd);
-        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> DatabaseBuildings.getInstance().updateData(building.getCoordinate(), (int) building.getAmount()));
         cocPlayer.addResource(building.getContainingResourceType(), toAdd);
+        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> DatabaseBuildings.getInstance().updateData(building.getCoordinate(), (int) building.getAmount()));
     }
 
     public void enterMovingMode(APIPlayer apiPlayer, GeneralBuilding generalBuilding) {

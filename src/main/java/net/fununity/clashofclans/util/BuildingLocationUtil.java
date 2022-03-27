@@ -315,9 +315,10 @@ public class BuildingLocationUtil {
      */
     public static int getHighestYCoordinate(Location location) {
         Location highestLoc = location.getWorld().getHighestBlockAt(location).getLocation();
-        while (highestLoc.getBlockY() >= ClashOfClubs.getBaseYCoordinate() &&
-                (highestLoc.getBlock().getType() == Material.AIR || highestLoc.getBlock().getType() == Material.BARRIER)) {
+        while (highestLoc.getBlock().getType() == Material.AIR || highestLoc.getBlock().getType() == Material.BARRIER) {
             highestLoc.subtract(0, 1, 0);
+            if (highestLoc.getBlockY() < ClashOfClubs.getBaseYCoordinate())
+                break;
         }
         return highestLoc.getBlockY();
     }

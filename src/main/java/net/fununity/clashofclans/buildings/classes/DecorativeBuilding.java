@@ -12,6 +12,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
+import javax.naming.InvalidNameException;
 import java.util.UUID;
 
 public class DecorativeBuilding extends GeneralBuilding {

@@ -81,7 +81,7 @@ public class PlayerManager {
             BuildingTickHandler.removeFromCache(coCPlayer);
         } else {
             player.sendMessage(MessagePrefix.INFO, TranslationKeys.COC_PLAYER_LOADING_BASE);
-            Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), ()->player.getPlayer().setGameMode(GameMode.SPECTATOR));
+            Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> player.getPlayer().setGameMode(GameMode.SPECTATOR));
             coCPlayer = BuildingsManager.getInstance().createNewIsland(uuid);
             player.sendActionbar(new ActionbarMessage(TranslationKeys.COC_PLAYER_REPAIR_TOWNHALL_FIRST).setType(ActionbarMessageType.STATIC));
         }
@@ -124,7 +124,7 @@ public class PlayerManager {
         if (onlinePlayer.hasCustomData("openInv")) {
             CustomInventory menu = (CustomInventory) onlinePlayer.getCustomData("openInv");
             if (menu.getSpecialHolder() != null && menu.getSpecialHolder().equals(building.getCoordinate().toString())) {
-                onlinePlayer.getPlayer().closeInventory();
+                //onlinePlayer.getPlayer().closeInventory();
                 building.getInventory(onlinePlayer.getLanguage()).open(onlinePlayer);
             }
         }

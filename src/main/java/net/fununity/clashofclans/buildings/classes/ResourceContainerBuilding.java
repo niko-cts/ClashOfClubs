@@ -72,20 +72,21 @@ public class ResourceContainerBuilding extends GeneralBuilding implements IBuild
             ItemStack content = inventory.getInventory().getContents()[i];
             menu.addItem(content, inventory.getClickAction(i));
         }
-        menu.fill(UsefulItems.BACKGROUND_GRAY);
+
+        menu.fill(UsefulItems.BACKGROUND_BLACK);
 
         String name = language.getTranslation(TranslationKeys.COC_GUI_CONTAINER_AMOUNT, Arrays.asList("${color}", "${max}", "${current}"), Arrays.asList(getContainingResourceType().getChatColor() + "", getMaximumResource() + "", ((int)getAmount()) + ""));
 
         double fillTill = 90.0 * getAmount() / getMaximumResource();
-        for (double i = 9.0, j = 27; j < 36; i += 9.0, j++)
-            menu.setItem((int) j, new ItemBuilder(fillTill > i ? getContainingResourceType().getGlass() : UsefulItems.BACKGROUND_GRAY).setName(name).craft());
+        for (int i = 9, j = 27; j < 36; i += 9, j++)
+            menu.setItem(j, new ItemBuilder(fillTill > i ? getContainingResourceType().getGlass() : UsefulItems.BACKGROUND_GRAY).setName(name).craft());
 
         return menu;
     }
 
     /**
-     * Set the amount of the building.
-     * @param currentAmount int - the amount of troops.
+     * Set the amount of resource in the building.
+     * @param currentAmount int - the amount of resource.
      * @since 0.0.1
      */
     public void setAmount(double currentAmount) {
@@ -147,14 +148,14 @@ public class ResourceContainerBuilding extends GeneralBuilding implements IBuild
      */
     @Override
     public int getCurrentBuildingVersion() {
-        double percentage = 100 * getAmount() / getMaximumResource();
-        if (percentage < 20)
+        double percentage = getAmount() / getMaximumResource();
+        if (percentage < 0.2)
             return 0;
-        if (percentage < 40)
+        if (percentage < 0.4)
             return 1;
-        if (percentage < 60)
+        if (percentage < 0.6)
             return 2;
-        if (percentage < 80)
+        if (percentage < 0.8)
             return 3;
         return 4;
     }

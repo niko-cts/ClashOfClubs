@@ -42,8 +42,6 @@ public class BuildingTickHandler {
             Bukkit.getScheduler().runTaskTimerAsynchronously(ClashOfClubs.getInstance(), () -> {
                 for (ConstructionBuilding constructionBuilding : getConstructionBuildings()) {
                     constructionBuilding.setBuildingDuration(constructionBuilding.getBuildingDuration() - 1);
-                    if (constructionBuilding.getBuildingDuration() == 0)
-                        BuildingsManager.getInstance().finishedBuilding(constructionBuilding);
                 }
             }, 20L, 20L);
         });
@@ -76,14 +74,12 @@ public class BuildingTickHandler {
      * @since 0.0.1
      */
     public static void removeFromCache(CoCPlayer player) {
-        for (GeneralBuilding building : player.getBuildings()) {
-            if (building instanceof ConstructionBuilding) {
-                ConstructionBuilding cachedBuilding = constructionBuildingList.stream().filter(b -> b.getCoordinate().equals(building.getCoordinate())).findFirst().orElse(null);
-                if (cachedBuilding != null) {
-                    ((ConstructionBuilding) building).setBuildingDuration(cachedBuilding.getMaxBuildingDuration());
-                    constructionBuildingList.remove(cachedBuilding);
-                }
+        player.getBuildings().stream().filter(b -> b instanceof ConstructionBuilding).forEach(building -> {
+            ConstructionBuilding cachedBuilding = constructionBuildingList.stream().filter(b -> b.getCoordinate().equals(building.getCoordinate())).findFirst().orElse(null);
+            if (cachedBuilding != null) {
+                ((ConstructionBuilding) building).setBuildingDuration(cachedBuilding.getBuildingDuration());
+                constructionBuildingList.remove(cachedBuilding);
             }
-        }
+        });
     }
 }

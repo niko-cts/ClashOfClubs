@@ -1,6 +1,7 @@
 package net.fununity.clashofclans.buildings.classes;
 
 import net.fununity.clashofclans.ClashOfClubs;
+import net.fununity.clashofclans.buildings.BuildingsManager;
 import net.fununity.clashofclans.buildings.interfaces.IBuildingWithHologram;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.PlayerManager;
@@ -18,6 +19,7 @@ import org.bukkit.Location;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class ConstructionBuilding extends GeneralBuilding implements IBuildingWithHologram {
 
@@ -37,7 +39,7 @@ public class ConstructionBuilding extends GeneralBuilding implements IBuildingWi
         this.generalBuilding = generalBuilding;
         this.buildingDuration = buildingDuration;
 
-        hologramLocation = getCoordinate().clone().add(getBuilding().getSize()[0] / 2.0, 0, getBuilding().getSize()[1] / 2.0);
+        hologramLocation = getCoordinate().add(getBuilding().getSize()[0] / 2.0, 0, getBuilding().getSize()[1] / 2.0);
         hologramLocation.setY(BuildingLocationUtil.getHighestYCoordinate(hologramLocation) + 2);
         this.hologram = new APIHologram(this.hologramLocation, Collections.singletonList(FormatterUtil.getDuration(getBuildingDuration())));
     }
@@ -60,7 +62,7 @@ public class ConstructionBuilding extends GeneralBuilding implements IBuildingWi
 
         String name = language.getTranslation(TranslationKeys.COC_GUI_BUILDING_UNDERCONSTRUCTION, "${left}", FormatterUtil.getDuration(getBuildingDuration()));
         int finished = getCurrentBuildingVersion();
-        for (int i = 10 / 9, j = 27; j < menu.getInventory().getSize(); i += 10 / 9, j++)
+        for (int i = 9, j = 27; j < menu.getInventory().getSize(); i += 9, j++)
             menu.setItem(j, new ItemBuilder(i <= finished ? UsefulItems.BACKGROUND_GREEN : UsefulItems.BACKGROUND_BLACK).setName(name).craft());
 
         menu.fill(UsefulItems.BACKGROUND_GRAY);
@@ -98,8 +100,13 @@ public class ConstructionBuilding extends GeneralBuilding implements IBuildingWi
      */
     public void setBuildingDuration(int buildTime) {
         this.buildingDuration = buildTime;
-        updateHologram();
-        Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> PlayerManager.getInstance().forceUpdateInventory(this));
+        if (this.buildingDuration == 0) {
+            BuildingsManager.getInstance().finishedBuilding(this);
+        } else if (this.buildingDuration > 0) {
+            updateHologram();
+            Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> PlayerManager.getInstance().forceUpdateInventory(this));
+        } else
+            System.out.println("Construction building below 0s " + getBuilding().getNameKey());
     }
 
     /**
@@ -124,5 +131,19 @@ public class ConstructionBuilding extends GeneralBuilding implements IBuildingWi
      */
     public int getCurrentBuildingVersion() {
         return 100 * this.buildingDuration / getMaxBuildingDuration();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        ConstructionBuilding that = (ConstructionBuilding) o;
+        return buildingDuration == that.buildingDuration && Objects.equals(generalBuilding, that.generalBuilding);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), generalBuilding, buildingDuration);
     }
 }

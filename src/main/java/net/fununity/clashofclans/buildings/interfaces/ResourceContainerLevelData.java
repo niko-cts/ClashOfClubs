@@ -15,7 +15,6 @@ public class ResourceContainerLevelData extends BuildingLevelData {
      * @param maxHP int - the max hp of the building.
      * @param minTownHall int - the minimum town hall level.
      * @param upgradeCost int - the upgrade cost.
-     * @param resourceTypes ResourceTypes - the container resource type.
      * @param maximumResource int - the maximum amount of resource.
      * @since 0.0.1
      */

@@ -17,13 +17,15 @@ import net.fununity.clashofclans.listener.PlayerInteractListener;
 import net.fununity.clashofclans.listener.PlayerMoveListener;
 import net.fununity.clashofclans.listener.QuitListener;
 import net.fununity.clashofclans.tickhandler.BuildingTickHandler;
-import net.fununity.clashofclans.tickhandler.RealTimerHandler;
 import net.fununity.clashofclans.tickhandler.ResourceTickHandler;
 import net.fununity.clashofclans.tickhandler.TroopsTickHandler;
 import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.server.ServerSetting;
 import net.fununity.main.api.util.RegisterUtil;
+import net.minecraft.server.v1_16_R3.WorldServer;
+import org.bukkit.GameRule;
 import org.bukkit.World;
+import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -60,6 +62,9 @@ public class ClashOfClubs extends JavaPlugin {
         FunUnityAPI.getInstance().getServerSettings().disable(ServerSetting.PLAYER_INTERACT_ENTITY);
         FunUnityAPI.getInstance().getActionbarManager().start();
         this.playWorld = getServer().getWorld("world");
+        this.playWorld.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);
+        WorldServer ch = ((CraftWorld) playWorld).getHandle();
+        ch.spigotConfig.itemDespawnRate = 5;
 
         this.attackingServer = getConfig().getBoolean("attacking-server");
 
@@ -80,7 +85,6 @@ public class ClashOfClubs extends JavaPlugin {
             BuildingTickHandler.startTimer();
         }
         registerUtil.register();
-        RealTimerHandler.startTimer();
 
         Schematics.cacheAllSchematics();
     }

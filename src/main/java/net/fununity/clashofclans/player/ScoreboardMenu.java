@@ -50,18 +50,15 @@ public class ScoreboardMenu {
 
         ResourceTypes[] types = ResourceTypes.canReachWithTownHall(coCPlayer.getTownHallLevel());
 
-        int i = types.length * 3 + 1;
-        obj.getScore("    ").setScore(i);
-        i--;
-        obj.getScore("§8» §b" + coCPlayer.getExp() + " §3EXP").setScore(i);
-        i--;
+        int i = types.length * 3 - 1;
 
         for (ResourceTypes type : types) {
             obj.getScore(" " + type.getChatColor()).setScore(i);
             i--;
             obj.getScore(type.getChatColor() + lang.getTranslation(type.getNameKey())).setScore(i);
             i--;
-            obj.getScore("§8" + SpecialChars.DOUBLE_ARROW_RIGHT + "" + type.getChatColor()  + coCPlayer.getResource(type)).setScore(i);
+            obj.getScore("§8" + SpecialChars.DOUBLE_ARROW_RIGHT + "" + type.getChatColor()  + coCPlayer.getResource(type) +
+                    (type != ResourceTypes.GEMS ? " §7/ " + type.getChatColor() + coCPlayer.getMaxResourceContainable(type) : "")).setScore(i);
             i--;
         }
     }

@@ -66,7 +66,7 @@ public class GeneralBuilding {
     public CustomInventory getInventory(Language language) {
         CustomInventory menu = new CustomInventory(getBuildingTitle(language), 9*3);
         menu.setSpecialHolder(getCoordinate().toString());
-        menu.fill(UsefulItems.BACKGROUND_GRAY);
+        menu.fill(UsefulItems.BACKGROUND_BLACK);
         menu.setItem(11, new ItemBuilder(Material.WRITABLE_BOOK).setName(language.getTranslation(getBuilding().getNameKey())).setLore(language.getTranslation(getBuilding().getDescriptionKey()).split(";")).craft());
 
         if (getLevel() != 0)
@@ -276,7 +276,8 @@ public class GeneralBuilding {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         GeneralBuilding that = (GeneralBuilding) o;
-        return level == that.level && building == that.building && Objects.equals(coordinate, that.coordinate);
+        return level == that.level && building == that.building &&
+                coordinate.getBlockX() == that.coordinate.getBlockX() && coordinate.getBlockY() == that.coordinate.getBlockY() &&coordinate.getBlockZ() == that.coordinate.getBlockZ();
     }
 
     @Override

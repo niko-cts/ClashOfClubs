@@ -35,9 +35,12 @@ public class RandomWorldBuilding extends GeneralBuilding {
 
     @Override
     public CustomInventory getInventory(Language language) {
-        CustomInventory inventory = super.getInventory(language);
-        inventory.setItem(14, UsefulItems.BACKGROUND_GRAY);
-        inventory.setItem(15, new ItemBuilder(Material.BARRIER)
+        CustomInventory menu = new CustomInventory(language.getTranslation(getBuilding().getNameKey()), 9 * 3);
+        menu.setSpecialHolder(getCoordinate().toString());
+        menu.fill(UsefulItems.BACKGROUND_BLACK);
+        menu.setItem(11, new ItemBuilder(Material.WRITABLE_BOOK).setName(language.getTranslation(getBuilding().getNameKey())).setLore(language.getTranslation(getBuilding().getDescriptionKey()).split(";")).craft());
+
+        menu.setItem(15, new ItemBuilder(Material.BARRIER)
                 .setName(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_DESTROY_NAME))
                 .setLore(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_DESTROY_LORE, "${cost}", getRemoveCost() + " " + getBuilding().getResourceType().getColoredName(language)).split(";")).craft(), new ClickAction(true) {
             @Override
@@ -49,7 +52,7 @@ public class RandomWorldBuilding extends GeneralBuilding {
                 BuildingsManager.getInstance().removeBuilding(RandomWorldBuilding.this);
             }
         });
-        return inventory;
+        return menu;
     }
 
     public int getRemoveCost() {
