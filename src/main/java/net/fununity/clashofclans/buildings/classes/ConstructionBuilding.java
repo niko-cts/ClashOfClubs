@@ -80,6 +80,8 @@ public class ConstructionBuilding extends GeneralBuilding implements IBuildingWi
             if (this.hologram != null)
                 onlinePlayer.hideHolograms(this.hologram.getLocation());
 
+            if (BuildingLocationUtil.getHighestYCoordinate(hologramLocation) + 2 != hologramLocation.getBlockY())
+                hologramLocation.setY(BuildingLocationUtil.getHighestYCoordinate(hologramLocation) + 2);
             this.hologram = new APIHologram(this.hologramLocation, Collections.singletonList(FormatterUtil.getDuration(getBuildingDuration())));
             getHolograms().forEach(onlinePlayer::showHologram);
         }
@@ -100,13 +102,13 @@ public class ConstructionBuilding extends GeneralBuilding implements IBuildingWi
      */
     public void setBuildingDuration(int buildTime) {
         this.buildingDuration = buildTime;
-        if (this.buildingDuration == 0) {
-            BuildingsManager.getInstance().finishedBuilding(this);
-        } else if (this.buildingDuration > 0) {
+        if (this.buildingDuration > 0) {
             updateHologram();
             Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> PlayerManager.getInstance().forceUpdateInventory(this));
-        } else
-            System.out.println("Construction building below 0s " + getBuilding().getNameKey());
+        } else {
+            BuildingsManager.getInstance().finishedBuilding(this);
+            ClashOfClubs.getInstance().getLogger().info("Construction finished");
+        }
     }
 
     /**

@@ -25,10 +25,13 @@ public class CoCCommand extends APICommand {
 
     @Override
     public void onCommand(APIPlayer apiPlayer, String[] args) {
-        if (args.length >= 2) {
+        if (args.length >= 3) {
             if (args[0].equalsIgnoreCase("cheat")) {
-                for (ResourceTypes type : ResourceTypes.values()) {
-                    PlayerManager.getInstance().getPlayer(apiPlayer.getUniqueId()).addResource(type, Integer.parseInt(args[1]));
+                try {
+                    ResourceTypes resourceTypes = ResourceTypes.valueOf(args[1]);
+                    PlayerManager.getInstance().getPlayer(apiPlayer.getUniqueId()).addResource(resourceTypes, Integer.parseInt(args[2]));
+                } catch (IllegalArgumentException exception) {
+                    apiPlayer.sendRawMessage("Wrong command execute : /coc cheat <resourceType> <amount>");
                 }
                 return;
             }

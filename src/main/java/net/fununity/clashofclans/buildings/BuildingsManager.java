@@ -4,13 +4,12 @@ import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.classes.*;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
+import net.fununity.clashofclans.buildings.interfaces.IBuildingWithHologram;
 import net.fununity.clashofclans.buildings.interfaces.IDestroyableBuilding;
 import net.fununity.clashofclans.buildings.list.*;
 import net.fununity.clashofclans.language.TranslationKeys;
-import net.fununity.clashofclans.player.CoCDataPlayer;
-import net.fununity.clashofclans.player.CoCPlayer;
-import net.fununity.clashofclans.player.DatabasePlayer;
-import net.fununity.clashofclans.player.PlayerManager;
+import net.fununity.clashofclans.player.*;
+import net.fununity.clashofclans.tickhandler.BuildingTickHandler;
 import net.fununity.clashofclans.troops.ITroop;
 import net.fununity.clashofclans.util.BuildingLocationUtil;
 import net.fununity.main.api.FunUnityAPI;
@@ -131,7 +130,7 @@ public class BuildingsManager {
      * @param player {@link CoCPlayer} - the player, who builds
      * @since 0.0.1
      */
-    public void build(CoCPlayer player) {
+    public void build (CoCPlayer player) {
         IBuilding building = (IBuilding) player.getBuildingMode()[1];
         int cost = building.getBuildingLevelData()[0].getUpgradeCost();
         if (player.getResource(building.getResourceType()) < cost)
@@ -181,12 +180,13 @@ public class BuildingsManager {
      */
     private void createConstruction(CoCPlayer player, GeneralBuilding building) {
         ConstructionBuilding constructionBuilding = new ConstructionBuilding(building, building.getMaxBuildingDuration());
-        player.getBuildings().add(constructionBuilding);
-        player.getBuildings().remove(building);
         if (constructionBuilding.getBuildingDuration() < 1) {
             finishedBuilding(constructionBuilding);
             return;
         }
+
+        player.getBuildings().add(constructionBuilding);
+        player.getBuildings().remove(building);
 
         if (building.getBuilding() == Buildings.TOWN_HALL && building.getLevel() == 0)
             FunUnityAPI.getInstance().getActionbarManager().clearActionbar(player.getUniqueId());
@@ -208,8 +208,13 @@ public class BuildingsManager {
      * @since 0.0.1
      */
     public void finishedBuilding(ConstructionBuilding constructionBuilding) {
+        BuildingTickHandler.removeBuilding(constructionBuilding);
+
         UUID uuid = constructionBuilding.getUuid();
         GeneralBuilding building = constructionBuilding.getConstructionBuilding();
+
+        building.setLevel(building.getLevel() + 1);
+        building.setCurrentHP(null, building.getMaxHP());
 
         if (PlayerManager.getInstance().isCached(uuid)) {
             CoCPlayer player = PlayerManager.getInstance().getPlayer(uuid);
@@ -219,34 +224,36 @@ public class BuildingsManager {
 
             player.getBuildings().remove(constructionBuilding);
             player.getBuildings().add(building);
+            if (building instanceof ResourceContainerBuilding)
+                ScoreboardMenu.show(player);
+            if (building instanceof IBuildingWithHologram)
+                ((IBuildingWithHologram) building).updateHologram();
         }
 
-        building.setLevel(building.getLevel() + 1);
-        building.setCurrentHP(null, building.getMaxHP());
 
         Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
+            // database building
+            DatabaseBuildings.getInstance().finishedBuilding(building.getCoordinate());
+            if (building.getLevel() == 1 && building.getBuilding() != Buildings.TOWN_HALL && building.getBuilding() != Buildings.CLUB_TOWER)
+                DatabaseBuildings.getInstance().buildBuilding(uuid, building);
+            else
+                DatabaseBuildings.getInstance().upgradeBuilding(uuid, building, building.getLevel());
+
+            // schematics
+            Schematics.removeBuilding(building.getCoordinate(), building.getBuilding().getSize(), building.getRotation());
+            Schematics.createBuilding(building);
+            BuildingLocationUtil.savePlayerFromBuilding(building);
+
+            if (building.getBuilding() == TroopBuildings.ARMY_CAMP)
+               TroopsBuildingManager.getInstance().moveTroopsToField(PlayerManager.getInstance().getPlayer(uuid));
+
+            // exp
             if (PlayerManager.getInstance().isCached(uuid)) {
                 CoCPlayer player = PlayerManager.getInstance().getPlayer(uuid);
                 DatabasePlayer.getInstance().setExp(uuid, player.addExp(building.getExp()));
                 player.getOwner().getPlayer().setLevel(player.getExp());
             } else
                 DatabasePlayer.getInstance().addExp(uuid, building.getExp());
-
-            Schematics.removeBuilding(building.getCoordinate(), building.getBuilding().getSize(), building.getRotation());
-
-            BuildingLocationUtil.savePlayerFromBuilding(building);
-
-            Schematics.createBuilding(building);
-
-            if (building.getLevel() == 1 && building.getBuilding() != Buildings.TOWN_HALL && building.getBuilding() != Buildings.CLUB_TOWER)
-                DatabaseBuildings.getInstance().buildBuilding(uuid, building);
-            else
-                DatabaseBuildings.getInstance().upgradeBuilding(uuid, building, building.getLevel());
-
-            DatabaseBuildings.getInstance().finishedBuilding(building.getCoordinate());
-
-            if (building.getBuilding() == TroopBuildings.ARMY_CAMP)
-               TroopsBuildingManager.getInstance().moveTroopsToField(PlayerManager.getInstance().getPlayer(uuid));
         });
     }
 

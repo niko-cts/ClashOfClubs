@@ -17,7 +17,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemFlag;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -128,6 +127,11 @@ public class CoCPlayer extends CoCDataPlayer {
      */
     public void removeResource(ResourceTypes type, int remove) {
         if (remove == 0) return;
+        if (type == ResourceTypes.GEMS) {
+            setGems(getGems() - remove);
+            return;
+        }
+
         List<ResourceContainerBuilding> containerBuildings = getContainerBuildings(type);
         if (containerBuildings.isEmpty()) return;
 
@@ -168,6 +172,11 @@ public class CoCPlayer extends CoCDataPlayer {
      */
     public void addResource(ResourceTypes type, int add) {
         if (add == 0) return;
+        if (type == ResourceTypes.GEMS) {
+            setGems(getGems() + add);
+            return;
+        }
+
         List<ResourceContainerBuilding> containerBuildings = getContainerBuildings(type);
         if (containerBuildings.isEmpty()) return;
 
@@ -229,7 +238,18 @@ public class CoCPlayer extends CoCDataPlayer {
      * @since 0.0.1
      */
     private List<ResourceContainerBuilding> getContainerBuildings() {
-        return getBuildings().stream().filter(b -> b instanceof ResourceContainerBuilding && !(b instanceof ResourceGatherBuilding)).map(list -> (ResourceContainerBuilding) list).sorted(Comparator.comparingInt(ResourceContainerBuilding::getMaximumResource)).collect(Collectors.toList());
+        List<ResourceContainerBuilding> buildings = new ArrayList<>();
+        for (GeneralBuilding building : getBuildings()) {
+            if(building instanceof ResourceContainerBuilding && !(building instanceof ResourceGatherBuilding))
+                buildings.add((ResourceContainerBuilding) building);
+            else if (building instanceof ConstructionBuilding) {
+                GeneralBuilding cb = ((ConstructionBuilding) building).getConstructionBuilding();
+                if (cb instanceof ResourceContainerBuilding && !(cb instanceof ResourceGatherBuilding))
+                    buildings.add((ResourceContainerBuilding) cb);
+            }
+        }
+        buildings.sort(Comparator.comparingInt(ResourceContainerBuilding::getMaximumResource));
+        return buildings;
     }
 
     /**

@@ -60,6 +60,15 @@ public class BuildingTickHandler {
     }
 
     /**
+     * Removes the building from the cached list.
+     * @param building {@link ConstructionBuilding} - building
+     * @since 1.0
+     */
+    public static void removeBuilding(ConstructionBuilding building) {
+        constructionBuildingList.remove(building);
+    }
+
+    /**
      * Adds the list to the cache.
      * @param list List<ResourceGatherBuilding> - The list to add.
      * @since 0.0.1
