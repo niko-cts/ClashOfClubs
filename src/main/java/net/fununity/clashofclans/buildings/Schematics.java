@@ -26,6 +26,70 @@ public class Schematics {
 
     private static final Map<String, List<String>> SCHEMATICS = new HashMap<>();
 
+    public static void removeBuilding(Location location, int[] size, byte rotation) {
+        List<Block> areaBlocks = BuildingLocationUtil.getBlocksInBuildingGround(location,
+                new int[]{size[rotation == 1 || rotation == 3 ? 1 : 0], size[rotation == 1 || rotation == 3 ? 0 : 1]});
+
+        Map<Location, Material> blockSettingMap = new HashMap<>();
+        for (Block block : areaBlocks) {
+            Location breakLoc = block.getLocation().clone();
+            for (int y = BuildingLocationUtil.getHighestYCoordinate(block.getLocation()); y >= ClashOfClubs.getBaseYCoordinate(); y--) {
+                breakLoc.setY(y);
+
+                Material material = ClashOfClubs.getBaseYCoordinate() + 1 >= breakLoc.getBlockY() ? GroundMaterials.getRandomMaterial() : Material.AIR;
+                if (material != breakLoc.getBlock().getType())
+                    blockSettingMap.put(breakLoc, material);
+            }
+        }
+        Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> blockSettingMap.forEach((key, value) -> key.getBlock().setType(value)));
+    }
+
+    public static void createPlayerBase(Location location) {
+        createBuilding("playerbase", location, (byte) 0);
+    }
+
+    public static void createBuilding(GeneralBuilding building) {
+        if (building instanceof ConstructionBuilding)
+            createBuilding("construction" + building.getBuilding().getSize()[0] + "-" + building.getBuilding().getSize()[1], BuildingLocationUtil.getReversedCoordinate(building), building.getRotation());
+        else
+            createBuilding(building.getId(), BuildingLocationUtil.getReversedCoordinate(building), building.getRotation());
+    }
+
+    private static void createBuilding(String id, Location coordinate, byte rotation) {
+        if (!SCHEMATICS.containsKey(id) && !load(id))
+            return;
+
+        Map<Block, Object[]> blockSettingMap = new HashMap<>();
+        for (String str : SCHEMATICS.get(id)) {
+            String[] array = str.split(";");
+            int[] coords = BuildingLocationUtil.getCoordinateFromRotation(rotation, Integer.parseInt(array[0]), Integer.parseInt(array[2]));
+            int x = coords[0];
+            int y = Integer.parseInt(array[1]);
+            int z = coords[1];
+
+            Material material = Material.valueOf(array[3].split("\\[")[0].replace("minecraft:", "").toUpperCase());
+
+            BlockData blockData;
+            if ((array[3].contains("wall") && !array[3].contains("face=wall") && !array[3].contains("wall_sign")) || array[3].contains("fence"))
+                blockData = material.createBlockData();
+            else
+                blockData = ClashOfClubs.getInstance().getServer().createBlockData(BuildingLocationUtil.getBlockDataFromRotation(array[3], rotation));
+
+            Block blockToChange = coordinate.clone().add(x, y, z).getBlock();
+            if (!blockData.equals(blockToChange.getBlockData())) {
+                blockSettingMap.put(blockToChange, new Object[]{material, blockData});
+            }
+        }
+        Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> blockSettingMap.forEach((block, value) -> {
+            block.setType((Material) value[0]);
+            block.setBlockData((BlockData) value[1]);
+            block.getState().update();
+        }));
+    }
+
+
+    // FOR SCHEMATIC SAVING
+
     public static boolean saveSchematic(Location[] minAndMax) {
         return saveSchematic("playerbase", minAndMax);
     }
@@ -77,67 +141,7 @@ public class Schematics {
         return false;
     }
 
-    public static void removeBuilding(Location location, int[] size, byte rotation) {
-        List<Block> areaBlocks = BuildingLocationUtil.getBlocksInBuildingGround(location,
-                new int[]{size[rotation == 1 || rotation == 3 ? 1 : 0], size[rotation == 1 || rotation == 3 ? 0 : 1]});
 
-        for (Block block : areaBlocks) {
-            for (int y = BuildingLocationUtil.getHighestYCoordinate(block.getLocation()); y >= ClashOfClubs.getBaseYCoordinate(); y--) {
-                Location breakLoc = block.getLocation().clone();
-                breakLoc.setY(y);
-
-                if (breakLoc.getBlock().getType() != Material.AIR) {
-                    Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> {
-                        if (ClashOfClubs.getBaseYCoordinate() + 1 >= breakLoc.getBlockY())
-                            breakLoc.getBlock().setType(GroundMaterials.getRandomMaterial());
-                        else
-                            breakLoc.getBlock().setType(Material.AIR);
-                    });
-                }
-            }
-        }
-    }
-
-    public static void createPlayerBase(Location location) {
-        createBuilding("playerbase", location, (byte) 0);
-    }
-
-    public static void createBuilding(GeneralBuilding building) {
-        if (building instanceof ConstructionBuilding)
-            createBuilding("construction" + building.getBuilding().getSize()[0] + "-" + building.getBuilding().getSize()[1], BuildingLocationUtil.getReversedCoordinate(building), building.getRotation());
-        else
-            createBuilding(building.getId(), BuildingLocationUtil.getReversedCoordinate(building), building.getRotation());
-    }
-
-    private static void createBuilding(String id, Location coordinate, byte rotation) {
-        if (!SCHEMATICS.containsKey(id) && !load(id))
-            return;
-
-        for (String str : SCHEMATICS.get(id)) {
-            String[] array = str.split(";");
-            int[] coords = BuildingLocationUtil.getCoordinateFromRotation(rotation, Integer.parseInt(array[0]), Integer.parseInt(array[2]));
-            int x = coords[0];
-            int y = Integer.parseInt(array[1]);
-            int z = coords[1];
-
-            Material material = Material.valueOf(array[3].split("\\[")[0].replace("minecraft:", "").toUpperCase());
-
-            Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> {
-                BlockData blockData;
-                if ((array[3].contains("wall") && !array[3].contains("face=wall") && !array[3].contains("wall_sign")) || array[3].contains("fence"))
-                    blockData = material.createBlockData();
-                else
-                    blockData = ClashOfClubs.getInstance().getServer().createBlockData(BuildingLocationUtil.getBlockDataFromRotation(array[3], rotation));
-
-                Block blockToChange = coordinate.clone().add(x, y, z).getBlock();
-                if (!blockData.equals(blockToChange.getBlockData())) {
-                    blockToChange.setType(material);
-                    blockToChange.setBlockData(blockData);
-                    blockToChange.getState().update();
-                }
-            });
-        }
-    }
 
     /**
      * Caches all schematics that can be find in the building-schematics folder in the data folder of the plugin.
