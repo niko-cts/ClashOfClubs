@@ -129,8 +129,8 @@ public class EnglishMessages extends MessageList {
 
         add(TranslationKeys.COC_GUI_CONSTRUCTION_NAME, "&6Construction menu");
         add(TranslationKeys.COC_GUI_CONSTRUCTION_LORE, "&7Open the construction menu;&7You can buy new buildings;&7and decorations there.");
-        add(TranslationKeys.COC_GUI_CONSTRUCTION_DECORATIVE_NAME, "&2Decorative Buildings");
-        add(TranslationKeys.COC_GUI_CONSTRUCTION_DECORATIVE_LORE, "&7Open the decorative buildings menu;&7Includes all decorations and builders!");
+        add(TranslationKeys.COC_GUI_CONSTRUCTION_DECORATIVE_NAME, "&2Other Buildings");
+        add(TranslationKeys.COC_GUI_CONSTRUCTION_DECORATIVE_LORE, "&7Open the other buildings menu;&7Includes all decorations and builders!");
         add(TranslationKeys.COC_GUI_CONSTRUCTION_DEFENSE_NAME, "&eDefense");
         add(TranslationKeys.COC_GUI_CONSTRUCTION_DEFENSE_LORE, "&7Open the defense buildings menu;&7Includes buildings to defend your base.");
         add(TranslationKeys.COC_GUI_CONSTRUCTION_RESOURCE_NAME, "&dResources");

@@ -1,6 +1,7 @@
 package net.fununity.clashofclans.buildings.interfaces;
 
 import net.fununity.clashofclans.ResourceTypes;
+import net.fununity.clashofclans.buildings.interfaces.data.ResourceContainerLevelData;
 
 /**
  * Interface class for resource containing buildings.

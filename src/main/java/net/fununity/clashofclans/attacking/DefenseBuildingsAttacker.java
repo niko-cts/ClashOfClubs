@@ -1,8 +1,8 @@
 package net.fununity.clashofclans.attacking;
 
 import net.fununity.clashofclans.ClashOfClubs;
-import net.fununity.clashofclans.buildings.classes.DefenseBuilding;
-import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
+import net.fununity.clashofclans.buildings.instances.DefenseBuilding;
+import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitTask;

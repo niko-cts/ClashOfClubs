@@ -1,4 +1,4 @@
-package net.fununity.clashofclans.buildings.classes;
+package net.fununity.clashofclans.buildings.instances;
 
 import net.fununity.clashofclans.buildings.BuildingsManager;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
@@ -90,7 +90,7 @@ public class GeneralBuilding {
             });
         }
 
-        if(getLevel() != 0)
+        if (getLevel() != 0)
             menu.setItem(15, new ItemBuilder(Material.PISTON).setName(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_MOVING_NAME)).setLore(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_MOVING_LORE)).craft(), new ClickAction(true) {
                 @Override
                 public void onClick(APIPlayer apiPlayer, ItemStack itemStack, int i) {

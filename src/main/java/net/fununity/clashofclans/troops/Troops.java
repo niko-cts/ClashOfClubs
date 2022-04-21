@@ -1,7 +1,7 @@
 package net.fununity.clashofclans.troops;
 
 import net.fununity.clashofclans.ResourceTypes;
-import net.fununity.clashofclans.buildings.interfaces.BuildingLevelData;
+import net.fununity.clashofclans.buildings.interfaces.data.BuildingLevelData;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IUpgradeDetails;
 import net.fununity.clashofclans.language.TranslationKeys;

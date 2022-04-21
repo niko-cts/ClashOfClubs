@@ -2,11 +2,13 @@ package net.fununity.clashofclans.buildings;
 
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
-import net.fununity.clashofclans.buildings.classes.*;
+import net.fununity.clashofclans.buildings.instances.*;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IBuildingWithHologram;
 import net.fununity.clashofclans.buildings.interfaces.IDestroyableBuilding;
 import net.fununity.clashofclans.buildings.list.*;
+import net.fununity.clashofclans.database.DatabaseBuildings;
+import net.fununity.clashofclans.database.DatabasePlayer;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.*;
 import net.fununity.clashofclans.tickhandler.BuildingTickHandler;

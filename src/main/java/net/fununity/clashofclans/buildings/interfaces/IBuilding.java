@@ -1,7 +1,8 @@
 package net.fununity.clashofclans.buildings.interfaces;
 
 import net.fununity.clashofclans.ResourceTypes;
-import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
+import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
+import net.fununity.clashofclans.buildings.interfaces.data.BuildingLevelData;
 import org.bukkit.Material;
 
 /**

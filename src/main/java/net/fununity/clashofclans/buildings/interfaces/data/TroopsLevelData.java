@@ -1,4 +1,4 @@
-package net.fununity.clashofclans.buildings.interfaces;
+package net.fununity.clashofclans.buildings.interfaces.data;
 
 /**
  * The troop level data class.

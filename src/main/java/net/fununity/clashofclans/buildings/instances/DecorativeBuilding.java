@@ -1,4 +1,4 @@
-package net.fununity.clashofclans.buildings.classes;
+package net.fununity.clashofclans.buildings.instances;
 
 import net.fununity.clashofclans.buildings.BuildingsManager;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
@@ -12,7 +12,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import javax.naming.InvalidNameException;
 import java.util.UUID;
 
 public class DecorativeBuilding extends GeneralBuilding {

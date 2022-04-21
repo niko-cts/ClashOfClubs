@@ -33,28 +33,24 @@ public class CoCCommand extends APICommand {
                 } catch (IllegalArgumentException exception) {
                     apiPlayer.sendRawMessage("Wrong command execute : /coc cheat <resourceType> <amount>");
                 }
-                return;
             }
-            return;
-        }
-        if (args.length == 1) {
+        } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("attack")) {
                 apiPlayer.sendRawMessage("§aLoading please wait..");
                 Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
                     PlayerAttackingManager attackInstance = AttackingHandler.createAttackingInstance(apiPlayer.getUniqueId(), UUID.fromString("cf177f71-cd90-40c3-a5b4-d648c2e3b447"));
                     Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> attackInstance.playerJoined(apiPlayer));
                 });
-                return;
+                apiPlayer.sendRawMessage("§aSuccessful");
+            } else if(args[0].equalsIgnoreCase("selection")) {
+                if (SCHEMATIC_SETTER.contains(apiPlayer.getUniqueId()))
+                    SCHEMATIC_SETTER.remove(apiPlayer.getUniqueId());
+                else
+                    SCHEMATIC_SETTER.add(apiPlayer.getUniqueId());
+                apiPlayer.sendRawMessage("§aSuccessful");
             }
-            apiPlayer.sendRawMessage("§aSuccessful");
-            return;
-        }
-
-        if (SCHEMATIC_SETTER.contains(apiPlayer.getUniqueId()))
-            SCHEMATIC_SETTER.remove(apiPlayer.getUniqueId());
-        else
-            SCHEMATIC_SETTER.add(apiPlayer.getUniqueId());
-        apiPlayer.sendRawMessage("§aSuccessful");
+        } else
+            apiPlayer.sendRawMessage("Execute : /coc cheat <resourceType> <amount>");
     }
 
     public static Set<UUID> getSchematicSetter() {

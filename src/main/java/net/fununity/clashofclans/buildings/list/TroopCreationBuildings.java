@@ -1,11 +1,11 @@
 package net.fununity.clashofclans.buildings.list;
 
 import net.fununity.clashofclans.ResourceTypes;
-import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
-import net.fununity.clashofclans.buildings.classes.TroopsCreateBuilding;
+import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
+import net.fununity.clashofclans.buildings.instances.TroopsCreateBuilding;
 import net.fununity.clashofclans.buildings.interfaces.ITroopCreateBuilding;
-import net.fununity.clashofclans.buildings.interfaces.TroopsCreateLevelData;
-import net.fununity.clashofclans.buildings.interfaces.TroopsLevelData;
+import net.fununity.clashofclans.buildings.interfaces.data.TroopsCreateLevelData;
+import net.fununity.clashofclans.buildings.interfaces.data.TroopsLevelData;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.troops.TroopType;
 import org.bukkit.Material;

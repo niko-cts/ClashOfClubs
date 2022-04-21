@@ -1,4 +1,4 @@
-package net.fununity.clashofclans.buildings.interfaces;
+package net.fununity.clashofclans.buildings.interfaces.data;
 
 /**
  * Each building data per level of the building.

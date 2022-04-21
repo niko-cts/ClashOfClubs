@@ -2,11 +2,11 @@ package net.fununity.clashofclans.tickhandler;
 
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.BuildingsManager;
-import net.fununity.clashofclans.buildings.DatabaseBuildings;
-import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
-import net.fununity.clashofclans.buildings.classes.ResourceGatherBuilding;
+import net.fununity.clashofclans.database.DatabaseBuildings;
+import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
+import net.fununity.clashofclans.buildings.instances.ResourceGatherBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
-import net.fununity.clashofclans.buildings.interfaces.ResourceGatherLevelData;
+import net.fununity.clashofclans.buildings.interfaces.data.ResourceGatherLevelData;
 import net.fununity.clashofclans.buildings.list.ResourceGathererBuildings;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.player.PlayerManager;

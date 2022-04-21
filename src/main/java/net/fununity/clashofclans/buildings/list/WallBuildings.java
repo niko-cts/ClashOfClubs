@@ -1,9 +1,9 @@
 package net.fununity.clashofclans.buildings.list;
 
 import net.fununity.clashofclans.ResourceTypes;
-import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
-import net.fununity.clashofclans.buildings.classes.WallBuilding;
-import net.fununity.clashofclans.buildings.interfaces.BuildingLevelData;
+import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
+import net.fununity.clashofclans.buildings.instances.WallBuilding;
+import net.fununity.clashofclans.buildings.interfaces.data.BuildingLevelData;
 import net.fununity.clashofclans.buildings.interfaces.IWall;
 import net.fununity.clashofclans.language.TranslationKeys;
 import org.bukkit.Material;

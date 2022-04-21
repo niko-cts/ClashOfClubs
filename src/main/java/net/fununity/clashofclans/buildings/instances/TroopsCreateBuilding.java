@@ -1,10 +1,9 @@
-package net.fununity.clashofclans.buildings.classes;
+package net.fununity.clashofclans.buildings.instances;
 
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.buildings.interfaces.ITroopCreateBuilding;
 import net.fununity.clashofclans.gui.TroopsGUI;
 import net.fununity.clashofclans.language.TranslationKeys;
-import net.fununity.clashofclans.player.PlayerManager;
 import net.fununity.clashofclans.troops.ITroop;
 import net.fununity.main.api.inventory.ClickAction;
 import net.fununity.main.api.inventory.CustomInventory;

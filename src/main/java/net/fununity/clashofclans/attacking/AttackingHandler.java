@@ -2,8 +2,8 @@ package net.fununity.clashofclans.attacking;
 
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.Schematics;
-import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
-import net.fununity.clashofclans.buildings.classes.ResourceContainerBuilding;
+import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
+import net.fununity.clashofclans.buildings.instances.ResourceContainerBuilding;
 import net.fununity.clashofclans.buildings.list.DecorativeBuildings;
 import net.fununity.clashofclans.buildings.list.RandomWorldBuildings;
 import net.fununity.clashofclans.player.CoCPlayer;

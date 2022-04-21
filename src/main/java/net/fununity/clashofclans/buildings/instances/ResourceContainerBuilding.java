@@ -1,4 +1,4 @@
-package net.fununity.clashofclans.buildings.classes;
+package net.fununity.clashofclans.buildings.instances;
 
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;

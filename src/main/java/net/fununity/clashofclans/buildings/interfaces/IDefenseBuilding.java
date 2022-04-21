@@ -1,5 +1,6 @@
 package net.fununity.clashofclans.buildings.interfaces;
 
+import net.fununity.clashofclans.buildings.interfaces.data.DefenseLevelData;
 import net.fununity.clashofclans.troops.TroopType;
 
 /**

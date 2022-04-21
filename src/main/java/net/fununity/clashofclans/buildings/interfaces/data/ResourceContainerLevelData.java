@@ -1,4 +1,4 @@
-package net.fununity.clashofclans.buildings.interfaces;
+package net.fununity.clashofclans.buildings.interfaces.data;
 
 /**
  * Level data class for resource containers.

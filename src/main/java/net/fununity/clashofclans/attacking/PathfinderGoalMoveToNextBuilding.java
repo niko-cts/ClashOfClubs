@@ -1,7 +1,7 @@
 package net.fununity.clashofclans.attacking;
 
 import net.fununity.clashofclans.ClashOfClubs;
-import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
+import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.list.WallBuildings;
 import net.minecraft.server.v1_16_R3.PathfinderGoal;
 import org.bukkit.Location;

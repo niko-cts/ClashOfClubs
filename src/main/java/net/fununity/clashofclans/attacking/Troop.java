@@ -1,7 +1,7 @@
 package net.fununity.clashofclans.attacking;
 
 import net.fununity.clashofclans.ClashOfClubs;
-import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
+import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.troops.ITroop;
 import net.fununity.main.api.common.util.SpecialChars;
 import net.md_5.bungee.api.ChatColor;

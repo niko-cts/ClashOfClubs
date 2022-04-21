@@ -1,6 +1,6 @@
 package net.fununity.clashofclans.attacking;
 
-import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
+import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.main.api.util.LocationUtil;
 import org.bukkit.Location;

@@ -1,9 +1,11 @@
 package net.fununity.clashofclans.buildings.list;
 
 import net.fununity.clashofclans.ResourceTypes;
-import net.fununity.clashofclans.buildings.classes.DefenseBuilding;
-import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
+import net.fununity.clashofclans.buildings.instances.DefenseBuilding;
+import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.interfaces.*;
+import net.fununity.clashofclans.buildings.interfaces.data.BuildingLevelData;
+import net.fununity.clashofclans.buildings.interfaces.data.DefenseLevelData;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.troops.TroopType;
 import net.fununity.misc.translationhandler.translations.Language;

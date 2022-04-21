@@ -1,5 +1,7 @@
 package net.fununity.clashofclans.buildings.interfaces;
 
+import net.fununity.clashofclans.buildings.interfaces.data.ResourceGatherLevelData;
+
 /**
  * Interface class for resource gathering buildings.
  * @see net.fununity.clashofclans.buildings.list.ResourceGathererBuildings

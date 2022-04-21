@@ -2,6 +2,7 @@ package net.fununity.clashofclans.player;
 
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
+import net.fununity.clashofclans.database.DatabasePlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 

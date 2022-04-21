@@ -1,5 +1,6 @@
 package net.fununity.clashofclans.buildings.interfaces;
 
+import net.fununity.clashofclans.buildings.interfaces.data.BuildingLevelData;
 import net.fununity.misc.translationhandler.translations.Language;
 
 import java.util.List;

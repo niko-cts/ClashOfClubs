@@ -1,9 +1,9 @@
-package net.fununity.clashofclans.buildings;
+package net.fununity.clashofclans.database;
 
-import net.fununity.clashofclans.buildings.classes.ConstructionBuilding;
-import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
-import net.fununity.clashofclans.buildings.classes.ResourceContainerBuilding;
-import net.fununity.clashofclans.buildings.classes.TroopsBuilding;
+import net.fununity.clashofclans.buildings.instances.ConstructionBuilding;
+import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
+import net.fununity.clashofclans.buildings.instances.ResourceContainerBuilding;
+import net.fununity.clashofclans.buildings.instances.TroopsBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.troops.ITroop;
 import net.fununity.clashofclans.troops.Troops;

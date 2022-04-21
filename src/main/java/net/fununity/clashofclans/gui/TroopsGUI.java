@@ -2,8 +2,8 @@ package net.fununity.clashofclans.gui;
 
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.TroopsBuildingManager;
-import net.fununity.clashofclans.buildings.classes.TroopsBuilding;
-import net.fununity.clashofclans.buildings.classes.TroopsCreateBuilding;
+import net.fununity.clashofclans.buildings.instances.TroopsBuilding;
+import net.fununity.clashofclans.buildings.instances.TroopsCreateBuilding;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.troops.ITroop;
 import net.fununity.clashofclans.troops.Troops;

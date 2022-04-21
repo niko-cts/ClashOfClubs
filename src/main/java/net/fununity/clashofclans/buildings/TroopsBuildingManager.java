@@ -2,10 +2,11 @@ package net.fununity.clashofclans.buildings;
 
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
-import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
-import net.fununity.clashofclans.buildings.classes.TroopsBuilding;
-import net.fununity.clashofclans.buildings.classes.TroopsCreateBuilding;
+import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
+import net.fununity.clashofclans.buildings.instances.TroopsBuilding;
+import net.fununity.clashofclans.buildings.instances.TroopsCreateBuilding;
 import net.fununity.clashofclans.buildings.list.TroopBuildings;
+import net.fununity.clashofclans.database.DatabaseBuildings;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.player.PlayerManager;

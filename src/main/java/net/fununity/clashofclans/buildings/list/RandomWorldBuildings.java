@@ -1,9 +1,9 @@
 package net.fununity.clashofclans.buildings.list;
 
 import net.fununity.clashofclans.ResourceTypes;
-import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
-import net.fununity.clashofclans.buildings.classes.RandomWorldBuilding;
-import net.fununity.clashofclans.buildings.interfaces.BuildingLevelData;
+import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
+import net.fununity.clashofclans.buildings.instances.RandomWorldBuilding;
+import net.fununity.clashofclans.buildings.interfaces.data.BuildingLevelData;
 import net.fununity.clashofclans.buildings.interfaces.IDestroyableBuilding;
 import net.fununity.clashofclans.language.TranslationKeys;
 import org.bukkit.Material;

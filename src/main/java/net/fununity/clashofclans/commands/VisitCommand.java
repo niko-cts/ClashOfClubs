@@ -2,7 +2,7 @@ package net.fununity.clashofclans.commands;
 
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.language.TranslationKeys;
-import net.fununity.clashofclans.player.DatabasePlayer;
+import net.fununity.clashofclans.database.DatabasePlayer;
 import net.fununity.clashofclans.player.PlayerManager;
 import net.fununity.main.api.command.handler.APICommand;
 import net.fununity.main.api.messages.MessagePrefix;

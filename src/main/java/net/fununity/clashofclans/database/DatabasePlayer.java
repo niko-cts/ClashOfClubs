@@ -1,8 +1,8 @@
-package net.fununity.clashofclans.player;
+package net.fununity.clashofclans.database;
 
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
-import net.fununity.clashofclans.buildings.DatabaseBuildings;
+import net.fununity.clashofclans.player.CoCDataPlayer;
 import net.fununity.misc.databasehandler.DatabaseHandler;
 import org.bukkit.Location;
 

@@ -1,4 +1,7 @@
 package net.fununity.clashofclans.buildings.interfaces;
+
+import net.fununity.clashofclans.buildings.interfaces.data.TroopsLevelData;
+
 /**
  * Interface class for troop buildings.
  * @see net.fununity.clashofclans.buildings.list.TroopBuildings

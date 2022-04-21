@@ -1,7 +1,7 @@
 package net.fununity.clashofclans.util;
 
 import net.fununity.clashofclans.ClashOfClubs;
-import net.fununity.clashofclans.buildings.classes.GeneralBuilding;
+import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.main.api.common.util.RandomUtil;
@@ -184,7 +184,7 @@ public class BuildingLocationUtil {
     private static final int RDM_SPACE = 4;
 
     /**
-     * Get a random location for a {@link net.fununity.clashofclans.buildings.classes.RandomWorldBuilding}.
+     * Get a random location for a {@link net.fununity.clashofclans.buildings.instances.RandomWorldBuilding}.
      * @param playerBase Location - the player base location.
      * @param startBuildings List<GeneralBuilding> - the buildings to check.
      * @param size int[] - the size of the building.
