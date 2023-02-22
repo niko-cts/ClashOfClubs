@@ -1,6 +1,7 @@
-package net.fununity.clashofclans.buildings.instances;
+package net.fununity.clashofclans.buildings.instances.destroyables;
 
 import net.fununity.clashofclans.buildings.BuildingsManager;
+import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.main.api.inventory.ClickAction;
@@ -18,15 +19,16 @@ public class DecorativeBuilding extends GeneralBuilding {
 
     /**
      * Instantiates the class.
-     * @param uuid       UUID - uuid of owner.
+     * @param uuid - UUID of the player
+     * @param buildingUUID - UUID of the building
      * @param building   IBuilding - the building class.
      * @param coordinate Location - the location of the building.
-     * @param rotation   int - the rotation of the building.
+     * @param rotation int - rotation of the building
      * @param level      int - the level of the building.
      * @since 0.0.1
      */
-    public DecorativeBuilding(UUID uuid, IBuilding building, Location coordinate, byte rotation, int level) {
-        super(uuid, building, coordinate, rotation, level);
+    public DecorativeBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, byte rotation, int level) {
+        super(uuid, buildingUUID, building, coordinate, rotation, level);
     }
 
     @Override

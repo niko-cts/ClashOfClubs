@@ -1,10 +1,13 @@
-package net.fununity.clashofclans.buildings.instances;
+package net.fununity.clashofclans.buildings.instances.resource;
 
-import net.fununity.clashofclans.buildings.BuildingsManager;
+import net.fununity.clashofclans.ClashOfClubs;
+import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IResourceGatherBuilding;
+import net.fununity.clashofclans.buildings.interfaces.data.ResourceGatherLevelData;
 import net.fununity.clashofclans.language.TranslationKeys;
-import net.fununity.clashofclans.player.PlayerManager;
+import net.fununity.clashofclans.player.CoCPlayer;
+import net.fununity.main.api.actionbar.ActionbarMessage;
 import net.fununity.main.api.inventory.ClickAction;
 import net.fununity.main.api.inventory.CustomInventory;
 import net.fununity.main.api.item.ItemBuilder;
@@ -28,28 +31,16 @@ public class ResourceGatherBuilding extends ResourceContainerBuilding {
     /**
      * Instantiates the class.
      * @param uuid UUID - the uuid of the owner.
+     * @param buildingUUID UUID - the uuid of the building.
      * @param building   IBuilding - the building class.
      * @param coordinate Location - the location of the building.
      * @param level      int - the level of the building.
+     * @param amount     double - amount of building
      * @since 0.0.1
      */
-    public ResourceGatherBuilding(UUID uuid, IBuilding building, Location coordinate, byte rotation, int level) {
-        super(uuid, building, coordinate, rotation, level);
+    public ResourceGatherBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, byte rotation, int level, double amount) {
+        super(uuid, buildingUUID, building, coordinate, rotation, level, amount);
     }
-
-    /**
-     * Instantiates the class.
-     * @param uuid UUID - the uuid of the owner.
-     * @param building   IBuilding - the building class.
-     * @param coordinate Location - the location of the building.
-     * @param level      int - the level of the building.
-     * @param amount      double - the amount of storage in building.
-     * @since 0.0.1
-     */
-    public ResourceGatherBuilding(UUID uuid, IBuilding building, Location coordinate, byte rotation, int level, double amount) {
-        super(uuid, building, coordinate, rotation, level, amount);
-    }
-
     @Override
     public CustomInventory getInventory(Language language) {
         CustomInventory inventory = super.getInventory(language);
@@ -75,17 +66,61 @@ public class ResourceGatherBuilding extends ResourceContainerBuilding {
             public void onClick(APIPlayer apiPlayer, ItemStack itemStack, int i) {
                 if (getAmount() < 1)
                     return;
-                BuildingsManager.getInstance().fillResource(ResourceGatherBuilding.this);
+
+                emptyGatherer();
             }
 
             @Override
             public void onShiftClick(APIPlayer apiPlayer, ItemStack itemStack, int slot) {
-                BuildingsManager.getInstance().fillResource(getContainingResourceType(), PlayerManager.getInstance().getPlayer(getUuid()));
+                CoCPlayer player = ClashOfClubs.getInstance().getPlayerManager().getPlayer(getOwnerUUID());
+                player.getResourceGatherBuildings(getContainingResourceType()).forEach(ResourceGatherBuilding::emptyGatherer);
             }
         });
 
         return menu;
     }
+
+
+    /**
+     * Adds the amount of gathering resource per second
+     * @since 0.0.2
+     */
+    public void addAmountPerSecond() {
+        ResourceGatherLevelData levelData = getBuilding().getBuildingLevelData()[getLevel() - 1];
+        if (getAmount() < levelData.getMaximumResource())
+            setAmount(getAmount() + levelData.getResourceGatheringPerHour() / (3600.0)); // each s
+    }
+
+    /**
+     * Adds the amount to the building the player was gone (gatheringPerSecond * secondsGone)
+     * @param secondsGone long - the amount the player was gone.
+     * @since 0.0.2
+     */
+    public void addAmountPlayerWasGone(double secondsGone) {
+        ResourceGatherLevelData levelData = getBuilding().getBuildingLevelData()[getLevel() - 1];
+        if (getAmount() < levelData.getMaximumResource())
+            setAmount(getAmount() + levelData.getResourceGatheringPerHour() / 3600.0 * secondsGone); // each s
+    }
+
+
+    /**
+     * Drains the gatherer and calls {@link CoCPlayer#fillResourceToContainer(ResourceTypes, int)}.
+     * @since 0.0.2
+     */
+    public void emptyGatherer() {
+        CoCPlayer cocPlayer = ClashOfClubs.getInstance().getPlayerManager().getPlayer(getOwnerUUID());
+
+        int toAdd = Math.min(cocPlayer.getMaxResourceContainable(getContainingResourceType()) - cocPlayer.getResourceAmount(getContainingResourceType()), (int) getAmount());
+        if (toAdd <= 0) {
+            APIPlayer owner = cocPlayer.getOwner();
+            if(owner != null)
+                owner.sendActionbar(new ActionbarMessage(TranslationKeys.COC_PLAYER_NO_RESOURCE_TANKS));
+            return;
+        }
+
+        setAmount(getAmount() - toAdd);
+        cocPlayer.fillResourceToContainer(getContainingResourceType(), toAdd);
+     }
 
     /**
      * Get the resource gathering per hour on the current level.

@@ -25,8 +25,22 @@ public class TranslationKeys {
     public static final String COC_COMMAND_RESET_SUCCESS = "coc.command.reset.success";
 
     // PLAYER
-    public static final String COC_PLAYER_LOADING_BASE = "coc.player.info.loadingbase";
-    public static final String COC_PLAYER_NOT_ENOUGH_RESOURCE = "coc.player.illegal.notenoughresource";
+    public static final String COC_PLAYER_LOADING_PLAYER_DATA_TITLE = "coc.player.info.loading.playerdata.title";
+    public static final String COC_PLAYER_LOADING_PLAYER_DATA_SUBTITLE = "coc.player.info.loading.playerdata.subtitle";
+    public static final String COC_PLAYER_LOADING_RESOURCES_TITLE = "coc.player.info.loading.resources.title";
+    public static final String COC_PLAYER_LOADING_RESOURCES_SUBTITLE = "coc.player.info.loading.resources.subtitle";
+    public static final String COC_PLAYER_LOADING_TROOPS_TITLE = "coc.player.info.loading.troops.title";
+    public static final String COC_PLAYER_LOADING_TROOPS_SUBTITLE = "coc.player.info.loading.troops.subtitle";
+    public static final String COC_PLAYER_LOADING_FINISHED_TITLE = "coc.player.info.loading.finished.title";
+    public static final String COC_PLAYER_LOADING_FINISHED_SUBTITLE = "coc.player.info.loading.finished.subtitle";
+
+    public static final String COC_PLAYER_LOADING_NEW_BASE_TITLE = "coc.player.info.loading.new.base.title";
+    public static final String COC_PLAYER_LOADING_NEW_BASE_SUBTITLE = "coc.player.info.loading.new.base.subtitle";
+    public static final String COC_PLAYER_LOADING_NEW_PLACING_TITLE = "coc.player.info.loading.new.placing.title";
+    public static final String COC_PLAYER_LOADING_NEW_PLACING_SUBTITLE = "coc.player.info.loading.new.placing.subtitle";
+    public static final String COC_PLAYER_LOADING_NEW_FINISHED_TITLE = "coc.player.info.loading.new.finished.title";
+    public static final String COC_PLAYER_LOADING_NEW_FINISHED_SUBTITLE = "coc.player.info.loading.new.finished.subtitle";
+    public static final String COC_PLAYER_NOT_ENOUGH_RESOURCE = "coc.player.illegal.resource";
     public static final String COC_PLAYER_NO_MORE_BUILDINGS = "coc.player.illegal.nomorebuildings";
     public static final String COC_PLAYER_NO_RESOURCE_TANKS = "coc.player.illegal.noresourcecontainer";
     public static final String COC_PLAYER_BUILDERS_WORKING = "coc.player.illegal.buildersworking";
@@ -59,8 +73,8 @@ public class TranslationKeys {
     public static final String COC_GUI_GATHER_TAKE_NAME = "coc.gui.gather.take.name";
     public static final String COC_GUI_GATHER_TAKE_LORE = "coc.gui.gather.take.lore";
 
-    public static final String COC_GUI_CONSTRUCTION_NAME = "coc.gui.construction.name";
-    public static final String COC_GUI_CONSTRUCTION_LORE = "coc.gui.construction.lore";
+    public static final String COC_INV_CONSTRUCTION_NAME = "coc.gui.construction.name";
+    public static final String COC_INV_CONSTRUCTION_LORE = "coc.gui.construction.lore";
     public static final String COC_GUI_CONSTRUCTION_DECORATIVE_NAME = "coc.gui.construction.decorative.name";
     public static final String COC_GUI_CONSTRUCTION_DECORATIVE_LORE = "coc.gui.construction.decorative.lore";
     public static final String COC_GUI_CONSTRUCTION_DEFENSE_NAME = "coc.gui.construction.defense.name";
@@ -72,10 +86,18 @@ public class TranslationKeys {
     public static final String COC_GUI_CONSTRUCTION_BUILDING_NAME = "coc.gui.construction.building.name";
     public static final String COC_GUI_CONSTRUCTION_BUILDING_LORE = "coc.gui.construction.building.lore";
 
-    public static final String COC_GUI_ATTACK_NAME = "coc.gui.attack.name";
-    public static final String COC_GUI_ATTACK_LORE = "coc.gui.attack.lore";
-    public static final String COC_GUI_ATTACKHISTORY_NAME = "coc.gui.attackhistory.name";
-    public static final String COC_GUI_ATTACKHISTORY_LORE = "coc.gui.attackhistory.lore";
+    public static final String COC_GUI_ATTACK_NAME = "coc.inv.attack.name";
+    public static final String COC_GUI_ATTACK_LORE = "coc.inv.attack.lore";
+    public static final String COC_INV_ATTACKHISTORY_NAME = "coc.inv.attackhistory.name";
+    public static final String COC_INV_ATTACKHISTORY_LORE = "coc.inv.attackhistory.lore";
+    public static final String COC_INV_POINTER_NAME = "coc.inv.pointer.name";
+    public static final String COC_INV_POINTER_LORE = "coc.inv.pointer.lore";
+    public static final String COC_INV_RESOURCE_NAME = "coc.inv.resource.name";
+    public static final String COC_INV_RESOURCE_LORE = "coc.inv.resource.lore";
+    public static final String COC_INV_BOOK_NAME = "coc.inv.resource.name";
+    public static final String COC_INV_BOOK_LORE = "coc.inv.book.lore";
+    public static final String COC_INV_BOOK_CONTENT = "coc.inv.book.content.";
+
 
 
     public static final String COC_GUI_TROOPS_CONTAINER_NAME = "coc.building.troops.container.name";

@@ -1,13 +1,13 @@
-package net.fununity.clashofclans.buildings.instances;
+package net.fununity.clashofclans.buildings.instances.troops;
 
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.Schematics;
+import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IDifferentVersionBuildings;
 import net.fununity.clashofclans.buildings.interfaces.ITroopBuilding;
 import net.fununity.clashofclans.gui.TroopsGUI;
 import net.fununity.clashofclans.language.TranslationKeys;
-import net.fununity.clashofclans.player.PlayerManager;
 import net.fununity.clashofclans.troops.ITroop;
 import net.fununity.main.api.inventory.ClickAction;
 import net.fununity.main.api.inventory.CustomInventory;
@@ -39,27 +39,15 @@ public class TroopsBuilding extends GeneralBuilding implements IDifferentVersion
     /**
      * Instantiates the class.
      * @param uuid UUID - the uuid of the owner.
+     * @param buildingUUID UUID - the uuid of the building.
      * @param building   IBuilding - the building class.
      * @param coordinate Location - the location of the building.
      * @param level      int - the level of the building.
      * @since 0.0.1
      */
-    public TroopsBuilding(UUID uuid, IBuilding building, Location coordinate, byte rotation, int level) {
-        this(uuid, building, coordinate, rotation, level, new ConcurrentHashMap<>());
-    }
-
-    /**
-     * Instantiates the class.
-     * @param uuid UUID - the uuid of the owner.
-     * @param building   IBuilding - the building class.
-     * @param coordinate Location - the location of the building.
-     * @param level      int - the level of the building.
-     * @param troopAmount ConcurrentMap<ITroop, Integer> - the current amount of troops.
-     * @since 0.0.1
-     */
-    public TroopsBuilding(UUID uuid, IBuilding building, Location coordinate, byte rotation, int level, ConcurrentMap<ITroop, Integer> troopAmount) {
-        super(uuid, building, coordinate, rotation, level);
-        this.troopAmount = troopAmount;
+    public TroopsBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, byte rotation, int level) {
+        super(uuid, buildingUUID, building, coordinate, rotation, level);
+        this.troopAmount = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -87,37 +75,40 @@ public class TroopsBuilding extends GeneralBuilding implements IDifferentVersion
     }
 
     /**
-     * Set the amount of troop.
-     * @param troop ITroop - the troop.
-     * @param amount int - the amount of troop.
-     * @since 0.0.1
-     */
-    public void setTroopAmount(ITroop troop, int amount) {
-        int oldVersion = getCurrentBuildingVersion();
-        troopAmount.put(troop, amount);
-        updateVersion(oldVersion != getCurrentBuildingVersion());
-    }
-
-    /**
      * Add the amount of troop.
      * @param troop ITroop - the troop.
      * @param amount int - the amount of troop.
      * @since 0.0.1
      */
     public void addTroopAmount(ITroop troop, int amount) {
+        setTroopAmount(troop, getTroopAmount(troop) + amount);
+    }
+
+
+    /**
+     * Remove the amount of troop.
+     * @param troop ITroop - the troop.
+     * @param amount int - the amount of troop.
+     * @since 0.0.1
+     */
+    public void removeTroopAmount(ITroop troop, int amount) {
+        setTroopAmount(troop, getTroopAmount(troop) - amount);
+    }
+
+    /**
+     * Sets the amount of troop.
+     * @param troop ITroop - the troop.
+     * @param amount int - the amount of troop.
+     * @since 0.0.1
+     */
+    public void setTroopAmount(ITroop troop, int amount) {
         int oldVersion = getCurrentBuildingVersion();
         troopAmount.put(troop, this.troopAmount.getOrDefault(troop, 0) + amount);
         updateVersion(oldVersion != getCurrentBuildingVersion());
     }
 
-    /**
-     * Set many troops to the building.
-     * @param troops ConcurrentMap<ITroop, Integer> - the troops.
-     * @since 0.0.1
-     */
-    public void setTroopAmount(ConcurrentMap<ITroop, Integer> troops) {
-        this.troopAmount.putAll(troops);
-        updateVersion(false);
+    public int getTroopAmount(ITroop troop) {
+        return troopAmount.getOrDefault(troop, 0);
     }
 
     /**
@@ -162,7 +153,7 @@ public class TroopsBuilding extends GeneralBuilding implements IDifferentVersion
      */
     @Override
     public void updateVersion(boolean schematic) {
-        PlayerManager.getInstance().forceUpdateInventory(this);
+        ClashOfClubs.getInstance().getPlayerManager().forceUpdateInventory(this);
         if (schematic)
             Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> Schematics.createBuilding(this));
     }
@@ -177,4 +168,5 @@ public class TroopsBuilding extends GeneralBuilding implements IDifferentVersion
     public int getCurrentBuildingVersion() {
         return 100 * getCurrentSizeOfTroops() / getMaxAmountOfTroops();
     }
+
 }

@@ -2,7 +2,6 @@ package net.fununity.clashofclans.attacking.history;
 
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
-import net.fununity.clashofclans.attacking.PlayerAttackingManager;
 import net.fununity.misc.databasehandler.DatabaseHandler;
 
 import java.sql.ResultSet;
@@ -13,7 +12,6 @@ import java.util.*;
 
 /**
  * Database class for the attacking system.
- * @see PlayerAttackingManager
  * @author Niko
  * @since 0.0.1
  */

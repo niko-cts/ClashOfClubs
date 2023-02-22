@@ -1,13 +1,17 @@
 package net.fununity.clashofclans.buildings.instances;
 
+import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.BuildingsManager;
+import net.fununity.clashofclans.buildings.BuildingsMoveManager;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IDifferentVersionBuildings;
 import net.fununity.clashofclans.buildings.interfaces.IUpgradeDetails;
 import net.fununity.clashofclans.buildings.list.Buildings;
+import net.fununity.clashofclans.buildings.list.ResourceContainerBuildings;
 import net.fununity.clashofclans.language.TranslationKeys;
-import net.fununity.clashofclans.player.PlayerManager;
+import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.util.BuildingLocationUtil;
+import net.fununity.clashofclans.util.BuildingsAmountUtil;
 import net.fununity.main.api.common.util.SpecialChars;
 import net.fununity.main.api.hologram.APIHologram;
 import net.fununity.main.api.inventory.ClickAction;
@@ -16,6 +20,7 @@ import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.item.UsefulItems;
 import net.fununity.main.api.player.APIPlayer;
 import net.fununity.misc.translationhandler.translations.Language;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -31,7 +36,8 @@ import java.util.*;
  */
 public class GeneralBuilding {
 
-    private final UUID uuid;
+    private final UUID ownerUUID;
+    private final UUID buildingUUID;
     private final IBuilding building;
     private byte rotation;
     private Location coordinate;
@@ -42,14 +48,16 @@ public class GeneralBuilding {
     /**
      * Instantiates the class.
      * @param uuid UUID - uuid of owner.
+     * @param buildingUUID UUID - uuid of building.
      * @param building IBuilding - the building class.
      * @param coordinate Location - the location of the building.
      * @param rotation byte - the rotation of the building.
      * @param level int - the level of the building.
      * @since 0.0.1
      */
-    public GeneralBuilding(UUID uuid, IBuilding building, Location coordinate, byte rotation, int level) {
-        this.uuid = uuid;
+    public GeneralBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, byte rotation, int level) {
+        this.ownerUUID = uuid;
+        this.buildingUUID = buildingUUID;
         this.building = building;
         this.coordinate = coordinate;
         this.rotation = rotation;
@@ -67,12 +75,32 @@ public class GeneralBuilding {
         CustomInventory menu = new CustomInventory(getBuildingTitle(language), 9*3);
         menu.setSpecialHolder(getCoordinate().toString());
         menu.fill(UsefulItems.BACKGROUND_BLACK);
+
         menu.setItem(11, new ItemBuilder(Material.WRITABLE_BOOK).setName(language.getTranslation(getBuilding().getNameKey())).setLore(language.getTranslation(getBuilding().getDescriptionKey()).split(";")).craft());
 
-        if (getLevel() != 0)
-            menu.setItem(12, new ItemBuilder(Material.HEART_OF_THE_SEA).setName(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_HP_NAME)).setLore(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_HP_LORE, Arrays.asList("${max}", "${current}"), Arrays.asList(getMaxHP()+"", getCurrentHP()+"")).split(";")).craft());
+        if (getLevel() != 0) {
+            menu.setItem(12, new ItemBuilder(Material.HEART_OF_THE_SEA).setName(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_HP_NAME)).setLore(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_HP_LORE, Arrays.asList("${max}", "${current}"), Arrays.asList(getMaxHP() + "", getCurrentHP() + "")).split(";")).craft());
 
-        if (getBuilding() != Buildings.TOWN_HALL && PlayerManager.getInstance().getPlayer(getUuid()).getTownHallLevel() == 0) {
+            menu.setItem(15, new ItemBuilder(Material.PISTON).setName(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_MOVING_NAME)).setLore(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_MOVING_LORE)).craft(), new ClickAction(true) {
+                @Override
+                public void onClick(APIPlayer apiPlayer, ItemStack itemStack, int i) {
+                    BuildingsMoveManager.getInstance().enterMovingMode(apiPlayer, GeneralBuilding.this);
+                }
+            });
+        }
+
+        CoCPlayer player = ClashOfClubs.getInstance().getPlayerManager().getPlayer(getOwnerUUID());
+        if (getBuilding() == Buildings.TOWN_HALL) {
+
+            List<IBuilding> needsToBuild = player.buildableBuildings();
+            if (!needsToBuild.isEmpty()) {
+                StringBuilder builder = new StringBuilder();
+                needsToBuild.forEach(b -> builder.append(ChatColor.GRAY).append("- ").append(language.getTranslation(b.getNameKey())).append(";"));
+               menu.setItem(14, new ItemBuilder(Material.BARRIER).setName("Need to build all buildings.").setLore(builder.toString().split(";")).craft());
+               return menu;
+            }
+        }
+        if (getBuilding() != Buildings.TOWN_HALL && player.getTownHallLevel() == 0) {
             menu.setItem(14, new ItemBuilder(UsefulItems.UP_ARROW).setName(language.getTranslation(TranslationKeys.COC_PLAYER_REPAIR_TOWNHALL_FIRST)).craft());
         } else if (getUpgradeCost() != -1) {
             List<String> upgradeLore = new ArrayList<>(Arrays.asList(language.getTranslation(getLevel() == 0 ? TranslationKeys.COC_GUI_BUILDING_REPAIR_LORE : TranslationKeys.COC_GUI_BUILDING_UPGRADE_LORE, "${cost}", "" + getBuilding().getResourceType().getChatColor() + getUpgradeCost() + " " + language.getTranslation(getBuilding().getResourceType().getNameKey())).split(";")));
@@ -89,14 +117,6 @@ public class GeneralBuilding {
                 }
             });
         }
-
-        if (getLevel() != 0)
-            menu.setItem(15, new ItemBuilder(Material.PISTON).setName(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_MOVING_NAME)).setLore(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_MOVING_LORE)).craft(), new ClickAction(true) {
-                @Override
-                public void onClick(APIPlayer apiPlayer, ItemStack itemStack, int i) {
-                    BuildingsManager.getInstance().enterMovingMode(apiPlayer, GeneralBuilding.this);
-                }
-            });
 
         return menu;
     }
@@ -136,8 +156,8 @@ public class GeneralBuilding {
      * @return int - the upgrade cost.
      * @since 0.0.1
      */
-    public int getMaxBuildingDuration() {
-        return getBuilding().getBuildingLevelData().length > level ? getBuilding().getBuildingLevelData()[level].getBuildTime() : -1;
+    public int getBuildingDuration() {
+        return getBuilding().getBuildingLevelData().length > level ? getBuilding().getBuildingLevelData()[level].getBuildTime() : 0;
     }
 
     /**
@@ -200,7 +220,7 @@ public class GeneralBuilding {
      * @since 0.0.1
      */
     public Location getMaxCoordinate() {
-        return getCoordinate().add(getBuilding().getSize()[rotation == 1 || rotation == 3 ? 1 : 0] - 1, 0,
+        return getCoordinate().add(getBuilding().getSize()[rotation == 1 || rotation == 3 ? 1 : 0] - 1, ClashOfClubs.getBaseYCoordinate() + 30,
                 getBuilding().getSize()[rotation == 1 || rotation == 3 ? 0 : 1] - 1);
     }
 
@@ -258,8 +278,16 @@ public class GeneralBuilding {
      * @return UUID - uuid of player.
      * @since 0.0.1
      */
-    public UUID getUuid() {
-        return uuid;
+    public UUID getOwnerUUID() {
+        return ownerUUID;
+    }
+    /**
+     * Get the uuid of this building.
+     * @return UUID - uuid of building.
+     * @since 0.0.1
+     */
+    public UUID getBuildingUUID() {
+        return buildingUUID;
     }
 
     /**

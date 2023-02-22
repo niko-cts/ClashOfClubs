@@ -1,9 +1,8 @@
 package net.fununity.clashofclans.commands;
 
 import net.fununity.clashofclans.ClashOfClubs;
-import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.database.DatabasePlayer;
-import net.fununity.clashofclans.player.PlayerManager;
+import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.main.api.command.handler.APICommand;
 import net.fununity.main.api.messages.MessagePrefix;
 import net.fununity.main.api.player.APIPlayer;
@@ -36,14 +35,15 @@ public class VisitCommand extends APICommand {
                 apiPlayer.sendMessage(MessagePrefix.ERROR, TranslationKeys.COC_COMMAND_VISIT_ILLEGAL_HASNOBUILDING);
                 return;
             }
-            if(!apiPlayer.hasPermission("command.visit.offline") && !PlayerManager.getInstance().isCached(uuid)) {
+            if (!apiPlayer.hasPermission("command.visit.offline") && !ClashOfClubs.getInstance().getPlayerManager().isCached(uuid)) {
                 apiPlayer.sendMessage(MessagePrefix.ERROR, TranslationKeys.COC_COMMAND_VISIT_ILLEGAL_NOTONLINE);
                 return;
             }
+
             apiPlayer.sendMessage(MessagePrefix.SUCCESS, TranslationKeys.COC_COMMAND_VISIT_SUCCESS);
-            PlayerManager.getInstance().getPlayer(apiPlayer.getUniqueId()).leave(apiPlayer);
+            ClashOfClubs.getInstance().getPlayerManager().getPlayer(apiPlayer.getUniqueId()).leave(apiPlayer);
             Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () ->
-                    PlayerManager.getInstance().getPlayer(uuid).visit(apiPlayer, true));
+                    ClashOfClubs.getInstance().getPlayerManager().getPlayer(uuid).visit(apiPlayer, true));
         });
     }
 

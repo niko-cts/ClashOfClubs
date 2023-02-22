@@ -1,9 +1,12 @@
 package net.fununity.clashofclans.listener;
 
 import net.fununity.clashofclans.ClashOfClubs;
+import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.attacking.MatchmakingSystem;
 import net.fununity.clashofclans.buildings.BuildingsManager;
+import net.fununity.clashofclans.buildings.BuildingsMoveManager;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
+import net.fununity.clashofclans.buildings.instances.resource.ResourceGatherBuilding;
 import net.fununity.clashofclans.commands.CoCCommand;
 import net.fununity.clashofclans.gui.AttackHistoryGUI;
 import net.fununity.clashofclans.gui.BuildingBuyGUI;
@@ -47,66 +50,77 @@ public class PlayerInteractListener implements Listener {
         event.setCancelled(true);
         if (event.getHand() != EquipmentSlot.HAND || event.getAction() == Action.PHYSICAL) return;
 
+        UUID uuid = event.getPlayer().getUniqueId();
         Material handMaterial = event.getPlayer().getInventory().getItemInMainHand().getType();
 
         // setup stuff
-        if(CoCCommand.getSchematicSetter().contains(event.getPlayer().getUniqueId())) {
+        if (CoCCommand.getSchematicSetter().contains(uuid)) {
             event.setCancelled(false);
             if (handMaterial == Material.IRON_AXE) {
                 if (event.getClickedBlock() == null) return;
                 event.setCancelled(true);
-                Location[] map = SCHEMATIC_SAVER.getOrDefault(event.getPlayer().getUniqueId(), new Location[2]);
+                Location[] map = SCHEMATIC_SAVER.getOrDefault(uuid, new Location[2]);
                 if (event.getAction() == Action.LEFT_CLICK_BLOCK)
                     map[0] = event.getClickedBlock().getLocation();
                 else
                     map[1] = event.getClickedBlock().getLocation();
-                SCHEMATIC_SAVER.put(event.getPlayer().getUniqueId(), map);
+                SCHEMATIC_SAVER.put(uuid, map);
                 event.getPlayer().sendMessage("§aSaved");
                 return;
             }
         }
 
 
-        if (MatchmakingSystem.getInstance().getAttackWatcher().containsKey(event.getPlayer().getUniqueId())) {
+        if (MatchmakingSystem.getInstance().isSpying(uuid)) {
             if (handMaterial == Material.BARRIER) {
                 MatchmakingSystem.getInstance().cancelWatching(FunUnityAPI.getInstance().getPlayerHandler().getPlayer(event.getPlayer()));
             } else if (event.getPlayer().getInventory().getHeldItemSlot() == 0) {
-                MatchmakingSystem.getInstance().startAttack(FunUnityAPI.getInstance().getPlayerHandler().getPlayer(event.getPlayer()));
-            } else if(event.getPlayer().getInventory().getHeldItemSlot() == 1) {
-                MatchmakingSystem.getInstance().startMatchmakingLooking(FunUnityAPI.getInstance().getPlayerHandler().getPlayer(event.getPlayer()),
-                        MatchmakingSystem.getInstance().getVisitedAttacks().get(event.getPlayer().getUniqueId()));
+                MatchmakingSystem.getInstance().startAttack(uuid);
+            } else if (event.getPlayer().getInventory().getHeldItemSlot() == 1) {
+                MatchmakingSystem.getInstance().nextSpy(uuid);
             }
             return;
         }
 
         if (!WHITELIST_MATERIALS.contains(handMaterial)) {
-            if (event.getAction() != Action.LEFT_CLICK_BLOCK && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+            if (event.getAction() != Action.LEFT_CLICK_BLOCK && event.getAction() != Action.RIGHT_CLICK_BLOCK || event.getClickedBlock() == null) return;
 
-            CoCPlayer player = PlayerManager.getInstance().getPlayer(event.getPlayer().getUniqueId());
+            CoCPlayer player = ClashOfClubs.getInstance().getPlayerManager().getPlayer(uuid);
             if (player == null) return;
 
-            GeneralBuilding clickedBuilding = player.getBuildings().stream()
-                    .filter(b -> LocationUtil.isBetween(b.getCoordinate(), event.getClickedBlock().getLocation(),
-                            b.getMaxCoordinate().add(0, 50, 0))).findFirst().orElse(null);
+            Location location = event.getClickedBlock().getLocation();
 
-            if (clickedBuilding != null) {
+            player.getAllBuildings().stream().filter(b -> LocationUtil.isBetween(b.getCoordinate(), location, b.getMaxCoordinate())).findFirst().ifPresent(b ->{
                 APIPlayer apiPlayer = player.getOwner();
                 if (apiPlayer != null)
-                    clickedBuilding.getInventory(apiPlayer.getLanguage()).open(apiPlayer);
+                    b.getInventory(apiPlayer.getLanguage()).open(apiPlayer);
+            });
+            return;
+        }
+
+        CoCPlayer player = ClashOfClubs.getInstance().getPlayerManager().getPlayer(uuid);
+        if (player == null) return;
+
+        ResourceTypes resourceType = Arrays.stream(ResourceTypes.canReachWithTownHall(player.getTownHallLevel())).filter(r -> r.getGlass().getType() == handMaterial).findFirst().orElse(null);
+
+        if (resourceType != null) {
+            for (ResourceGatherBuilding building : player.getResourceGatherBuildings(resourceType)) {
+                if (building.getAmount() > 0)
+                   building.emptyGatherer();
             }
             return;
         }
 
-        CoCPlayer player = PlayerManager.getInstance().getPlayer(event.getPlayer().getUniqueId());
-        if (player == null) return;
+
+        Block targetBlock = event.getClickedBlock();
 
         switch (handMaterial) {
             case BARRIER:
-                BuildingsManager.getInstance().quitEditorMode(player);
+                BuildingsMoveManager.getInstance().quitEditorMode(player);
                 return;
             case CLOCK:
                 if (player.getTownHallLevel() == 0) {
-                    FunUnityAPI.getInstance().getActionbarManager().addActionbar(player.getUniqueId(), new ActionbarMessage(TranslationKeys.COC_PLAYER_REPAIR_TOWNHALL_FIRST));
+                    player.getOwner().getTitleSender().sendTitle(TranslationKeys.COC_PLAYER_REPAIR_TOWNHALL_FIRST, 20);
                     return;
                 }
                 BuildingBuyGUI.open(player);
@@ -121,17 +135,21 @@ public class PlayerInteractListener implements Listener {
                 AttackHistoryGUI.openHistory(FunUnityAPI.getInstance().getPlayerHandler().getPlayer(event.getPlayer()));
                 return;
             case IRON_SWORD:
-                MatchmakingSystem.getInstance().startMatchmakingLooking(FunUnityAPI.getInstance().getPlayerHandler().getPlayer(event.getPlayer()), new ArrayList<>());
+                MatchmakingSystem.getInstance().startMatchmakingLooking(FunUnityAPI.getInstance().getPlayerHandler().getPlayer(event.getPlayer()));
                 return;
+            case TRIPWIRE_HOOK:
+                if (targetBlock != null)
+                    targetBlock = LocationUtil.getTargetBlock(event.getPlayer(), 30);
+                break;
+            case WRITTEN_BOOK:
+                ClashOfClubs.getInstance().getPlayerManager().openHelpBook(FunUnityAPI.getInstance().getPlayerHandler().getPlayer(event.getPlayer()), player.getTownHallLevel());
+                break;
             default:
                 break;
         }
 
-        Block targetBlock = event.getClickedBlock();
+        if (targetBlock == null || targetBlock.getLocation().getBlockY() == ClashOfClubs.getBaseYCoordinate() + 1) return;
 
-        if (targetBlock == null) return;
-
-        if (targetBlock.getLocation().getBlockY() != ClashOfClubs.getBaseYCoordinate() + 1) return;
 
         GeneralBuilding building = player.getBuildingMode()[1] instanceof GeneralBuilding ? (GeneralBuilding) player.getBuildingMode()[1] : null;
 
@@ -147,13 +165,13 @@ public class PlayerInteractListener implements Listener {
 
         player.setBuildingMode(targetBlock.getLocation().clone().subtract(0, 1, 0));
         if (handMaterial == Material.PISTON && building != null) {
-            BuildingsManager.getInstance().moveBuilding(player.getBuildingMode());
+            BuildingsMoveManager.getInstance().moveBuilding(player.getBuildingMode());
             FunUnityAPI.getInstance().getActionbarManager().addActionbar(player.getUniqueId(), new ActionbarMessage(TranslationKeys.COC_CONSTRUCTION_MOVED));
         } else if (handMaterial == Material.NETHER_STAR) {
             BuildingsManager.getInstance().build(player);
             FunUnityAPI.getInstance().getActionbarManager().addActionbar(player.getUniqueId(), new ActionbarMessage(TranslationKeys.COC_CONSTRUCTION_BUILD));
         }
-        BuildingsManager.getInstance().quitEditorMode(player);
+        BuildingsMoveManager.getInstance().quitEditorMode(player);
     }
 
     public static Location[] getSchematicSaver(UUID uuid) {

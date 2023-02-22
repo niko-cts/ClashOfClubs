@@ -36,11 +36,6 @@
             <artifactId>FunUnityAPI</artifactId>
             <version>MASTER</version>
         </dependency>
-        <dependency>
-            <groupId>net.fununity.misc</groupId>
-            <artifactId>NPCSystem</artifactId>
-            <version>MASTER</version>
-        </dependency>
     </dependencies>
 
     <build>

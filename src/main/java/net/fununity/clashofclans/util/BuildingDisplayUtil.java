@@ -89,7 +89,7 @@ public class BuildingDisplayUtil {
         for (IBuilding[] buildings : getBuildings(slot)) {
             for (IBuilding building : buildings) {
                 int amountOfBuilding = BuildingsAmountUtil.getAmountOfBuilding(building, townHallLevel);
-                long buildingsPlayerHas = coCPlayer.getBuildings().stream().filter(b -> b.getBuilding() == building).count();
+                long buildingsPlayerHas = coCPlayer.getNormalBuildings().stream().filter(b -> b.getBuilding() == building).count();
                 if (buildingsPlayerHas >= amountOfBuilding)
                     lore.add("§7- §c§m"+ coCPlayer.getOwner().getLanguage().getTranslation(building.getNameKey()));
                 else

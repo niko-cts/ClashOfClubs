@@ -30,7 +30,22 @@ public class EnglishMessages extends MessageList {
 
 
         // PLAYER
-        add(TranslationKeys.COC_PLAYER_LOADING_BASE, "&7;&6&lWelcome!;&7I'm &eTheodore&7, your new builder! Let me prepare the base for you!;&7Removing trees... &aFinished!;&7Building town hall... &aFinished!;&7Luchbreak... &aFinished!;&7Making beds... &aFinished!;&7Finding hammer... &aFinished!;&7Digging mine... &aFinished!;&7;&7Your base should be ready now! I'll just make a few more adjustments...");
+        add(TranslationKeys.COC_PLAYER_LOADING_PLAYER_DATA_TITLE, "&7Loading player data...");
+        add(TranslationKeys.COC_PLAYER_LOADING_PLAYER_DATA_SUBTITLE, "&a" + SpecialChars.LINE_EXTRA_BOLD + "&7" + SpecialChars.LINE_EXTRA_BOLD + SpecialChars.LINE_EXTRA_BOLD + SpecialChars.LINE_EXTRA_BOLD);
+        add(TranslationKeys.COC_PLAYER_LOADING_RESOURCES_TITLE, "&7Fetching up resources...");
+        add(TranslationKeys.COC_PLAYER_LOADING_RESOURCES_SUBTITLE, "&a" + SpecialChars.LINE_EXTRA_BOLD + SpecialChars.LINE_EXTRA_BOLD + "&7" + SpecialChars.LINE_EXTRA_BOLD + SpecialChars.LINE_EXTRA_BOLD);
+        add(TranslationKeys.COC_PLAYER_LOADING_TROOPS_TITLE, "&7Fetching up troops...");
+        add(TranslationKeys.COC_PLAYER_LOADING_TROOPS_SUBTITLE, "&a" + SpecialChars.LINE_EXTRA_BOLD + SpecialChars.LINE_EXTRA_BOLD + SpecialChars.LINE_EXTRA_BOLD + "&7" + SpecialChars.LINE_EXTRA_BOLD);
+        add(TranslationKeys.COC_PLAYER_LOADING_FINISHED_TITLE, "&aLoading finished!");
+        add(TranslationKeys.COC_PLAYER_LOADING_FINISHED_SUBTITLE, "&a" + SpecialChars.LINE_EXTRA_BOLD + SpecialChars.LINE_EXTRA_BOLD + SpecialChars.LINE_EXTRA_BOLD + SpecialChars.LINE_EXTRA_BOLD);
+        add(TranslationKeys.COC_PLAYER_LOADING_NEW_BASE_TITLE, "&7Loading &6base...");
+        add(TranslationKeys.COC_PLAYER_LOADING_NEW_BASE_SUBTITLE, "&a" + SpecialChars.LINE_EXTRA_BOLD + "&7" + SpecialChars.LINE_EXTRA_BOLD + SpecialChars.LINE_EXTRA_BOLD);
+        add(TranslationKeys.COC_PLAYER_LOADING_NEW_PLACING_TITLE, "&7Place &6blocks...");
+        add(TranslationKeys.COC_PLAYER_LOADING_NEW_PLACING_SUBTITLE, "&a" + SpecialChars.LINE_EXTRA_BOLD + SpecialChars.LINE_EXTRA_BOLD + "&7" + SpecialChars.LINE_EXTRA_BOLD);
+        add(TranslationKeys.COC_PLAYER_LOADING_NEW_FINISHED_TITLE, "&7Setup &6finished!");
+        add(TranslationKeys.COC_PLAYER_LOADING_NEW_FINISHED_SUBTITLE, "&a" + SpecialChars.LINE_EXTRA_BOLD + SpecialChars.LINE_EXTRA_BOLD + SpecialChars.LINE_EXTRA_BOLD);
+
+
         add(TranslationKeys.COC_PLAYER_NOT_ENOUGH_RESOURCE, "&eTheodore&7: Seems like we need &emore &7${type}&7!");
         add(TranslationKeys.COC_PLAYER_NO_MORE_BUILDINGS, "&eTheodore&7: I'm sorry! &e:/ &7I can only build that &e${max} times &7at this town hall level...");
         add(TranslationKeys.COC_PLAYER_NO_RESOURCE_TANKS, "&eTheodore&7: Chief, we &cdon't &7have any more capacity!");
@@ -127,8 +142,8 @@ public class EnglishMessages extends MessageList {
 
         add(TranslationKeys.COC_GUI_BUILDING_UNDERCONSTRUCTION, "&eUnder construction: &e${left} left");
 
-        add(TranslationKeys.COC_GUI_CONSTRUCTION_NAME, "&6Construction menu");
-        add(TranslationKeys.COC_GUI_CONSTRUCTION_LORE, "&7Open the construction menu;&7You can buy new buildings;&7and decorations there.");
+        add(TranslationKeys.COC_INV_CONSTRUCTION_NAME, "&6Construction menu");
+        add(TranslationKeys.COC_INV_CONSTRUCTION_LORE, "&7Open the construction menu;&7You can buy new buildings;&7and decorations there.");
         add(TranslationKeys.COC_GUI_CONSTRUCTION_DECORATIVE_NAME, "&2Other Buildings");
         add(TranslationKeys.COC_GUI_CONSTRUCTION_DECORATIVE_LORE, "&7Open the other buildings menu;&7Includes all decorations and builders!");
         add(TranslationKeys.COC_GUI_CONSTRUCTION_DEFENSE_NAME, "&eDefense");
@@ -140,12 +155,42 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_GUI_CONSTRUCTION_BUILDING_NAME, "&6Buildings menu");
         add(TranslationKeys.COC_GUI_CONSTRUCTION_BUILDING_LORE, "&7Building cost: &e${cost} ${type};&7Amounts of building;&7with town hall level ${level}: &e${amount}&7/&e${max}");
 
-        // ATTACK GUI
+        // INV ITEMS
         add(TranslationKeys.COC_GUI_ATTACK_NAME, "&6Start matchmaking search...");
-        add(TranslationKeys.COC_GUI_ATTACK_LORE, "&7Click this to show the attacking GUI.");
-        add(TranslationKeys.COC_GUI_ATTACKHISTORY_LORE, "&7Click to start matchmaking.;&7You will be send to a;&7preview of the base you can attack.");
-        add(TranslationKeys.COC_GUI_ATTACKHISTORY_NAME, "&eView attack history");
-        add(TranslationKeys.COC_GUI_ATTACKHISTORY_LORE, "&7Open the attack history menu.");
+        add(TranslationKeys.COC_GUI_ATTACK_LORE, "&7Click to start matchmaking.;&7You will be send to a;&7preview of the base you can attack.");
+        add(TranslationKeys.COC_INV_ATTACKHISTORY_NAME, "&eView attack history");
+        add(TranslationKeys.COC_INV_ATTACKHISTORY_LORE, "&7Open the attack history menu.");
+
+        add(TranslationKeys.COC_INV_POINTER_NAME, "&ePointer");
+        add(TranslationKeys.COC_INV_POINTER_LORE, "&7Point your cursor at a building;&7click to interact with it;&7through the air");
+        add(TranslationKeys.COC_INV_RESOURCE_NAME, "&7Collect ${color}${type}");
+        add(TranslationKeys.COC_INV_RESOURCE_LORE, "&7Click to collect all resources;&7from this type.");
+        add(TranslationKeys.COC_INV_BOOK_NAME, "&7Open &ehelp");
+        add(TranslationKeys.COC_INV_BOOK_LORE, "&7Click to open a help book");
+
+        add(TranslationKeys.COC_INV_BOOK_CONTENT + "0", "Welcome, ${player}!\n" +
+                "I'm Theodore, your trusty builder. Let's get started, shall we?\n" +
+                "\n" +
+                "\u200BThe first task at hand is repairing your town hall. This is crucial to ensure the prosperity and growth of your settlement.;" +
+                "To begin, simply click on the town hall or use your pointer to interact with the building.\n" +
+                "\n" +
+                "Each structure has its own graphical user interface (GUI) that allows you to access its unique features.;" +
+                "From the town hall's GUI, select the 'repair' option to initiate the necessary repairs. This will kick-start your settlement's progress and set the stage for exciting new developments.\n" +
+                "\n" +
+                "Let's get building!");
+
+        add(TranslationKeys.COC_INV_BOOK_CONTENT + "1", "Great work, friend!\n" +
+                "\n" +
+                "Now, it's time to dive into the exciting part of the game.\n" +
+                "\n" +
+                "\u200BOpen up your inventory and locate the \"Construction menu.\";Here, you can begin constructing new buildings!Keep in mind that any construction requires resources, so plan accordingly.\n" +
+                "To get started, we recommend building a 'Farm' and a 'Barn' to collect food. Navigate to the Construction Menu and select the 'Farm' option.;Once you have selected the 'Farm,' you can choose where to place the building by looking at the ground. If you are happy with the placement and no other buildings occupy the area, you can begin construction.\n" +
+                "\n" +
+                "So keep building and have fun!;Don't worry if you're not completely satisfied with the placement of your other buildings!\n" +
+                "\n" +
+                "You have the ability to move and rotate them to a new spot.\n" +
+                "Simply select the building you want to adjust, and choose the \"Move\" option.;Again look on the ground and place the building where ever you want!");
+
 
 
         // TROOPS

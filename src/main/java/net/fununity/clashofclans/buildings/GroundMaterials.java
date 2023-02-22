@@ -3,6 +3,9 @@ package net.fununity.clashofclans.buildings;
 import net.fununity.main.api.common.util.RandomUtil;
 import org.bukkit.Material;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 public enum GroundMaterials {
 
     GRASS_BLOCK(Material.GRASS_BLOCK, 75),
@@ -19,13 +22,20 @@ public enum GroundMaterials {
     }
 
     public static Material getRandomMaterial() {
-        int random = RandomUtil.getRandomInt(100) + 1;
-        int current = 0;
-        for (GroundMaterials materials : values()) {
-            if (materials.percentage + current < random)
-                return materials.material;
-            current += materials.percentage;
+        TreeMap<Integer, Material> ceiling = new TreeMap<>();
+        for (GroundMaterials groundMats : values()) {
+            ceiling.put(groundMats.percentage, groundMats.material);
         }
+
+        int i = 0;
+
+        do {
+            int random = RandomUtil.getRandomInt(100) + 1;
+            Map.Entry<Integer, Material> entry = ceiling.ceilingEntry(random);
+            if (entry != null)
+                return entry.getValue();
+            i++;
+        } while (i < 20);
         return Material.GRASS_BLOCK;
     }
 

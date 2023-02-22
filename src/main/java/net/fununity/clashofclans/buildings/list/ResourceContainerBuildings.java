@@ -2,7 +2,7 @@ package net.fununity.clashofclans.buildings.list;
 
 import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
-import net.fununity.clashofclans.buildings.instances.ResourceContainerBuilding;
+import net.fununity.clashofclans.buildings.instances.resource.ResourceContainerBuilding;
 import net.fununity.clashofclans.buildings.interfaces.data.BuildingLevelData;
 import net.fununity.clashofclans.buildings.interfaces.IResourceContainerBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IUpgradeDetails;

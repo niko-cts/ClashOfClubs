@@ -2,7 +2,7 @@ package net.fununity.clashofclans.buildings.list;
 
 import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
-import net.fununity.clashofclans.buildings.instances.ResourceGatherBuilding;
+import net.fununity.clashofclans.buildings.instances.resource.ResourceGatherBuilding;
 import net.fununity.clashofclans.buildings.interfaces.data.BuildingLevelData;
 import net.fununity.clashofclans.buildings.interfaces.IResourceGatherBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IUpgradeDetails;
@@ -16,22 +16,22 @@ import java.util.List;
 
 public enum ResourceGathererBuildings implements IResourceGatherBuilding, IUpgradeDetails {
     GOLD_MINER(TranslationKeys.COC_BUILDING_GATHER_GOLD_MINER_NAME, TranslationKeys.COC_BUILDING_GATHER_GOLD_MINER_DESCRIPTION, new int[]{19, 15}, ResourceTypes.FOOD, Material.GOLD_ORE, ResourceTypes.GOLD,
-            new ResourceGatherLevelData[]{new ResourceGatherLevelData(250, 1, 75, 10, 3000, 600),
-                                          new ResourceGatherLevelData(300, 1, 150, 30, 4500, 1200),
-                                          new ResourceGatherLevelData(350, 2, 350, 60, 6000, 1800),
-                                          new ResourceGatherLevelData(400, 2, 700, 120, 7500, 2400)}),
+            new ResourceGatherLevelData[]{new ResourceGatherLevelData(250, 1, 75, 30, 6000, 600),
+                                          new ResourceGatherLevelData(300, 1, 750, 3 * 60, 28000, 800),
+                                          new ResourceGatherLevelData(350, 2, 10000, 10 * 60, 40000, 1200),
+                                          new ResourceGatherLevelData(400, 2, 50000, 2 * 60 * 60, 60000, 1800)}),
 
     FARM(TranslationKeys.COC_BUILDING_GATHER_FARM_NAME, TranslationKeys.COC_BUILDING_GATHER_FARM_DESCRIPTION, new int[]{19, 15}, ResourceTypes.GOLD, Material.WHEAT_SEEDS, ResourceTypes.FOOD,
-            new ResourceGatherLevelData[]{new ResourceGatherLevelData(250, 1, 75, 10, 3500, 750),
-                                          new ResourceGatherLevelData(300, 1, 150, 30, 4750, 1500),
-                                          new ResourceGatherLevelData(350, 2, 350, 60, 6500, 2250),
-                                          new ResourceGatherLevelData(400, 2, 700, 120, 8000, 3000)}),
+            new ResourceGatherLevelData[]{new ResourceGatherLevelData(250, 1, 75, 30, 10000, 600),
+                                          new ResourceGatherLevelData(300, 1, 750, 3 * 60, 28000, 800),
+                                          new ResourceGatherLevelData(350, 2, 10000, 10 * 60, 40000, 1100),
+                                          new ResourceGatherLevelData(400, 2, 50000, 2 * 60 * 60, 60000, 1700)}),
 
     COAL_MINER(TranslationKeys.COC_BUILDING_GATHER_COAL_DRILL_NAME, TranslationKeys.COC_BUILDING_GATHER_COAL_DRILL_DESCRIPTION, new int[]{19, 15}, ResourceTypes.GOLD, Material.COAL, ResourceTypes.ELECTRIC,
-            new ResourceGatherLevelData[]{new ResourceGatherLevelData(250, 6, 250000, 3600 * 4,  15, 15),
-                                          new ResourceGatherLevelData(300, 6, 350000, 3600 * 5, 20, 20),
-                                          new ResourceGatherLevelData(350, 7, 450000, 3600 * 6, 30, 30),
-                                          new ResourceGatherLevelData(400, 7, 6000000, 3600 * 7, 40, 40)}),;
+            new ResourceGatherLevelData[]{new ResourceGatherLevelData(250, 6, 250000, 5 * 60,  15, 15),
+                                          new ResourceGatherLevelData(300, 6, 350000, 60 * 60, 20, 20),
+                                          new ResourceGatherLevelData(350, 7, 450000, 5 * 60 * 60, 30, 30),
+                                          new ResourceGatherLevelData(400, 7, 6000000, 24 * 60 * 60, 40, 40)}),;
 
 
     private final String nameKey;

@@ -2,7 +2,7 @@ package net.fununity.clashofclans.buildings.list;
 
 import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
-import net.fununity.clashofclans.buildings.instances.TroopsCreateBuilding;
+import net.fununity.clashofclans.buildings.instances.troops.TroopsCreateBuilding;
 import net.fununity.clashofclans.buildings.interfaces.ITroopCreateBuilding;
 import net.fununity.clashofclans.buildings.interfaces.data.TroopsCreateLevelData;
 import net.fununity.clashofclans.buildings.interfaces.data.TroopsLevelData;
@@ -12,7 +12,7 @@ import org.bukkit.Material;
 
 public enum TroopCreationBuildings implements ITroopCreateBuilding {
     BARRACKS(TranslationKeys.COC_BUILDING_TROOPS_CREATION_BARRACKS_NORMAL_NAME, TranslationKeys.COC_BUILDING_TROOPS_CREATION_BARRACKS_NORMAL_DESCRIPTION, new int[]{16, 14}, ResourceTypes.FOOD, Material.IRON_HELMET,
-            new TroopsCreateLevelData[]{new TroopsCreateLevelData(250, 1, 50, 10, 10, TroopType.LAND)});
+            new TroopsCreateLevelData[]{new TroopsCreateLevelData(250, 1, 50, 2 * 60, 10, TroopType.LAND)});
 
     private final String nameKey;
     private final String descriptionKey;

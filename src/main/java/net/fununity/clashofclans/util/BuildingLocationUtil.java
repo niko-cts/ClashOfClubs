@@ -2,6 +2,7 @@ package net.fununity.clashofclans.util;
 
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
+import net.fununity.clashofclans.buildings.instances.destroyables.RandomWorldBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.main.api.common.util.RandomUtil;
@@ -9,7 +10,6 @@ import net.fununity.main.api.util.LocationUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 
@@ -35,7 +35,7 @@ public class BuildingLocationUtil {
      * @since 0.0.1
      */
     public static void removeBuildingGround(Player player, Object[] buildingMode) {
-        getBlocksInBuildingGround(buildingMode).forEach(b -> player.sendBlockChange(b.getLocation(), b.getBlockData()));
+        getAllLocationsOnGround(buildingMode).forEach(b -> player.sendBlockChange(b, b.getBlock().getBlockData()));
     }
 
     /**
@@ -48,12 +48,12 @@ public class BuildingLocationUtil {
         Object[] buildingMode = coCPlayer.getBuildingMode();
         GeneralBuilding building = buildingMode[1] instanceof GeneralBuilding ? (GeneralBuilding) buildingMode[1] : null;
 
-        List<Block> blocks = getBlocksInBuildingGround(buildingMode);
+        List<Location> blocks = getAllLocationsOnGround(buildingMode);
 
         int[] size = building == null ? ((IBuilding) buildingMode[1]).getSize() : building.getBuilding().getSize();
         Location originalCoordinate = getCoordinate(size, (byte) buildingMode[2], (Location) buildingMode[0]);
         BlockData data = BuildingLocationUtil.otherBuildingInWay(coCPlayer) ? Material.REDSTONE_BLOCK.createBlockData() : Material.EMERALD_BLOCK.createBlockData();
-        blocks.forEach(b -> player.sendBlockChange(b.getLocation(), b.getLocation().equals(originalCoordinate) ? Material.LAPIS_BLOCK.createBlockData() : data));
+        blocks.forEach(b -> player.sendBlockChange(b, LocationUtil.equalsLocationBlock(originalCoordinate, b) ? Material.LAPIS_BLOCK.createBlockData() : data));
     }
 
 
@@ -61,24 +61,24 @@ public class BuildingLocationUtil {
      * Get all building blocks from the current building.
      * @param buildingMode Object[] - the building mode of the player.
      * @see net.fununity.clashofclans.player.CoCPlayer#getBuildingMode()
-     * @return List<Block> - all blocks in the building area.
+     * @return List<Location> - all blocks in the building area.
      * @since 0.0.1
      */
-    public static List<Block> getBlocksInBuildingGround(Object[] buildingMode) {
+    public static List<Location> getAllLocationsOnGround(Object[] buildingMode) {
         Location location = (Location) buildingMode[0];
         if (location == null) return new ArrayList<>();
-        return getBlocksInBuildingGround(location, getSize(buildingMode));
+        return getAllLocationsOnGround(location, getSize(buildingMode));
     }
 
     /**
      * Get all building blocks from the current building.
      * @param location Location - the start location.
      * @param size int[] - the size of the building.
-     * @return List<Block> - all blocks in the building area.
+     * @return List<Location> - all Location in the building area.
      * @since 0.0.1
      */
-    public static List<Block> getBlocksInBuildingGround(Location location, int[] size) {
-        List<Block> blocks = new ArrayList<>();
+    public static List<Location> getAllLocationsOnGround(Location location, int[] size) {
+        List<Location> blocks = new ArrayList<>();
         int maxX = location.getBlockX() + size[0];
         boolean maxXBigger = location.getBlockX() < maxX;
         int maxZ = location.getBlockZ() + size[1];
@@ -86,7 +86,7 @@ public class BuildingLocationUtil {
 
         for (int x = location.getBlockX(); maxXBigger ? x < maxX : x > maxX; x = (maxXBigger ? x + 1 : x - 1)) {
             for (int z = location.getBlockZ(); maxZBigger ? z < maxZ : z > maxZ; z = (maxZBigger ? z + 1 : z - 1))
-                blocks.add(new Location(location.getWorld(), x, location.getBlockY(), z).getBlock());
+                blocks.add(new Location(location.getWorld(), x, location.getBlockY(), z));
         }
         return blocks;
     }
@@ -181,10 +181,10 @@ public class BuildingLocationUtil {
     }
 
 
-    private static final int RDM_SPACE = 4;
+    private static final int RDM_SPACE = 2;
 
     /**
-     * Get a random location for a {@link net.fununity.clashofclans.buildings.instances.RandomWorldBuilding}.
+     * Get a random location for a {@link RandomWorldBuilding}.
      * @param playerBase Location - the player base location.
      * @param startBuildings List<GeneralBuilding> - the buildings to check.
      * @param size int[] - the size of the building.
@@ -196,9 +196,9 @@ public class BuildingLocationUtil {
             Location rdm = playerBase.clone().add(ClashOfClubs.getBaseBackground() + 1, 0, ClashOfClubs.getBaseBackground() + 1)
                     .add(RandomUtil.getRandomInt(ClashOfClubs.getBaseSize() - ClashOfClubs.getBaseBackground()), 0, RandomUtil.getRandomInt(ClashOfClubs.getBaseSize() - ClashOfClubs.getBaseBackground()));
 
-            List<Block> blocks = getBlocksInBuildingGround(rdm.clone().subtract(RDM_SPACE, 0, RDM_SPACE), size);
+            List<Location> blocks = getAllLocationsOnGround(rdm.clone().subtract(RDM_SPACE, 0, RDM_SPACE), new int[]{size[0] + RDM_SPACE, size[1] + RDM_SPACE});
 
-            if (startBuildings.stream().anyMatch(b -> blocks.stream().noneMatch(block -> LocationUtil.isBetween(b.getCoordinate(), block.getLocation(), b.getCoordinate().add(b.getBuilding().getSize()[0] + RDM_SPACE, 0, b.getBuilding().getSize()[1] + RDM_SPACE)))))
+            if (startBuildings.stream().anyMatch(b -> blocks.stream().noneMatch(block -> LocationUtil.isBetween(b.getCoordinate(), block, b.getMaxCoordinate()))))
                 return rdm;
         }
         return null;
@@ -211,16 +211,16 @@ public class BuildingLocationUtil {
      * @since 0.0.1
      */
     public static boolean otherBuildingInWay(CoCPlayer player) {
-        Location minBuildable = player.getLocation().add(ClashOfClubs.getBaseBackground(), 0, ClashOfClubs.getBaseBackground());
-        Location maxBuildable = player.getEndLocation().subtract(ClashOfClubs.getBaseBackground(), 0, ClashOfClubs.getBaseBackground());
+        Location minBuildable = player.getBaseStartLocation().add(ClashOfClubs.getBaseBackground(), 0, ClashOfClubs.getBaseBackground());
+        Location maxBuildable = player.getBaseEndLocation().subtract(ClashOfClubs.getBaseBackground(), 0, ClashOfClubs.getBaseBackground());
         GeneralBuilding building = player.getBuildingMode()[1] instanceof GeneralBuilding ? (GeneralBuilding) player.getBuildingMode()[1] : null;
-        List<Block> blocks = BuildingLocationUtil.getBlocksInBuildingGround(player.getBuildingMode());
-        for (Block block : blocks) {
-            if (!LocationUtil.isBetween(minBuildable, block.getLocation(), maxBuildable)) {
+        List<Location> blocks = BuildingLocationUtil.getAllLocationsOnGround(player.getBuildingMode());
+        for (Location block : blocks) {
+            if (!LocationUtil.isBetween(minBuildable, block, maxBuildable)) {
                 return true;
             }
 
-            GeneralBuilding generalBuilding = player.getBuildings().stream().filter(b -> LocationUtil.isBetween(b.getCoordinate(), block.getLocation(),
+            GeneralBuilding generalBuilding = player.getNormalBuildings().stream().filter(b -> LocationUtil.isBetween(b.getCoordinate(), block,
                     b.getCoordinate().clone().add(b.getBuilding().getSize()[0], ClashOfClubs.getBaseYCoordinate() + 1, b.getBuilding().getSize()[1]))).findFirst().orElse(null);
             if (building == null && generalBuilding != null || building != null && generalBuilding != null && generalBuilding.getBuilding() != building.getBuilding()) {
                 return true;

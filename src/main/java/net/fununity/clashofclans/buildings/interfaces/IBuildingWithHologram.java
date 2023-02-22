@@ -1,6 +1,7 @@
 package net.fununity.clashofclans.buildings.interfaces;
 
 import net.fununity.main.api.hologram.APIHologram;
+import net.fununity.main.api.player.APIPlayer;
 
 import java.util.List;
 
@@ -12,16 +13,17 @@ import java.util.List;
 public interface IBuildingWithHologram {
 
     /**
-     * Get a list of holograms to display to the player.
-     * @return List<APIHologram> - A list of all holograms on the building.
+     * Updates the hologram for the player.
+     * @param showText List<String> - displayed text in hologram
      * @since 0.0.1
      */
-    List<APIHologram> getHolograms();
+    void updateHologram(List<String> showText);
 
     /**
-     * Updates the hologram for the player.
+     * Hides the hologram for the player.
+     * @param player APIPlayer - the player to hide.
      * @since 0.0.1
      */
-    void updateHologram();
+    void hideHologram(APIPlayer player);
 
 }

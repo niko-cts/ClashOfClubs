@@ -10,15 +10,16 @@ public class DefenseBuilding extends GeneralBuilding {
 
     /**
      * Instantiates the class.
-     * @param uuid       UUID - uuid of owner.
-     * @param building   IBuilding - the building class.
+     * @param uuid UUID - uuid of owner.
+     * @param buildingUUID UUID - uuid of building.
+     * @param building IBuilding - the building class.
      * @param coordinate Location - the location of the building.
-     * @param rotation   byte - the rotation of the building.
-     * @param level      int - the level of the building.
+     * @param rotation byte - the rotation of the building.
+     * @param level int - the level of the building.
      * @since 0.0.1
      */
-    public DefenseBuilding(UUID uuid, IBuilding building, Location coordinate, byte rotation, int level) {
-        super(uuid, building, coordinate, rotation, level);
+    public DefenseBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, byte rotation, int level) {
+        super(uuid, buildingUUID, building, coordinate, rotation, level);
     }
 
     @Override

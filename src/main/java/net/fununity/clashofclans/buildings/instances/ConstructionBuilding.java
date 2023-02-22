@@ -1,53 +1,33 @@
 package net.fununity.clashofclans.buildings.instances;
 
 import net.fununity.clashofclans.ClashOfClubs;
-import net.fununity.clashofclans.buildings.BuildingsManager;
-import net.fununity.clashofclans.buildings.interfaces.IBuildingWithHologram;
+import net.fununity.clashofclans.buildings.ConstructionManager;
 import net.fununity.clashofclans.language.TranslationKeys;
-import net.fununity.clashofclans.player.PlayerManager;
-import net.fununity.clashofclans.util.BuildingLocationUtil;
-import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.common.util.FormatterUtil;
-import net.fununity.main.api.hologram.APIHologram;
 import net.fununity.main.api.inventory.CustomInventory;
 import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.item.UsefulItems;
-import net.fununity.main.api.player.APIPlayer;
 import net.fununity.misc.translationhandler.translations.Language;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
-public class ConstructionBuilding extends GeneralBuilding implements IBuildingWithHologram {
+public class ConstructionBuilding extends GeneralHologramBuilding {
 
     private final GeneralBuilding generalBuilding;
-    private int buildingDuration;
-    private final Location hologramLocation;
-    private APIHologram hologram;
+    private final long buildingFinishTime;
 
     /**
      * Instantiates the construction building class.
      * @param generalBuilding {@link GeneralBuilding} - the constructed building.
-     * @param buildingDuration int - the building duration in seconds.
+     * @param buildingFinishTime long - the milliseconds time the building is finished.
      * @since 0.0.1
      */
-    public ConstructionBuilding(GeneralBuilding generalBuilding, int buildingDuration) {
-        super(generalBuilding.getUuid(), generalBuilding.getBuilding(), generalBuilding.getCoordinate(), generalBuilding.getRotation(), generalBuilding.getLevel());
+    public ConstructionBuilding(GeneralBuilding generalBuilding, long buildingFinishTime) {
+        super(generalBuilding.getOwnerUUID(), generalBuilding.getBuildingUUID(), generalBuilding.getBuilding(), generalBuilding.getCoordinate(), generalBuilding.getRotation(), generalBuilding.getLevel());
         this.generalBuilding = generalBuilding;
-        this.buildingDuration = buildingDuration;
-
-        hologramLocation = getCoordinate().add(getBuilding().getSize()[0] / 2.0, 0, getBuilding().getSize()[1] / 2.0);
-        hologramLocation.setY(BuildingLocationUtil.getHighestYCoordinate(hologramLocation) + 2);
-        this.hologram = new APIHologram(this.hologramLocation, Collections.singletonList(FormatterUtil.getDuration(getBuildingDuration())));
-    }
-
-    @Override
-    public void setCoordinate(Location coordinate) {
-        super.setCoordinate(coordinate);
-        this.generalBuilding.setCoordinate(coordinate);
+        this.buildingFinishTime = buildingFinishTime;
     }
 
     @Override
@@ -60,7 +40,7 @@ public class ConstructionBuilding extends GeneralBuilding implements IBuildingWi
 
         menu.setItem(14, UsefulItems.BACKGROUND_GRAY);
 
-        String name = language.getTranslation(TranslationKeys.COC_GUI_BUILDING_UNDERCONSTRUCTION, "${left}", FormatterUtil.getDuration(getBuildingDuration()));
+        String name = language.getTranslation(TranslationKeys.COC_GUI_BUILDING_UNDERCONSTRUCTION, "${left}", FormatterUtil.getDuration(getBuildingDurationLeft()));
         int finished = getCurrentBuildingVersion();
         for (int i = 9, j = 27; j < menu.getInventory().getSize(); i += 9, j++)
             menu.setItem(j, new ItemBuilder(i <= finished ? UsefulItems.BACKGROUND_GREEN : UsefulItems.BACKGROUND_BLACK).setName(name).craft());
@@ -70,43 +50,15 @@ public class ConstructionBuilding extends GeneralBuilding implements IBuildingWi
     }
 
     /**
-     * Updates the hologram for the player.
-     * @since 0.0.1
-     */
-    @Override
-    public void updateHologram() {
-        APIPlayer onlinePlayer = FunUnityAPI.getInstance().getPlayerHandler().getPlayer(getUuid());
-        if (onlinePlayer != null) {
-            if (this.hologram != null)
-                onlinePlayer.hideHolograms(this.hologram.getLocation());
-
-            if (BuildingLocationUtil.getHighestYCoordinate(hologramLocation) + 2 != hologramLocation.getBlockY())
-                hologramLocation.setY(BuildingLocationUtil.getHighestYCoordinate(hologramLocation) + 2);
-            this.hologram = new APIHologram(this.hologramLocation, Collections.singletonList(FormatterUtil.getDuration(getBuildingDuration())));
-            getHolograms().forEach(onlinePlayer::showHologram);
-        }
-    }
-
-    /**
-     * Get the constructed building.
-     * @return GeneralBuilding - the constructed building.
-     */
-    public GeneralBuilding getConstructionBuilding() {
-        return generalBuilding;
-    }
-
-    /**
      * Set the left building time.
-     * @param buildTime int - new build time.
      * @since 0.0.1
      */
-    public void setBuildingDuration(int buildTime) {
-        this.buildingDuration = buildTime;
-        if (this.buildingDuration > 0) {
-            updateHologram();
-            Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> PlayerManager.getInstance().forceUpdateInventory(this));
+    public void updateBuildingDuration() {
+        if (System.currentTimeMillis() < buildingFinishTime) {
+            updateHologram(getShowText());
+            Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> ClashOfClubs.getInstance().getPlayerManager().forceUpdateInventory(this));
         } else {
-            BuildingsManager.getInstance().finishedBuilding(this);
+            ConstructionManager.getInstance().finishedConstruction(this);
             ClashOfClubs.getInstance().getLogger().info("Construction finished");
         }
     }
@@ -116,13 +68,12 @@ public class ConstructionBuilding extends GeneralBuilding implements IBuildingWi
      * @return int - left building seconds
      * @since 0.0.1
      */
-    public int getBuildingDuration() {
-        return buildingDuration;
+    public long getBuildingDurationLeft() {
+        return (buildingFinishTime - System.currentTimeMillis()) / 1000;
     }
 
-    @Override
-    public List<APIHologram> getHolograms() {
-        return this.hologram != null ? Collections.singletonList(this.hologram) : Collections.emptyList();
+    public long getBuildingFinishTime() {
+        return buildingFinishTime;
     }
 
     /**
@@ -132,20 +83,19 @@ public class ConstructionBuilding extends GeneralBuilding implements IBuildingWi
      * @since 0.0.1
      */
     public int getCurrentBuildingVersion() {
-        return 100 * this.buildingDuration / getMaxBuildingDuration();
+        return (int) (100 * getBuildingDurationLeft() / getBuildingDuration());
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        ConstructionBuilding that = (ConstructionBuilding) o;
-        return buildingDuration == that.buildingDuration && Objects.equals(generalBuilding, that.generalBuilding);
+    public GeneralBuilding getConstructedBuilding() {
+        return generalBuilding;
     }
 
+    /**
+     * Returns the list of hologram lines.
+     * @return List<String> - hologram lines
+     */
     @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), generalBuilding, buildingDuration);
+    public List<String> getShowText() {
+        return Collections.singletonList(FormatterUtil.getDuration(getBuildingDurationLeft()));
     }
 }

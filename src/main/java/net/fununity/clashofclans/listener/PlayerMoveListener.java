@@ -25,7 +25,7 @@ public class PlayerMoveListener implements Listener {
         Player player = event.getPlayer();
         Block targetBlock = LocationUtil.getTargetBlock(player, 3);
         if (targetBlock == null || targetBlock.getLocation().getBlockY() != ClashOfClubs.getBaseYCoordinate() + 1) return;
-        CoCPlayer coCPlayer = PlayerManager.getInstance().getPlayer(player.getUniqueId());
+        CoCPlayer coCPlayer = ClashOfClubs.getInstance().getPlayerManager().getPlayer(player.getUniqueId());
 
         Location lastLoc = (Location) coCPlayer.getBuildingMode()[0];
 

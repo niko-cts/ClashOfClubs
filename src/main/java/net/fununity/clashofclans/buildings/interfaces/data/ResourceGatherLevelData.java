@@ -15,7 +15,6 @@ public class ResourceGatherLevelData extends ResourceContainerLevelData {
      * @param maxHP int - the max hp of the building.
      * @param minTownHall int - the minimum town hall level.
      * @param upgradeCost int - the upgrade cost.
-     * @param resourceType ResourceTypes - the container resource type.
      * @param maximumAmount int - the maximum amount of resource.
      * @param resourceGatheringPerHour int - the amount of resource per minute
      * @since 0.0.1
@@ -26,8 +25,8 @@ public class ResourceGatherLevelData extends ResourceContainerLevelData {
     }
 
     /**
-     * Get the amount of resource gathered per minute.
-     * @return int - the amount of resource per min.
+     * Get the amount of resource gathered per hour.
+     * @return int - the amount of resource per hour.
      * @since 0.0.1
      */
     public int getResourceGatheringPerHour() {

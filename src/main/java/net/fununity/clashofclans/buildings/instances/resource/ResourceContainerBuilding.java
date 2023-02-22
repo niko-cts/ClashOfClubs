@@ -1,22 +1,20 @@
-package net.fununity.clashofclans.buildings.instances;
+package net.fununity.clashofclans.buildings.instances.resource;
 
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.Schematics;
+import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
+import net.fununity.clashofclans.buildings.instances.GeneralHologramBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
-import net.fununity.clashofclans.buildings.interfaces.IBuildingWithHologram;
 import net.fununity.clashofclans.buildings.interfaces.IDifferentVersionBuildings;
 import net.fununity.clashofclans.buildings.interfaces.IResourceContainerBuilding;
 import net.fununity.clashofclans.language.TranslationKeys;
-import net.fununity.clashofclans.player.PlayerManager;
-import net.fununity.main.api.FunUnityAPI;
-import net.fununity.main.api.hologram.APIHologram;
 import net.fununity.main.api.inventory.CustomInventory;
 import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.item.UsefulItems;
-import net.fununity.main.api.player.APIPlayer;
 import net.fununity.misc.translationhandler.translations.Language;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
@@ -31,34 +29,23 @@ import java.util.UUID;
  * @author Niko
  * @since 0.0.1
  */
-public class ResourceContainerBuilding extends GeneralBuilding implements IBuildingWithHologram, IDifferentVersionBuildings {
+public class ResourceContainerBuilding extends GeneralHologramBuilding implements IDifferentVersionBuildings {
 
-    private APIHologram hologram;
     private double currentAmount;
 
     /**
      * Instantiates the class.
      * @param uuid UUID - the uuid of the owner.
+     * @param buildingUUID UUID - the uuid of the building.
      * @param building   IBuilding - the building class.
      * @param coordinate Location - the location of the building.
      * @param level      int - the level of the building.
+     * @param amount     double - amount of building
      * @since 0.0.1
      */
-    public ResourceContainerBuilding(UUID uuid, IBuilding building, Location coordinate, byte rotation, int level) {
-        this(uuid, building, coordinate, rotation, level, 0);
-     }
-    /**
-     * Instantiates the class.
-     * @param uuid UUID - the uuid of the owner.
-     * @param building   IBuilding - the building class.
-     * @param coordinate Location - the location of the building.
-     * @param level      int - the level of the building.
-     * @since 0.0.1
-     */
-    public ResourceContainerBuilding(UUID uuid, IBuilding building, Location coordinate, byte rotation, int level, double amount) {
-        super(uuid, building, coordinate, rotation, level);
+    public ResourceContainerBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, byte rotation, int level, double amount) {
+        super(uuid, buildingUUID, building, coordinate, rotation, level);
         this.currentAmount = amount;
-        this.updateHologram();
     }
 
 
@@ -92,11 +79,19 @@ public class ResourceContainerBuilding extends GeneralBuilding implements IBuild
     public void setAmount(double currentAmount) {
         boolean change = (int) getAmount() != (int) currentAmount;
         int oldVersion = getCurrentBuildingVersion();
-        this.currentAmount = currentAmount;
+        this.currentAmount = Math.min(currentAmount, getMaximumResource());
         if (!change) return;
-        updateVersion(oldVersion != getCurrentBuildingVersion());
-        this.updateHologram();
+        updateHologram(getShowText());
+        this.updateVersion(oldVersion != getCurrentBuildingVersion());
     }
+
+    @Override
+    public void setLevel(int level) {
+        super.setLevel(level);
+        updateHologram(getShowText());
+    }
+
+
     /**
      * Get the amount of the building.
      * @return int - the amount of thing
@@ -106,28 +101,6 @@ public class ResourceContainerBuilding extends GeneralBuilding implements IBuild
         return currentAmount;
     }
 
-    @Override
-    public void setCoordinate(Location coordinate) {
-        super.setCoordinate(coordinate);
-        this.updateHologram();
-    }
-
-    /**
-     * Updates the hologram for the player.
-     * @since 0.0.1
-     */
-    @Override
-    public void updateHologram() {
-        APIPlayer onlinePlayer = FunUnityAPI.getInstance().getPlayerHandler().getPlayer(getUuid());
-        if (onlinePlayer != null) {
-            if (this.hologram != null)
-                onlinePlayer.hideHolograms(this.hologram.getLocation());
-
-            this.hologram = new APIHologram(getCoordinate().clone().add(0.75, 2.5, 0.75), Collections.singletonList("" + getContainingResourceType().getChatColor() + ((int) getAmount()) + "§7/" + getContainingResourceType().getChatColor() + getMaximumResource()));
-            onlinePlayer.showHologram(this.hologram);
-        }
-    }
-
     /**
      * Called when the version was updated.
      * @param schematic boolean - schematic change
@@ -135,7 +108,7 @@ public class ResourceContainerBuilding extends GeneralBuilding implements IBuild
      */
     @Override
     public void updateVersion(boolean schematic) {
-        Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> PlayerManager.getInstance().forceUpdateInventory(this));;
+        Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> ClashOfClubs.getInstance().getPlayerManager().forceUpdateInventory(this));;
         if (schematic)
             Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> Schematics.createBuilding(this));
     }
@@ -178,7 +151,6 @@ public class ResourceContainerBuilding extends GeneralBuilding implements IBuild
         return getLevel() > 0 ? getBuilding().getBuildingLevelData()[getLevel() - 1].getMaximumResource() : 0;
     }
 
-
     /**
      * Get the resource container building interface.
      * @return {@link IResourceContainerBuilding} - the container instance.
@@ -189,8 +161,13 @@ public class ResourceContainerBuilding extends GeneralBuilding implements IBuild
         return (IResourceContainerBuilding) super.getBuilding();
     }
 
+    /**
+     * Returns the list of hologram lines.
+     *
+     * @return List<String> - hologram lines
+     */
     @Override
-    public List<APIHologram> getHolograms() {
-        return Collections.singletonList(this.hologram);
+    public List<String> getShowText() {
+        return Collections.singletonList("" + getContainingResourceType().getChatColor() + ((int) getAmount()) + ChatColor.GRAY + "/" + getContainingResourceType().getChatColor() + getMaximumResource());
     }
 }

@@ -2,9 +2,11 @@ package net.fununity.clashofclans.commands;
 
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.BuildingsManager;
+import net.fununity.clashofclans.buildings.Schematics;
 import net.fununity.clashofclans.database.DatabaseBuildings;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.database.DatabasePlayer;
+import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.player.PlayerManager;
 import net.fununity.main.api.cloud.CloudManager;
 import net.fununity.main.api.command.handler.APICommand;
@@ -33,7 +35,8 @@ public class ResetCommand extends APICommand {
     public void onCommand(APIPlayer apiPlayer, String[] args) {
         if (args.length == 0) {
             apiPlayer.sendMessage(MessagePrefix.SUCCESS, TranslationKeys.COC_COMMAND_RESET_SUCCESS);
-            reset(apiPlayer.getUniqueId());
+            CloudManager.getInstance().sendPlayerToLobby(apiPlayer.getPlayer());
+            deleteUser(apiPlayer.getPlayer().getUniqueId());
             return;
         }
 
@@ -54,21 +57,19 @@ public class ResetCommand extends APICommand {
             }
 
             apiPlayer.sendMessage(MessagePrefix.SUCCESS, TranslationKeys.COC_COMMAND_RESET_SUCCESS);
-            reset(uuid);
+
+            if (Bukkit.getPlayer(uuid) != null)
+                CloudManager.getInstance().sendPlayerToLobby(uuid);
+
+            deleteUser(uuid);
         });
     }
 
-    private void reset(UUID uuid) {
-        Location location = PlayerManager.getInstance().getPlayer(uuid).getLocation();
-        if (Bukkit.getPlayer(uuid) != null)
-            CloudManager.getInstance().sendPlayerToLobby(uuid);
-
-        Bukkit.getScheduler().runTaskLaterAsynchronously(ClashOfClubs.getInstance(), () -> {
+    private void deleteUser(UUID uuid) {
+        Bukkit.getScheduler().runTaskLater(ClashOfClubs.getInstance(), () -> {
             DatabasePlayer.getInstance().deleteUser(uuid);
             DatabaseBuildings.getInstance().deleteAllBuildings(uuid);
-
-            BuildingsManager.getInstance().createNewIsland(uuid, location);
-        }, 5L);
+        },10L);
     }
 
     @Override

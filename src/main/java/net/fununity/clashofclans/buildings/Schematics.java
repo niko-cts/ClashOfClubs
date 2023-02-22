@@ -1,5 +1,6 @@
 package net.fununity.clashofclans.buildings;
 
+import com.google.common.collect.Lists;
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.instances.ConstructionBuilding;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
@@ -12,11 +13,9 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class Schematics {
 
@@ -24,28 +23,47 @@ public class Schematics {
         throw new UnsupportedOperationException("Schematics is a utility class.");
     }
 
+    private static final int PARTITION_SIZE = 5000;
+    private static final long TICK_PER_PARTITION = 5L;
     private static final Map<String, List<String>> SCHEMATICS = new HashMap<>();
 
     public static void removeBuilding(Location location, int[] size, byte rotation) {
-        List<Block> areaBlocks = BuildingLocationUtil.getBlocksInBuildingGround(location,
+        List<Location> areaBlocks = BuildingLocationUtil.getAllLocationsOnGround(location,
                 new int[]{size[rotation == 1 || rotation == 3 ? 1 : 0], size[rotation == 1 || rotation == 3 ? 0 : 1]});
 
         Map<Location, Material> blockSettingMap = new HashMap<>();
-        for (Block block : areaBlocks) {
-            Location breakLoc = block.getLocation().clone();
-            for (int y = BuildingLocationUtil.getHighestYCoordinate(block.getLocation()); y >= ClashOfClubs.getBaseYCoordinate(); y--) {
-                breakLoc.setY(y);
+        for (Location blockLoc : areaBlocks) {
+            Location loc = blockLoc.clone();
+            for (int y = BuildingLocationUtil.getHighestYCoordinate(blockLoc); y >= ClashOfClubs.getBaseYCoordinate(); y--) {
+                loc.setY(y);
 
-                Material material = ClashOfClubs.getBaseYCoordinate() + 1 >= breakLoc.getBlockY() ? GroundMaterials.getRandomMaterial() : Material.AIR;
-                if (material != breakLoc.getBlock().getType())
-                    blockSettingMap.put(breakLoc, material);
+                Material material = y <= ClashOfClubs.getBaseYCoordinate() + 1 ? GroundMaterials.getRandomMaterial() : Material.AIR;
+                if (material != loc.getBlock().getType())
+                    blockSettingMap.put(loc.clone(), material);
             }
         }
+
         Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> blockSettingMap.forEach((key, value) -> key.getBlock().setType(value)));
     }
 
-    public static void createPlayerBase(Location location) {
-        createBuilding("playerbase", location, (byte) 0);
+    public static long createPlayerBase(Location coordinate, List<GeneralBuilding> buildings) {
+        Map<Location, Object[]> blockSettingMap = new HashMap<>();
+
+        for (String str : SCHEMATICS.get("playerbase")) {
+            String[] array = str.split(";");
+            blockSettingMap.put(coordinate.clone().add(Integer.parseInt(array[0]), Integer.parseInt(array[1]), Integer.parseInt(array[2])), new Object[]{array[3], (byte) 0});
+        }
+
+        for (GeneralBuilding building : buildings) {
+            Location buildingLocation = BuildingLocationUtil.getReversedCoordinate(building);
+            for (String str : SCHEMATICS.get(building.getId())) {
+                String[] array = str.split(";");
+                int[] coords = BuildingLocationUtil.getCoordinateFromRotation(building.getRotation(), Integer.parseInt(array[0]), Integer.parseInt(array[2]));
+                blockSettingMap.put(buildingLocation.clone().add(coords[0], Integer.parseInt(array[1]), coords[1]), new Object[]{array[3], building.getRotation()});
+            }
+        }
+
+        return placeBlocks(blockSettingMap);
     }
 
     public static void createBuilding(GeneralBuilding building) {
@@ -56,37 +74,69 @@ public class Schematics {
     }
 
     private static void createBuilding(String id, Location coordinate, byte rotation) {
-        if (!SCHEMATICS.containsKey(id) && !load(id))
+        if (!SCHEMATICS.containsKey(id))
             return;
 
-        Map<Block, Object[]> blockSettingMap = new HashMap<>();
+        Map<Location, Object[]> blockSettingMap = new HashMap<>();
         for (String str : SCHEMATICS.get(id)) {
             String[] array = str.split(";");
             int[] coords = BuildingLocationUtil.getCoordinateFromRotation(rotation, Integer.parseInt(array[0]), Integer.parseInt(array[2]));
-            int x = coords[0];
-            int y = Integer.parseInt(array[1]);
-            int z = coords[1];
-
-            Material material = Material.valueOf(array[3].split("\\[")[0].replace("minecraft:", "").toUpperCase());
-
-            BlockData blockData;
-            if ((array[3].contains("wall") && !array[3].contains("face=wall") && !array[3].contains("wall_sign")) || array[3].contains("fence"))
-                blockData = material.createBlockData();
-            else
-                blockData = ClashOfClubs.getInstance().getServer().createBlockData(BuildingLocationUtil.getBlockDataFromRotation(array[3], rotation));
-
-            Block blockToChange = coordinate.clone().add(x, y, z).getBlock();
-            if (!blockData.equals(blockToChange.getBlockData())) {
-                blockSettingMap.put(blockToChange, new Object[]{material, blockData});
-            }
+            blockSettingMap.put(coordinate.clone().add(coords[0], Integer.parseInt(array[1]), coords[1]), new Object[]{array[3], rotation});
         }
-        Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> blockSettingMap.forEach((block, value) -> {
-            block.setType((Material) value[0]);
-            block.setBlockData((BlockData) value[1]);
-            block.getState().update();
-        }));
+
+        placeBlocks(blockSettingMap);
     }
 
+    /**
+     * Place blocks with delays.
+     * @param blockSettingMap Map<Location, BlockData> - the map of all blocks to set.
+     * @return long - the ticks it will take.
+     */
+    private static long placeBlocks(Map<Location, Object[]> blockSettingMap) {
+        if (blockSettingMap.size() > PARTITION_SIZE) {
+            List<List<Location>> partition = Lists.partition(blockSettingMap.keySet().stream().sorted(Comparator.comparingInt(Location::getBlockY)).collect(Collectors.toList()), PARTITION_SIZE);
+            ClashOfClubs.getInstance().getLogger().log(Level.INFO, "Will finish construction of {0} items in {1} partitions in {2}s", new String[]{blockSettingMap.size() + "", partition.size() + "", (TICK_PER_PARTITION / 20.0 * partition.size()) + ""});
+            for (int i = 0; i < partition.size(); i++) {
+                int finalI = i;
+                Bukkit.getScheduler().runTaskLater(ClashOfClubs.getInstance(), () -> {
+                    for (Location location : partition.get(finalI)) {
+                        Object[] data = blockSettingMap.get(location);
+                        BlockData blockData = getBlockData((String) data[0], (byte) data[1]);
+                        Block block = location.getBlock();
+                        if (!blockData.matches(block.getBlockData()))
+                            block.setBlockData(blockData, false);
+                    }
+                }, i * TICK_PER_PARTITION);
+            }
+            return (partition.size() - 1) * TICK_PER_PARTITION;
+        }
+
+        Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> {
+            for (Map.Entry<Location, Object[]> entry : blockSettingMap.entrySet()) {
+                Object[] data = entry.getValue();
+                BlockData blockData = getBlockData((String) data[0], (byte) data[1]);
+                Block block = entry.getKey().getBlock();
+                if (!blockData.matches(block.getBlockData()))
+                    block.setBlockData(blockData, false);
+            }
+        });
+        return 0L;
+    }
+
+    /**
+     * Creates a blockdata
+     * @param data String - the block data
+     * @param rotation byte - the rotation to get the blockdata
+     */
+    private static BlockData getBlockData(String data, byte rotation) {
+        Material material = Material.valueOf(data.split("\\[")[0].replace("minecraft:", "").toUpperCase());
+        BlockData blockData;
+        if ((data.contains("wall") && !data.contains("face=wall") && !data.contains("wall_sign")) || material == Material.AIR || material == Material.DIRT || data.contains("fence"))
+            blockData = material.createBlockData();
+        else
+            blockData = ClashOfClubs.getInstance().getServer().createBlockData(BuildingLocationUtil.getBlockDataFromRotation(data, rotation));
+        return blockData;
+    }
 
     // FOR SCHEMATIC SAVING
 
@@ -144,7 +194,7 @@ public class Schematics {
 
 
     /**
-     * Caches all schematics that can be find in the building-schematics folder in the data folder of the plugin.
+     * Caches all schematics that can be found in the building-schematics folder in the data folder of the plugin.
      * @since 0.0.1
      */
     public static void cacheAllSchematics() {
@@ -155,7 +205,7 @@ public class Schematics {
                 if (list != null) {
                     for (String s : list)
                         load(s.replace(".schematic", ""));
-                    ClashOfClubs.getInstance().getLogger().log(Level.INFO, "Cached {0} schematics.", list.length);
+                    ClashOfClubs.getInstance().getLogger().log(Level.INFO, "Cached {0} schematics.", SCHEMATICS.size());
                 }
             }
         });

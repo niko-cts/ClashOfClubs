@@ -2,18 +2,25 @@ package net.fununity.clashofclans.player;
 
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
-import net.fununity.clashofclans.database.DatabaseBuildings;
-import net.fununity.clashofclans.buildings.instances.*;
-import net.fununity.clashofclans.buildings.interfaces.IBuildingWithHologram;
-import net.fununity.clashofclans.buildings.list.Buildings;
+import net.fununity.clashofclans.buildings.instances.ConstructionBuilding;
+import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
+import net.fununity.clashofclans.buildings.instances.GeneralHologramBuilding;
+import net.fununity.clashofclans.buildings.instances.resource.ResourceContainerBuilding;
+import net.fununity.clashofclans.buildings.instances.resource.ResourceGatherBuilding;
+import net.fununity.clashofclans.buildings.instances.troops.TroopsBuilding;
+import net.fununity.clashofclans.buildings.instances.troops.TroopsCreateBuilding;
+import net.fununity.clashofclans.buildings.interfaces.IBuilding;
+import net.fununity.clashofclans.buildings.interfaces.IResourceContainerBuilding;
+import net.fununity.clashofclans.buildings.interfaces.ITroopBuilding;
+import net.fununity.clashofclans.buildings.list.*;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.troops.ITroop;
 import net.fununity.clashofclans.util.BuildingLocationUtil;
+import net.fununity.clashofclans.util.BuildingsAmountUtil;
 import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.player.APIPlayer;
 import net.fununity.misc.translationhandler.translations.Language;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -26,27 +33,62 @@ import java.util.stream.Collectors;
 /**
  * The player class of clash of clans.
  * This class stores buildings, visitors and building mode according to the owner.
- * @see CoCDataPlayer
  * @author Niko
  * @since 0.0.1
  */
-public class CoCPlayer extends CoCDataPlayer {
+public class CoCPlayer {
 
-    private final List<APIPlayer> visitors;
-    private final List<GeneralBuilding> buildings;
+    private final UUID uuid;
+    private final Location baseLocation;
+    private int xp;
+    private int elo;
+    private int gems;
+    private final long lastJoin;
+    private final String lastServer;
+
     private final Object[] buildingMode;
+    private final List<GeneralBuilding> normalBuildings;
+    private final Map<ResourceTypes, List<ResourceContainerBuilding>> resourceBuildings;
+    private final List<TroopsBuilding> troopsBuildings;
+    private final List<ConstructionBuilding> constructionBuildings;
+    private final List<UUID> visitors;
 
     /**
      * Instantiates the class.
-     * @param dataPlayer {@link CoCDataPlayer} - the data player.
+     * @param uuid UUID - uuid of the player.
+     * @param baseLocation Location - player base location.
+     * @param xp int - the players xp
+     * @param elo int - the players elo
+     * @param gems int - the players gems
+     * @param lastJoin long - the last join milli secs.
+     * @param lastServer String - the last server the player was.
+     * @param allBuildings List<GeneralBuilding> - all buildings the player has.
      * @since 0.0.1
      */
-    public CoCPlayer(CoCDataPlayer dataPlayer) {
-        super(dataPlayer.uuid, dataPlayer.location, dataPlayer.resourceMap, dataPlayer.getExp(), dataPlayer.getElo());
+    public CoCPlayer(UUID uuid, Location baseLocation, int xp, int elo, int gems, long lastJoin, String lastServer, List<GeneralBuilding> allBuildings) {
+        this.uuid = uuid;
+        this.baseLocation = baseLocation;
+        this.xp = xp;
+        this.elo = elo;
+        this.gems = gems;
+        this.lastJoin = lastJoin;
+        this.lastServer = lastServer;
         this.visitors = new ArrayList<>();
-        this.buildings = new ArrayList<>();
         this.buildingMode = new Object[3];
-    }
+
+        this.normalBuildings = new ArrayList<>();
+        this.resourceBuildings = new HashMap<>();
+        for (ResourceTypes type : ResourceTypes.values()) {
+            resourceBuildings.put(type, new ArrayList<>());
+        }
+        this.troopsBuildings = new ArrayList<>();
+        this.constructionBuildings = new ArrayList<>();
+
+        for (GeneralBuilding generalBuilding : allBuildings) {
+            addBuilding(generalBuilding);
+        }
+
+     }
 
     /**
      * A player visits the base.
@@ -55,24 +97,21 @@ public class CoCPlayer extends CoCDataPlayer {
      * @since 0.0.1
      */
     public void visit(APIPlayer apiPlayer, boolean teleport) {
-        this.visitors.add(apiPlayer);
-        apiPlayer.getPlayer().getInventory().clear();
-        if (apiPlayer.getUniqueId().equals(uuid)) {
-            Language lang = apiPlayer.getLanguage();
-            apiPlayer.getPlayer().getInventory().setItem(6, new ItemBuilder(Material.PAPER).setName(lang.getTranslation(TranslationKeys.COC_GUI_ATTACKHISTORY_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_GUI_ATTACKHISTORY_LORE).split(";")).craft());
-            //apiPlayer.getPlayer().getInventory().setItem(7, new ItemBuilder(Material.IRON_SWORD).addItemFlags(ItemFlag.HIDE_ATTRIBUTES).setName(lang.getTranslation(TranslationKeys.COC_GUI_ATTACK_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_GUI_ATTACK_LORE).split(";")).craft());
-            apiPlayer.getPlayer().getInventory().setItem(8, new ItemBuilder(Material.CLOCK).setName(lang.getTranslation(TranslationKeys.COC_GUI_CONSTRUCTION_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_GUI_CONSTRUCTION_LORE).split(";")).craft());
-
-            getBuildings().stream().filter(b -> b instanceof IBuildingWithHologram).forEach(b -> ((IBuildingWithHologram) b).getHolograms().forEach(apiPlayer::showHologram));
-        }
+        this.visitors.add(apiPlayer.getUniqueId());
         if (teleport) {
-            Location visitorLoc = getLocation().add(30, 0, 30);
+            Location visitorLoc = getBaseStartLocation().add(40, 0, 40);
             visitorLoc.setY(BuildingLocationUtil.getHighestYCoordinate(visitorLoc) + 1);
             apiPlayer.getPlayer().teleport(visitorLoc);
         }
 
         apiPlayer.getPlayer().setGameMode(GameMode.SURVIVAL);
         apiPlayer.getPlayer().setAllowFlight(true);
+        apiPlayer.getPlayer().getInventory().clear();
+
+        if (apiPlayer.getUniqueId().equals(uuid)) {
+            getAllBuildings().stream().filter(b -> b instanceof GeneralHologramBuilding).forEach(b -> ((GeneralHologramBuilding) b).updateHologram(((GeneralHologramBuilding) b).getShowText()));
+            ClashOfClubs.getInstance().getPlayerManager().giveDefaultItems(this, apiPlayer);
+        }
     }
 
     /**
@@ -81,16 +120,16 @@ public class CoCPlayer extends CoCDataPlayer {
      * @since 0.0.1
      */
     public void leave(APIPlayer apiPlayer) {
-        this.visitors.remove(apiPlayer);
-        getBuildings().stream().filter(b -> b instanceof IBuildingWithHologram).forEach(b -> ((IBuildingWithHologram) b).getHolograms().forEach(apiPlayer::hideHologram));
+        this.visitors.remove(apiPlayer.getUniqueId());
+        getAllBuildings().stream().filter(b -> b instanceof GeneralHologramBuilding).forEach(b -> ((GeneralHologramBuilding) b).hideHologram(apiPlayer));
     }
 
     /**
      * Get a copied list of all visitors.
-     * @return List<APIPlayer> - all visitors.
+     * @return List<UUID> - all visitors.
      * @since 0.0.1
      */
-    public List<APIPlayer> getVisitors() {
+    public List<UUID> getVisitors() {
         return new ArrayList<>(visitors);
     }
 
@@ -100,7 +139,7 @@ public class CoCPlayer extends CoCDataPlayer {
      * @since 0.0.1
      */
     public APIPlayer getOwner() {
-        return this.visitors.stream().filter(v -> v.getUniqueId().equals(uuid)).findFirst().orElse(FunUnityAPI.getInstance().getPlayerHandler().getPlayer(uuid));
+        return FunUnityAPI.getInstance().getPlayerHandler().getPlayer(uuid);
     }
 
     /**
@@ -109,14 +148,24 @@ public class CoCPlayer extends CoCDataPlayer {
      * @since 0.0.1
      */
     public int getTownHallLevel() {
-        GeneralBuilding townHall = getBuildings().stream().filter(b -> b.getBuilding() == Buildings.TOWN_HALL).findFirst().orElse(null);
+        GeneralBuilding townHall = getNormalBuildings().stream().filter(b -> b.getBuilding() == Buildings.TOWN_HALL).findFirst().orElse(null);
         return townHall != null ? townHall.getLevel() : 0;
     }
 
-    @Override
-    public void setGems(int amount) {
-        super.setGems(amount);
-        ScoreboardMenu.show(this);
+
+    /**
+     * Gets the resource amount the player currently has.
+     * @param type ResourceType - type of resource.
+     * @return int - amount of resource
+     */
+    public int getResourceAmount(ResourceTypes type) {
+        if (type == ResourceTypes.GEMS)
+           return getGems();
+        int amount = 0;
+        for (ResourceContainerBuilding building : getResourceContainerBuildings(type)) {
+            amount += building.getAmount();
+        }
+        return amount;
     }
 
     /**
@@ -127,13 +176,10 @@ public class CoCPlayer extends CoCDataPlayer {
      */
     public void removeResource(ResourceTypes type, int remove) {
         if (remove == 0) return;
-        if (type == ResourceTypes.GEMS) {
-            setGems(getGems() - remove);
-            return;
-        }
-
-        List<ResourceContainerBuilding> containerBuildings = getContainerBuildings(type);
+        List<ResourceContainerBuilding> containerBuildings = getResourceContainerBuildings(type);
         if (containerBuildings.isEmpty()) return;
+
+        containerBuildings.sort(Comparator.comparingInt(ResourceContainerBuilding::getMaximumResource));
 
         int needToRemovePerBuilding = remove / containerBuildings.size();
 
@@ -158,10 +204,7 @@ public class CoCPlayer extends CoCDataPlayer {
             }
 
             resourceContainerBuilding.setAmount(newAmount);
-            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> DatabaseBuildings.getInstance().updateData(resourceContainerBuilding.getCoordinate(), newAmount));
         }
-
-        updateResources();
     }
 
     /**
@@ -170,15 +213,11 @@ public class CoCPlayer extends CoCDataPlayer {
      * @param add int - the amount of resource
      * @since 0.0.1
      */
-    public void addResource(ResourceTypes type, int add) {
-        if (add == 0) return;
-        if (type == ResourceTypes.GEMS) {
-            setGems(getGems() + add);
-            return;
-        }
-
-        List<ResourceContainerBuilding> containerBuildings = getContainerBuildings(type);
+    public void fillResourceToContainer(ResourceTypes type, int add) {
+        List<ResourceContainerBuilding> containerBuildings = getResourceContainerBuildings(type);
         if (containerBuildings.isEmpty()) return;
+
+        containerBuildings.sort(Comparator.comparingInt(ResourceContainerBuilding::getMaximumResource));
 
         int needToAddPerBuilding = add / containerBuildings.size();
 
@@ -203,63 +242,149 @@ public class CoCPlayer extends CoCDataPlayer {
             }
 
             resourceContainerBuilding.setAmount(newAmount);
-            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> DatabaseBuildings.getInstance().updateData(resourceContainerBuilding.getCoordinate(), newAmount));
         }
 
-        updateResources();
-    }
-
-    /**
-     * Updates the resource map from the {@link ResourceContainerBuilding}s.
-     * @since 0.0.1
-     */
-    public void updateResources() {
-        for (ResourceTypes resourceTypes : Arrays.asList(ResourceTypes.FOOD, ResourceTypes.GOLD, ResourceTypes.ELECTRIC))
-            resourceMap.put(resourceTypes, 0);
-        for (ResourceContainerBuilding containerBuilding : getContainerBuildings())
-            resourceMap.put(containerBuilding.getContainingResourceType(),
-                    (int) (resourceMap.getOrDefault(containerBuilding.getContainingResourceType(), 0) + containerBuilding.getAmount()));
         ScoreboardMenu.show(this);
     }
 
-    /**
-     * All container buildings with the given resource type.
-     * @param type ResourceType - the type of resource.
-     * @return List<ResourceContainerBuilding> - all resource container buildings with the given type
-     * @since 0.0.1
-     */
-    private List<ResourceContainerBuilding> getContainerBuildings(ResourceTypes type) {
-        return getContainerBuildings().stream().filter(b -> b.getContainingResourceType() == type).sorted(Comparator.comparingInt(ResourceContainerBuilding::getMaximumResource)).collect(Collectors.toList());
-    }
 
     /**
-     * All container buildings.
+     * All container buildings from a type.
+     * @param type ResourceType - type of container
      * @return List<ResourceContainerBuilding> - all resource container buildings.
      * @since 0.0.1
      */
-    private List<ResourceContainerBuilding> getContainerBuildings() {
-        List<ResourceContainerBuilding> buildings = new ArrayList<>();
-        for (GeneralBuilding building : getBuildings()) {
-            if(building instanceof ResourceContainerBuilding && !(building instanceof ResourceGatherBuilding))
-                buildings.add((ResourceContainerBuilding) building);
-            else if (building instanceof ConstructionBuilding) {
-                GeneralBuilding cb = ((ConstructionBuilding) building).getConstructionBuilding();
-                if (cb instanceof ResourceContainerBuilding && !(cb instanceof ResourceGatherBuilding))
-                    buildings.add((ResourceContainerBuilding) cb);
-            }
-        }
-        buildings.sort(Comparator.comparingInt(ResourceContainerBuilding::getMaximumResource));
-        return buildings;
+    public List<ResourceContainerBuilding> getResourceContainerBuildings(ResourceTypes type) {
+        return resourceBuildings.get(type).stream().filter(r -> !(r instanceof ResourceGatherBuilding)).collect(Collectors.toList());
     }
 
     /**
-     * Get the buildings the player has.
+     * All container buildings from a type.
+     * @param type ResourceType - type of container
+     * @return List<ResourceContainerBuilding> - all resource container buildings.
+     * @since 0.0.1
+     */
+    public List<ResourceGatherBuilding> getResourceGatherBuildings(ResourceTypes type) {
+        return resourceBuildings.get(type).stream().filter(r -> (r instanceof ResourceGatherBuilding)).map(r -> (ResourceGatherBuilding) r).collect(Collectors.toList());
+    }
+
+    /**
+     * Get all troop buildings the player has.
+     * @return List<TroopsBuilding> - all buildings.
+     * @since 0.0.1
+     */
+    public List<TroopsCreateBuilding> getTroopsCreateBuildings() {
+        return troopsBuildings.stream().filter(t -> t instanceof TroopsCreateBuilding).map(t -> (TroopsCreateBuilding) t).collect(Collectors.toList());
+    }
+
+    /**
+     * Get all troop buildings the player has.
+     * @return List<TroopsBuilding> - all buildings.
+     * @since 0.0.1
+     */
+    public List<TroopsBuilding> getTroopsCampBuildings() {
+        return troopsBuildings.stream().filter(t -> !(t instanceof TroopsCreateBuilding)).collect(Collectors.toList());
+    }
+
+    /**
+     * Get all construction buildings the player has.
+     * @return List<ConstructionBuilding> - all buildings.
+     * @since 0.0.1
+     */
+    public List<ConstructionBuilding> getConstructionBuildings() {
+        return new ArrayList<>(constructionBuildings);
+    }
+
+    /**
+     * Get all normal buildings the player has.
+     * @return List<GeneralBuilding> - all normal buildings.
+     * @since 0.0.1
+     */
+    public List<GeneralBuilding> getNormalBuildings() {
+        return new ArrayList<>(normalBuildings);
+    }
+
+    /**
+     * Get all buildings the player has.
      * @return List<GeneralBuilding> - all buildings.
      * @since 0.0.1
      */
-    public List<GeneralBuilding> getBuildings() {
-        return buildings;
+    public List<GeneralBuilding> getAllBuildings() {
+        List<GeneralBuilding> allBuildings = new ArrayList<>();
+        allBuildings.addAll(normalBuildings);
+        allBuildings.addAll(troopsBuildings);
+        allBuildings.addAll(constructionBuildings);
+        for (ResourceTypes type : ResourceTypes.values()) {
+            allBuildings.addAll(resourceBuildings.get(type));
+        }
+        return allBuildings;
     }
+
+
+    /**
+     * Removes a building from the list
+     * @param generalBuilding GeneralBuilding - the building
+     */
+    public void removeBuilding(GeneralBuilding generalBuilding) {
+        if(generalBuilding instanceof ConstructionBuilding)
+            constructionBuildings.remove((ConstructionBuilding) generalBuilding);
+        else if (generalBuilding instanceof ResourceContainerBuilding) {
+            List<ResourceContainerBuilding> list = resourceBuildings.get(((ResourceContainerBuilding) generalBuilding).getContainingResourceType());
+            list.remove((ResourceContainerBuilding) generalBuilding);
+        } else if (generalBuilding instanceof TroopsBuilding)
+            troopsBuildings.remove((TroopsBuilding) generalBuilding);
+        else
+            normalBuildings.remove(generalBuilding);
+    }
+
+    /**
+     * Adds a building to the list
+     * @param generalBuilding GeneralBuilding - the building
+     */
+    public void addBuilding(GeneralBuilding generalBuilding) {
+        if (generalBuilding instanceof ConstructionBuilding)
+            constructionBuildings.add((ConstructionBuilding) generalBuilding);
+        else if (generalBuilding instanceof ResourceContainerBuilding) {
+            List<ResourceContainerBuilding> list = resourceBuildings.get(((ResourceContainerBuilding) generalBuilding).getContainingResourceType());
+            list.add((ResourceContainerBuilding) generalBuilding);
+        } else if (generalBuilding instanceof TroopsBuilding)
+            troopsBuildings.add((TroopsBuilding) generalBuilding);
+        else
+            normalBuildings.add(generalBuilding);
+    }
+
+
+    /**
+     * Get the maximum amount of containable resource from a type.
+     * @param resourceType ResourceTypes - the type of resource.
+     * @return int - maximum containable amount.
+     * @since 0.0.1
+     */
+    public int getMaxResourceContainable(ResourceTypes resourceType) {
+        int max = 0;
+        for (ResourceContainerBuilding containerBuilding : getResourceContainerBuildings(resourceType))
+            max += containerBuilding.getMaximumResource();
+        return max;
+    }
+
+    /**
+     * Get the amount of all troops the player has.
+     * @return ConcurrentMap<ITroop, Integer> - Map with troops and amounts.
+     * @since 0.0.1
+     */
+    public ConcurrentMap<ITroop, Integer> getTroops() {
+        List<TroopsBuilding> troopBuildings = getNormalBuildings().stream().filter(b -> b instanceof TroopsBuilding && !(b instanceof TroopsCreateBuilding)).map(b -> (TroopsBuilding) b).collect(Collectors.toList());
+        ConcurrentMap<ITroop, Integer> troopsAmount = new ConcurrentHashMap<>();
+        for (TroopsBuilding troopBuilding : troopBuildings) {
+            for (Map.Entry<ITroop, Integer> entry : troopBuilding.getTroopAmount().entrySet()) {
+                troopsAmount.put(entry.getKey(), troopsAmount.getOrDefault(entry.getKey(), 0) + entry.getValue());
+            }
+        }
+        return troopsAmount;
+    }
+
+
+
 
 
     /**
@@ -280,32 +405,119 @@ public class CoCPlayer extends CoCDataPlayer {
         System.arraycopy(objects, 0, this.buildingMode, 0, objects.length);
     }
 
+
+
+
     /**
-     * Get the maximum amount of containable resource from a type.
-     * @param resourceType ResourceTypes - the type of resource.
-     * @return int - maximum containable amount.
+     * Get the player base location.
+     * @return Location - the player base location.
      * @since 0.0.1
      */
-    public int getMaxResourceContainable(ResourceTypes resourceType) {
-        int max = 0;
-        for (ResourceContainerBuilding containerBuilding : getContainerBuildings(resourceType))
-            max += containerBuilding.getMaximumResource();
-        return max;
+    public Location getBaseStartLocation() {
+        return baseLocation.clone();
     }
 
     /**
-     * Get the amount of all troops the player has.
-     * @return ConcurrentMap<ITroop, Integer> - Map with troops and amounts.
+     * Get the player base location.
+     * @return Location - the player base location.
      * @since 0.0.1
      */
-    public ConcurrentMap<ITroop, Integer> getTroops() {
-        List<TroopsBuilding> troopBuildings = getBuildings().stream().filter(b -> b instanceof TroopsBuilding && !(b instanceof TroopsCreateBuilding)).map(b -> (TroopsBuilding) b).collect(Collectors.toList());
-        ConcurrentMap<ITroop, Integer> troopsAmount = new ConcurrentHashMap<>();
-        for (TroopsBuilding troopBuilding : troopBuildings) {
-            for (Map.Entry<ITroop, Integer> entry : troopBuilding.getTroopAmount().entrySet()) {
-                troopsAmount.put(entry.getKey(), troopsAmount.getOrDefault(entry.getKey(), 0) + entry.getValue());
-            }
+    public Location getBaseEndLocation() {
+        return getBaseStartLocation().add(ClashOfClubs.getBaseSize(), 300, ClashOfClubs.getBaseSize());
+    }
+
+
+
+    /**
+     * Set the amount of gems for the player.
+     * @param gems int - amount of gems.
+     * @since 0.0.1
+     */
+    public void setGems(int gems) {
+        this.gems = gems;
+    }
+
+    /**
+     * Get the amount of gems for the player.
+     * @return int - all gems.
+     * @since 0.0.1
+     */
+    public int getGems() {
+        return gems;
+    }
+
+    /**
+     * Add xp to the player's base.
+     * @param xp int - xp to add.
+     * @return int - the summed xp.
+     * @since 0.0.1
+     */
+    public int addExp(int xp) {
+        return this.xp += xp;
+    }
+
+    /**
+     * Get the xp from the player.
+     * @return int - the players xp
+     * @since 0.0.1
+     */
+    public int getExp() {
+        return xp;
+    }
+
+    /**
+     * Add elo to the player.
+     * @param elo int - elo to add.
+     * @return int - the summed elo.
+     * @since 0.0.1
+     */
+    public int addElo(int elo) {
+        return this.elo += elo;
+    }
+
+    /**
+     * Get the elo from the player.
+     * @return int - the players elo
+     * @since 0.0.1
+     */
+    public int getElo() {
+        return elo;
+    }
+
+
+    /**
+     * The uuid of the player.
+     * @return UUID - owners uuid.
+     * @since 0.0.1
+     */
+    public UUID getUniqueId() {
+        return uuid;
+    }
+
+    public long getLastJoinMillis() {
+        return lastJoin;
+    }
+
+    public List<IBuilding> buildableBuildings() {
+        List<IBuilding> buildings = new ArrayList<>();
+        int townHallLevel = getTownHallLevel();
+
+        for (IResourceContainerBuilding building : ResourceContainerBuildings.values()) {
+            if (BuildingsAmountUtil.getAmountOfBuilding(building, townHallLevel) - getResourceContainerBuildings(building.getContainingResourceType()).size() > 0)
+                buildings.add(building);
         }
-        return troopsAmount;
+        for (IResourceContainerBuilding building : ResourceGathererBuildings.values()) {
+            if (BuildingsAmountUtil.getAmountOfBuilding(building, townHallLevel) - getResourceGatherBuildings(building.getContainingResourceType()).size() > 0)
+                buildings.add(building);
+        }
+        for (ITroopBuilding building : TroopBuildings.values()) {
+            if (BuildingsAmountUtil.getAmountOfBuilding(building, townHallLevel) - getTroopsCampBuildings().size() > 0)
+                buildings.add(building);
+        }
+        for (ITroopBuilding building : TroopCreationBuildings.values()) {
+            if (BuildingsAmountUtil.getAmountOfBuilding(building, townHallLevel) - getTroopsCreateBuildings().size() > 0)
+                buildings.add(building);
+        }
+        return buildings;
     }
 }

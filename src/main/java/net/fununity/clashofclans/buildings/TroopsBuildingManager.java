@@ -2,26 +2,15 @@ package net.fununity.clashofclans.buildings;
 
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
-import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
-import net.fununity.clashofclans.buildings.instances.TroopsBuilding;
-import net.fununity.clashofclans.buildings.instances.TroopsCreateBuilding;
-import net.fununity.clashofclans.buildings.list.TroopBuildings;
-import net.fununity.clashofclans.database.DatabaseBuildings;
+import net.fununity.clashofclans.buildings.instances.troops.TroopsBuilding;
+import net.fununity.clashofclans.buildings.instances.troops.TroopsCreateBuilding;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.CoCPlayer;
-import net.fununity.clashofclans.player.PlayerManager;
 import net.fununity.clashofclans.troops.ITroop;
-import net.fununity.clashofclans.troops.Troops;
 import net.fununity.main.api.messages.MessagePrefix;
 import net.fununity.main.api.player.APIPlayer;
-import org.bukkit.Location;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.stream.Collectors;
 
 /**
  * Manager class for the troops.
@@ -48,64 +37,49 @@ public class TroopsBuildingManager {
     }
 
     /**
-     * Will be called when a troop finished in {@link TroopsCreateBuilding}.
-     * Will try to move the troop to an {@link TroopsBuilding}.
-     * @param building {@link TroopsCreateBuilding} - the building the troop finished.
-     * @since 0.0.1
+     * Troop was educated and removed from the queue.
+     * @param createBuilding TroopsCreateBuilding - the building which finished education
      */
-    public void troopEducated(TroopsCreateBuilding building) {
-        ITroop troop = building.getTroopsQueue().poll();
-        if (troop == null) return;
-
-        if (!building.getTroopsQueue().isEmpty())
-            building.setTrainSecondsLeft(building.getTroopsQueue().peek().getTrainDuration());
-
-        List<TroopsBuilding> buildings = getTroopBuildings(building.getUuid());
-        buildings.removeIf(list -> list instanceof TroopsCreateBuilding);
+    public void troopEducated(TroopsCreateBuilding createBuilding) {
+        CoCPlayer coCPlayer = ClashOfClubs.getInstance().getPlayerManager().getPlayer(createBuilding.getOwnerUUID());
+        List<TroopsBuilding> buildings = coCPlayer.getTroopsCampBuildings();
         buildings.sort(Comparator.comparingInt(TroopsBuilding::getCurrentSizeOfTroops));
 
+        ITroop troop = createBuilding.getTroopsQueue().poll();
+
+        if (troop == null) return;
+
         TroopsBuilding troopsBuilding = getBuildingWhichFitTroop(buildings, troop);
-        if (troopsBuilding == null)
-            troopsBuilding = building;
+        if (troopsBuilding != null) {
+            troopsBuilding.addTroopAmount(troop, 1);
+        }
 
-        troopsBuilding.addTroopAmount(troop, 1);
-        DatabaseBuildings.getInstance().updateTroopsData(troopsBuilding.getCoordinate(), troop, building.getTroopAmount().get(troop));
-
-        if (!building.equals(troopsBuilding) && !building.getTroopAmount().isEmpty())
-            moveTroopsToField(PlayerManager.getInstance().getPlayer(building.getUuid()));
+        if (createBuilding.getCurrentSizeOfTroops() + troop.getSize() <= createBuilding.getMaxAmountOfTroops()) {
+            createBuilding.addTroopAmount(troop, 1);
+        }
     }
 
     /**
-     * Tries to clear all {@link net.fununity.clashofclans.buildings.list.TroopCreationBuildings} and move them to {@link TroopBuildings}.
-     * @param cocPlayer CoCPlayer - the player to move the buildings.
-     * @since 0.0.1
+     * Tries to move all educated troops from the creation buildings to the camps.
+     * @param coCPlayer CoCPlayer - player to move.
+     * @since 0.0.2
      */
-    public void moveTroopsToField(CoCPlayer cocPlayer) {
-        List<TroopsBuilding> troopsBuildings = cocPlayer.getBuildings().stream().filter(b -> b instanceof TroopsBuilding && !(b instanceof TroopsCreateBuilding)).map(list -> (TroopsBuilding) list).collect(Collectors.toList());
-        if(troopsBuildings.isEmpty()) return;
-        Set<TroopsBuilding> changedBuildings = new HashSet<>();
-
-        for (GeneralBuilding building : cocPlayer.getBuildings()) {
-            if (building instanceof TroopsCreateBuilding && ((TroopsCreateBuilding) building).getCurrentSizeOfTroops() > 0) {
-                for (Map.Entry<ITroop, Integer> entry : ((TroopsCreateBuilding) building).getTroopAmount().entrySet()) {
-                    int removed = 0;
-                    for (int i = 0; i < entry.getValue(); i++) {
-                        TroopsBuilding fitAbleTroop = getBuildingWhichFitTroop(troopsBuildings, entry.getKey());
-                        if (fitAbleTroop == null)
-                            break;
-                        changedBuildings.add((TroopsBuilding) building);
-                        changedBuildings.add(fitAbleTroop);
-                        fitAbleTroop.addTroopAmount(entry.getKey(), 1);
-                        removed++;
-                    }
-                    if (removed != 0)
-                        ((TroopsCreateBuilding) building).addTroopAmount(entry.getKey(), -removed);
+    public void moveTroopsFromCreationToCamp(CoCPlayer coCPlayer) {
+        List<TroopsBuilding> troopsCampBuildings = coCPlayer.getTroopsCampBuildings();
+        for (TroopsCreateBuilding troopsCreateBuilding : coCPlayer.getTroopsCreateBuildings()) {
+            for (Map.Entry<ITroop, Integer> entry : troopsCreateBuilding.getTroopAmount().entrySet()) {
+                TroopsBuilding troopsBuilding = getBuildingWhichFitTroop(troopsCampBuildings, entry.getKey());
+                if (troopsBuilding == null)
+                    break;
+                for (int i = 0; i < entry.getValue(); i++) {
+                    troopsBuilding.addTroopAmount(entry.getKey(), 1);
+                    troopsCreateBuilding.removeTroopAmount(entry.getKey(), 1);
+                    troopsBuilding = getBuildingWhichFitTroop(troopsCampBuildings, entry.getKey());
+                    if (troopsBuilding == null)
+                        break;
                 }
             }
         }
-
-        for (TroopsBuilding changedBuilding : changedBuildings)
-            DatabaseBuildings.getInstance().updateTroopsData(changedBuilding);
     }
 
     /**
@@ -124,46 +98,14 @@ public class TroopsBuildingManager {
     }
 
     /**
-     * Returns a list of all {@link TroopsBuilding} the player has.
-     *
-     * @param uuid UUID - uuid of player.
-     * @return List<TroopsBuilding> - A list of the buildings the player has.
-     * @since 0.0.1
-     */
-    public List<TroopsBuilding> getTroopBuildings(UUID uuid) {
-        if (PlayerManager.getInstance().isCached(uuid))
-            return PlayerManager.getInstance().getPlayer(uuid).getBuildings().stream().filter(b -> b instanceof TroopsBuilding).map(list -> (TroopsBuilding) list).collect(Collectors.toList());
-
-        List<TroopsBuilding> buildings = new ArrayList<>();
-        try (ResultSet building = DatabaseBuildings.getInstance().getSpecifiedBuilding(TroopBuildings.values())) {
-            while (building != null && building.next()) {
-                int x = building.getInt("x");
-                int z = building.getInt("z");
-                Location location = new Location(ClashOfClubs.getInstance().getWorld(), x, ClashOfClubs.getBaseYCoordinate(), z);
-
-                ConcurrentMap<ITroop, Integer> amount = new ConcurrentHashMap<>();
-                for (Troops troop : Troops.values())
-                    amount.put(troop, building.getInt(troop.name().toLowerCase()));
-
-                buildings.add(new TroopsBuilding(uuid, BuildingsManager.getInstance().getBuildingById(building.getString("buildingID")),
-                        location, building.getByte("rotation"), building.getInt("level"), amount));
-            }
-        } catch (SQLException exception) {
-            ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
-        }
-
-        return buildings;
-    }
-
-    /**
      * Starts the education from a troop.
      * @param building {@link TroopsCreateBuilding} - the building to train.
      * @param troop {@link ITroop} - the troop to educated.
      * @since 0.0.1
      */
     public void startEducation(TroopsCreateBuilding building, ITroop troop) {
-        CoCPlayer player = PlayerManager.getInstance().getPlayer(building.getUuid());
-        if (player.getResource(ResourceTypes.FOOD) < troop.getCostAmount()) {
+        CoCPlayer player = ClashOfClubs.getInstance().getPlayerManager().getPlayer(building.getOwnerUUID());
+        if (player.getResourceAmount(ResourceTypes.FOOD) < troop.getCostAmount()) {
             APIPlayer apiPlayer = player.getOwner();
             apiPlayer.sendMessage(MessagePrefix.ERROR, TranslationKeys.COC_PLAYER_NOT_ENOUGH_RESOURCE, "${type}", ResourceTypes.FOOD.getColoredName(apiPlayer.getLanguage()));
             return;
@@ -171,7 +113,5 @@ public class TroopsBuildingManager {
 
         player.removeResource(ResourceTypes.FOOD, troop.getCostAmount());
         building.getTroopsQueue().add(troop);
-        if (building.getTroopsQueue().size() == 1)
-            building.setTrainSecondsLeft(troop.getTrainDuration());
     }
 }
