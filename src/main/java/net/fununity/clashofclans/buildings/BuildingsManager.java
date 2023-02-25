@@ -15,12 +15,12 @@ import net.fununity.clashofclans.database.DatabasePlayer;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.player.ScoreboardMenu;
+import net.fununity.clashofclans.player.TutorialManager;
 import net.fununity.clashofclans.troops.ITroop;
 import net.fununity.clashofclans.util.BuildingLocationUtil;
 import net.fununity.cloud.client.CloudClient;
 import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.actionbar.ActionbarMessage;
-import net.fununity.main.api.actionbar.ActionbarMessageType;
 import net.fununity.main.api.common.util.RandomUtil;
 import net.fununity.main.api.player.APIPlayer;
 import org.bukkit.Bukkit;
@@ -91,11 +91,10 @@ public class BuildingsManager {
         player.getTitleSender().sendSubtitle(TranslationKeys.COC_PLAYER_LOADING_NEW_BASE_SUBTITLE, 40 * 20);
         List<GeneralBuilding> startBuildings = new ArrayList<>(Arrays.asList(
                 new GeneralBuilding(uuid, UUID.randomUUID(), Buildings.TOWN_HALL, baseLoc.clone().add(82, 0, 90), (byte) 0, 0),
-                new GeneralBuilding(uuid, UUID.randomUUID(), Buildings.BUILDER, baseLoc.clone().add(77, 0, 80), (byte) 0, 1),
-                new ResourceGatherBuilding(uuid, UUID.randomUUID(), ResourceGathererBuildings.GOLD_MINER, baseLoc.clone().add(113, 0, 117), (byte) 0, 1, 0),
-                new ResourceContainerBuilding(uuid, UUID.randomUUID(), ResourceContainerBuildings.GOLD_STOCK, baseLoc.clone().add(117, 0, 104), (byte) 0, 1, 350),
-                new DefenseBuilding(uuid, UUID.randomUUID(), DefenseBuildings.CANNON,
-                        BuildingLocationUtil.getCoordinate(DefenseBuildings.CANNON.getSize(), (byte) 2, baseLoc.clone().add(116, 0, 83)), (byte) 2, 1),
+                new GeneralBuilding(uuid, UUID.randomUUID(), Buildings.BUILDER, baseLoc.clone().add(113, 0, 117), (byte) 0, 1),
+                new ResourceGatherBuilding(uuid, UUID.randomUUID(), ResourceGathererBuildings.GOLD_MINER, baseLoc.clone().add(77, 0, 80), (byte) 0, 1, 350),
+                new ResourceContainerBuilding(uuid, UUID.randomUUID(), ResourceContainerBuildings.GOLD_STOCK, baseLoc.clone().add(117, 0, 104), (byte) 0, 1, 0),
+                new DefenseBuilding(uuid, UUID.randomUUID(), DefenseBuildings.CANNON, BuildingLocationUtil.getCoordinate(DefenseBuildings.CANNON.getSize(), (byte) 2, baseLoc.clone().add(116, 0, 83)), (byte) 2, 1),
                 new DefenseBuilding(uuid, UUID.randomUUID(), DefenseBuildings.CANNON,  baseLoc.clone().add(116, 0, 83), (byte) 0, 1)));
 
         List<RandomWorldBuilding> rdmBuildings = new ArrayList<>();
@@ -109,14 +108,13 @@ public class BuildingsManager {
 
         startBuildings.addAll(rdmBuildings);
 
-
         DatabaseBuildings.getInstance().buildBuilding(startBuildings.toArray(new GeneralBuilding[0]));
 
 
-        CoCPlayer coCPlayer = new CoCPlayer(uuid, baseLoc, 0, 0, 200, System.currentTimeMillis(), CloudClient.getInstance().getClientId(), startBuildings);
+        CoCPlayer coCPlayer = new CoCPlayer(uuid, baseLoc, 0, 0, 200, CloudClient.getInstance().getClientId(), System.currentTimeMillis(), startBuildings);
         DatabasePlayer.getInstance().createUser(coCPlayer);
 
-        long takingTicks = Schematics.createPlayerBase(baseLoc, startBuildings);
+        long takingTicks = Schematics.createPlayerBase(baseLoc, startBuildings) + 5;
 
         player.getTitleSender().sendTitle(TranslationKeys.COC_PLAYER_LOADING_NEW_PLACING_TITLE, 10 * 20);
         player.getTitleSender().sendSubtitle(TranslationKeys.COC_PLAYER_LOADING_NEW_PLACING_SUBTITLE, 10 * 20);
@@ -124,7 +122,7 @@ public class BuildingsManager {
         Bukkit.getScheduler().runTaskLater(ClashOfClubs.getInstance(), () -> {
             player.getTitleSender().sendTitle(TranslationKeys.COC_PLAYER_LOADING_NEW_FINISHED_TITLE, 2 * 20);
             player.getTitleSender().sendSubtitle(TranslationKeys.COC_PLAYER_LOADING_NEW_FINISHED_SUBTITLE, 2 * 20);
-            player.sendActionbar(new ActionbarMessage(TranslationKeys.COC_PLAYER_REPAIR_TOWNHALL_FIRST).setType(ActionbarMessageType.STATIC));
+            TutorialManager.getInstance().nextTutorial(coCPlayer, TutorialManager.TutorialState.COLLECT_RESOURCE);
             coCPlayer.visit(player, true);
             ScoreboardMenu.show(coCPlayer);
         }, takingTicks);
@@ -143,10 +141,12 @@ public class BuildingsManager {
         if (player.getResourceAmount(building.getResourceType()) < cost)
             return;
 
+        Location newLocation = (Location) player.getBuildingMode()[0];
+        newLocation.setY(ClashOfClubs.getBaseYCoordinate());
         byte rotation = (byte) player.getBuildingMode()[2];
 
         GeneralBuilding generalBuilding = getBuildingInstance(player.getUniqueId(), UUID.randomUUID(), building,
-                BuildingLocationUtil.getCoordinate(building.getSize(), rotation, (Location) player.getBuildingMode()[0]), rotation, 0);
+                BuildingLocationUtil.getCoordinate(building.getSize(), rotation, newLocation), rotation, 0);
         if (generalBuilding == null)
             return;
 
@@ -283,4 +283,5 @@ public class BuildingsManager {
     public IBuilding getBuildingById(String name) {
         return allBuildings.stream().filter(b -> b.name().equals(name)).findFirst().orElse(null);
     }
+
 }

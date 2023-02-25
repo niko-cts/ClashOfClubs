@@ -5,9 +5,12 @@ import net.fununity.clashofclans.buildings.instances.*;
 import net.fununity.clashofclans.buildings.instances.troops.TroopsBuilding;
 import net.fununity.clashofclans.buildings.instances.troops.TroopsCreateBuilding;
 import net.fununity.clashofclans.buildings.list.Buildings;
+import net.fununity.clashofclans.buildings.list.ResourceContainerBuildings;
+import net.fununity.clashofclans.buildings.list.ResourceGathererBuildings;
 import net.fununity.clashofclans.database.DatabaseBuildings;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.player.ScoreboardMenu;
+import net.fununity.clashofclans.player.TutorialManager;
 import net.fununity.clashofclans.util.BuildingLocationUtil;
 import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.player.APIPlayer;
@@ -45,7 +48,6 @@ public class ConstructionManager {
             ConstructionBuilding constructionBuilding = new ConstructionBuilding(building,
                     System.currentTimeMillis() + (building.getBuildingDuration() * 1000L));
             DatabaseBuildings.getInstance().constructBuilding(constructionBuilding);
-            System.out.println(building.getBuildingDuration() + " " + System.currentTimeMillis() + "  " + constructionBuilding.getBuildingFinishTime());
 
             if (building.getBuilding() != Buildings.TOWN_HALL && building.getLevel() == 0)
                 DatabaseBuildings.getInstance().buildBuilding(building);
@@ -75,8 +77,9 @@ public class ConstructionManager {
         building.setCurrentHP(null, building.getMaxHP());
 
         APIPlayer owner = player.getOwner();
-        if (owner != null)
+        if (owner != null) {
             constructionBuilding.hideHologram(owner);
+        }
 
         if (building instanceof TroopsBuilding && !(building instanceof TroopsCreateBuilding))
             TroopsBuildingManager.getInstance().moveTroopsFromCreationToCamp(player);
@@ -96,7 +99,18 @@ public class ConstructionManager {
             BuildingLocationUtil.savePlayerFromBuilding(building);
             Schematics.createBuilding(building);
 
-            Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), ()->player.addBuilding(building));
+            Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> {
+                player.addBuilding(building);
+
+                if (building instanceof GeneralHologramBuilding)
+                   ((GeneralHologramBuilding) building).updateHologram(((GeneralHologramBuilding) building).getShowText());
+
+                if (building.getBuilding() == Buildings.TOWN_HALL && TutorialManager.getInstance().getState(player.getUniqueId()) == TutorialManager.TutorialState.REPAIR_TOWNHALL)
+                    TutorialManager.getInstance().finished(player);
+                else if((building.getBuilding() == ResourceGathererBuildings.FARM || building.getBuilding() == ResourceContainerBuildings.BARN_STOCK) &&
+                        TutorialManager.getInstance().getState(player.getUniqueId()) == TutorialManager.TutorialState.BUILD_FARM)
+                    TutorialManager.getInstance().finished(player);
+            });
         });
     }
 

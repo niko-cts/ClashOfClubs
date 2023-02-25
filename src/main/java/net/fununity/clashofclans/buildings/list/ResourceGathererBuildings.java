@@ -16,18 +16,18 @@ import java.util.List;
 
 public enum ResourceGathererBuildings implements IResourceGatherBuilding, IUpgradeDetails {
     GOLD_MINER(TranslationKeys.COC_BUILDING_GATHER_GOLD_MINER_NAME, TranslationKeys.COC_BUILDING_GATHER_GOLD_MINER_DESCRIPTION, new int[]{19, 15}, ResourceTypes.FOOD, Material.GOLD_ORE, ResourceTypes.GOLD,
-            new ResourceGatherLevelData[]{new ResourceGatherLevelData(250, 1, 75, 30, 6000, 600),
-                                          new ResourceGatherLevelData(300, 1, 750, 3 * 60, 28000, 800),
-                                          new ResourceGatherLevelData(350, 2, 10000, 10 * 60, 40000, 1200),
-                                          new ResourceGatherLevelData(400, 2, 50000, 2 * 60 * 60, 60000, 1800)}),
+            new ResourceGatherLevelData[]{new ResourceGatherLevelData(250, 1, 75, 30, 1200, 300),
+                                          new ResourceGatherLevelData(300, 1, 750, 3 * 60, 5000, 400),
+                                          new ResourceGatherLevelData(350, 2, 10000, 10 * 60, 15000, 600),
+                                          new ResourceGatherLevelData(400, 2, 50000, 2 * 60 * 60, 50000, 1200)}),
 
     FARM(TranslationKeys.COC_BUILDING_GATHER_FARM_NAME, TranslationKeys.COC_BUILDING_GATHER_FARM_DESCRIPTION, new int[]{19, 15}, ResourceTypes.GOLD, Material.WHEAT_SEEDS, ResourceTypes.FOOD,
-            new ResourceGatherLevelData[]{new ResourceGatherLevelData(250, 1, 75, 30, 10000, 600),
-                                          new ResourceGatherLevelData(300, 1, 750, 3 * 60, 28000, 800),
-                                          new ResourceGatherLevelData(350, 2, 10000, 10 * 60, 40000, 1100),
-                                          new ResourceGatherLevelData(400, 2, 50000, 2 * 60 * 60, 60000, 1700)}),
+            new ResourceGatherLevelData[]{new ResourceGatherLevelData(250, 1, 75, 30, 1200, 300),
+                                          new ResourceGatherLevelData(300, 1, 750, 3 * 60, 5000, 400),
+                                          new ResourceGatherLevelData(350, 2, 10000, 10 * 60, 15000, 600),
+                                          new ResourceGatherLevelData(400, 2, 50000, 2 * 60 * 60, 50000, 1200)}),
 
-    COAL_MINER(TranslationKeys.COC_BUILDING_GATHER_COAL_DRILL_NAME, TranslationKeys.COC_BUILDING_GATHER_COAL_DRILL_DESCRIPTION, new int[]{19, 15}, ResourceTypes.GOLD, Material.COAL, ResourceTypes.ELECTRIC,
+    COAL_MINER(TranslationKeys.COC_BUILDING_GATHER_COAL_DRILL_NAME, TranslationKeys.COC_BUILDING_GATHER_COAL_DRILL_DESCRIPTION, new int[]{19, 15}, ResourceTypes.GOLD, Material.COAL_ORE, ResourceTypes.ELECTRIC,
             new ResourceGatherLevelData[]{new ResourceGatherLevelData(250, 6, 250000, 5 * 60,  15, 15),
                                           new ResourceGatherLevelData(300, 6, 350000, 60 * 60, 20, 20),
                                           new ResourceGatherLevelData(350, 7, 450000, 5 * 60 * 60, 30, 30),

@@ -10,20 +10,24 @@ import net.fununity.clashofclans.database.DatabaseBuildings;
 import net.fununity.clashofclans.database.DatabasePlayer;
 import net.fununity.clashofclans.language.EnglishMessages;
 import net.fununity.clashofclans.language.GermanMessages;
-import net.fununity.clashofclans.listener.JoinListener;
-import net.fununity.clashofclans.listener.PlayerInteractListener;
-import net.fununity.clashofclans.listener.PlayerMoveListener;
-import net.fununity.clashofclans.listener.QuitListener;
+import net.fununity.clashofclans.listener.*;
+import net.fununity.clashofclans.listener.interact.PlayerInteractListener;
+import net.fununity.clashofclans.listener.interact.PlayerSelectHotbarListener;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.player.PlayerManager;
 import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.server.ServerSetting;
 import net.fununity.main.api.util.RegisterUtil;
 import net.minecraft.server.v1_16_R3.WorldServer;
+import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.Calendar;
+import java.util.TimeZone;
+import java.util.logging.Level;
 
 /**
  * Main class of the clash of clubs plugin.
@@ -42,6 +46,7 @@ public class ClashOfClubs extends JavaPlugin {
     private PlayerManager playerManager;
     private TickTimerManager tickTimerManager;
 
+
     /**
      * Will be called, when the plugin enables.
      * @since 0.0.1
@@ -56,7 +61,7 @@ public class ClashOfClubs extends JavaPlugin {
         FunUnityAPI.getInstance().getServerSettings().disable(ServerSetting.PLAYER_INTERACT_ENTITY);
 
         this.playWorld = getServer().getWorld("world");
-        this.playWorld.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);
+        this.playWorld.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
         this.playWorld.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
         WorldServer ch = ((CraftWorld) playWorld).getHandle();
         ch.spigotConfig.itemDespawnRate = 5;
@@ -70,11 +75,19 @@ public class ClashOfClubs extends JavaPlugin {
             FunUnityAPI.getInstance().getCloudClient().getCloudEventManager().addCloudListener(new CloudNormalListener());
 
             RegisterUtil registerUtil = new RegisterUtil(this);
-            registerUtil.addListeners(new JoinListener(), new QuitListener(), new PlayerInteractListener(), new PlayerMoveListener());
+            registerUtil.addListeners(new JoinListener(), new QuitListener(), new PlayerInteractListener(), new PlayerSelectHotbarListener(), new PlayerMoveListener(), new InventoryClickListener());
+            // registerUtil.addListener(new SetupInteractListener());
             registerUtil.addCommands(new CoCCommand(), new HomeCommand(), new VisitCommand(), new ResetCommand());
 
             this.tickTimerManager = new TickTimerManager();
             registerUtil.register();
+
+            Bukkit.getScheduler().runTaskTimer(this, () -> {
+                // Ticks = (Hours * 1000) - 6000
+                Calendar cal = Calendar.getInstance(); // Get the time instance
+                long time = (1000 * cal.get(Calendar.HOUR_OF_DAY)) + (16 * cal.get(Calendar.MINUTE)) - 6000;
+                this.playWorld.setTime(time);
+            }, 20L, 20L * 30);
         }
 
         Schematics.cacheAllSchematics();
@@ -89,6 +102,7 @@ public class ClashOfClubs extends JavaPlugin {
         if (attackingServer) return;
 
         for (CoCPlayer coCPlayer : getPlayerManager().getPlayers().values()) {
+            getLogger().log(Level.INFO, "Saving data of {0}", coCPlayer.getUniqueId().toString());
             DatabasePlayer.getInstance().updatePlayer(coCPlayer);
             DatabaseBuildings.getInstance().updateBuildings(coCPlayer);
         }

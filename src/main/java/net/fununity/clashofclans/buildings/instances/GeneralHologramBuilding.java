@@ -27,9 +27,8 @@ public abstract class GeneralHologramBuilding extends GeneralBuilding implements
     public GeneralHologramBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, byte rotation, int level) {
         super(uuid, buildingUUID, building, coordinate, rotation, level);
 
-        Location hologramLocation = getCoordinate().add(getBuilding().getSize()[0] / 2.0, 0, getBuilding().getSize()[1] / 2.0);
-        hologramLocation.setY(BuildingLocationUtil.getHighestYCoordinate(hologramLocation) + 2);
-        setLocation(hologramLocation);
+        setLocation(getCenterCoordinate());
+        setY(BuildingLocationUtil.getHighestYCoordinate(hologramLocation) + 2);
     }
 
     /**
@@ -50,6 +49,7 @@ public abstract class GeneralHologramBuilding extends GeneralBuilding implements
         APIPlayer onlinePlayer = FunUnityAPI.getInstance().getPlayerHandler().getPlayer(getOwnerUUID());
         if (onlinePlayer != null) {
             onlinePlayer.hideHolograms(hologramLocation);
+            setY(BuildingLocationUtil.getHighestYCoordinate(hologramLocation) + 2);
             onlinePlayer.showHologram(new APIHologram(hologramLocation, showText));
         }
     }
@@ -59,10 +59,14 @@ public abstract class GeneralHologramBuilding extends GeneralBuilding implements
         super.setCoordinate(coordinate);
 
         FunUnityAPI.getInstance().getPlayerHandler().getPlayer(getOwnerUUID()).hideHolograms(hologramLocation);
-        Location hologramLocation = getCoordinate().add(getBuilding().getSize()[0] / 2.0, 0, getBuilding().getSize()[1] / 2.0);
-        hologramLocation.setY(BuildingLocationUtil.getHighestYCoordinate(hologramLocation) + 2);
-        setLocation(hologramLocation);
+        setLocation(getCenterCoordinate());
+        setY(BuildingLocationUtil.getHighestYCoordinate(hologramLocation) + 2);
         updateHologram(getShowText());
+    }
+
+    public void setY(int y) {
+        if (y != hologramLocation.getBlockY())
+            hologramLocation.setY(y);
     }
 
     /**

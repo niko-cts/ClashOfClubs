@@ -48,7 +48,9 @@ public class GermanMessages extends MessageList {
         add(TranslationKeys.COC_PLAYER_NO_MORE_BUILDINGS, "&cDu kannst davon nur &e${max} &cmit deinem Rathaus level bauen.");
         add(TranslationKeys.COC_PLAYER_NO_RESOURCE_TANKS, "&cDeine Lager sind voll!");
         add(TranslationKeys.COC_PLAYER_BUILDERS_WORKING, "&cAlle Bauarbeiter sind derzeit beschäftigt.");
-        add(TranslationKeys.COC_PLAYER_REPAIR_TOWNHALL_FIRST, "&cRepariere dein Rathaus als erstes!");
+        add(TranslationKeys.COC_PLAYER_REPAIR_TOWNHALL_FIRST_MESSAGE, "&cRepariere dein Rathaus als erstes!");
+        add(TranslationKeys.COC_PLAYER_REPAIR_TOWNHALL_FIRST_ACTIONBAR, "&cRepariere dein Rathaus als erstes!");
+
 
         // RESOURCE
         add(TranslationKeys.COC_RESOURCE_FOOD, "&dNahrung");

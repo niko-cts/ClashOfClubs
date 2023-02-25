@@ -13,17 +13,13 @@ import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IResourceContainerBuilding;
 import net.fununity.clashofclans.buildings.interfaces.ITroopBuilding;
 import net.fununity.clashofclans.buildings.list.*;
-import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.troops.ITroop;
 import net.fununity.clashofclans.util.BuildingLocationUtil;
 import net.fununity.clashofclans.util.BuildingsAmountUtil;
 import net.fununity.main.api.FunUnityAPI;
-import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.player.APIPlayer;
-import net.fununity.misc.translationhandler.translations.Language;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.Material;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,8 +39,8 @@ public class CoCPlayer {
     private int xp;
     private int elo;
     private int gems;
-    private final long lastJoin;
     private final String lastServer;
+    private final long lastJoin;
 
     private final Object[] buildingMode;
     private final List<GeneralBuilding> normalBuildings;
@@ -61,18 +57,18 @@ public class CoCPlayer {
      * @param elo int - the players elo
      * @param gems int - the players gems
      * @param lastJoin long - the last join milli secs.
-     * @param lastServer String - the last server the player was.
+     * @param lastServer String - the last server.
      * @param allBuildings List<GeneralBuilding> - all buildings the player has.
      * @since 0.0.1
      */
-    public CoCPlayer(UUID uuid, Location baseLocation, int xp, int elo, int gems, long lastJoin, String lastServer, List<GeneralBuilding> allBuildings) {
+    public CoCPlayer(UUID uuid, Location baseLocation, int xp, int elo, int gems, String lastServer, long lastJoin, List<GeneralBuilding> allBuildings) {
         this.uuid = uuid;
         this.baseLocation = baseLocation;
         this.xp = xp;
         this.elo = elo;
         this.gems = gems;
-        this.lastJoin = lastJoin;
         this.lastServer = lastServer;
+        this.lastJoin = lastJoin;
         this.visitors = new ArrayList<>();
         this.buildingMode = new Object[3];
 
@@ -99,7 +95,7 @@ public class CoCPlayer {
     public void visit(APIPlayer apiPlayer, boolean teleport) {
         this.visitors.add(apiPlayer.getUniqueId());
         if (teleport) {
-            Location visitorLoc = getBaseStartLocation().add(40, 0, 40);
+            Location visitorLoc = getBaseStartLocation().add(ClashOfClubs.getBaseSize() / 2.0, 0, ClashOfClubs.getBaseSize() / 2.0);
             visitorLoc.setY(BuildingLocationUtil.getHighestYCoordinate(visitorLoc) + 1);
             apiPlayer.getPlayer().teleport(visitorLoc);
         }
@@ -109,10 +105,15 @@ public class CoCPlayer {
         apiPlayer.getPlayer().getInventory().clear();
 
         if (apiPlayer.getUniqueId().equals(uuid)) {
+            System.out.println("visited: ");
+            System.out.println(getAllBuildings().size());
+            System.out.println(getAllBuildings().stream().filter(b -> b instanceof GeneralHologramBuilding).count());
+
             getAllBuildings().stream().filter(b -> b instanceof GeneralHologramBuilding).forEach(b -> ((GeneralHologramBuilding) b).updateHologram(((GeneralHologramBuilding) b).getShowText()));
             ClashOfClubs.getInstance().getPlayerManager().giveDefaultItems(this, apiPlayer);
         }
     }
+
 
     /**
      * A player quits the base.
@@ -148,7 +149,11 @@ public class CoCPlayer {
      * @since 0.0.1
      */
     public int getTownHallLevel() {
-        GeneralBuilding townHall = getNormalBuildings().stream().filter(b -> b.getBuilding() == Buildings.TOWN_HALL).findFirst().orElse(null);
+        List<GeneralBuilding> buildings = getNormalBuildings();
+        buildings.addAll(getConstructionBuildings());
+
+        GeneralBuilding townHall = buildings.stream().filter(b -> b.getBuilding() == Buildings.TOWN_HALL).findFirst().orElse(null);
+
         return townHall != null ? townHall.getLevel() : 0;
     }
 
@@ -373,9 +378,8 @@ public class CoCPlayer {
      * @since 0.0.1
      */
     public ConcurrentMap<ITroop, Integer> getTroops() {
-        List<TroopsBuilding> troopBuildings = getNormalBuildings().stream().filter(b -> b instanceof TroopsBuilding && !(b instanceof TroopsCreateBuilding)).map(b -> (TroopsBuilding) b).collect(Collectors.toList());
         ConcurrentMap<ITroop, Integer> troopsAmount = new ConcurrentHashMap<>();
-        for (TroopsBuilding troopBuilding : troopBuildings) {
+        for (TroopsBuilding troopBuilding : getTroopsCampBuildings()) {
             for (Map.Entry<ITroop, Integer> entry : troopBuilding.getTroopAmount().entrySet()) {
                 troopsAmount.put(entry.getKey(), troopsAmount.getOrDefault(entry.getKey(), 0) + entry.getValue());
             }
@@ -498,6 +502,10 @@ public class CoCPlayer {
         return lastJoin;
     }
 
+    public String getLastServer() {
+        return lastServer;
+    }
+
     public List<IBuilding> buildableBuildings() {
         List<IBuilding> buildings = new ArrayList<>();
         int townHallLevel = getTownHallLevel();
@@ -520,4 +528,5 @@ public class CoCPlayer {
         }
         return buildings;
     }
+
 }

@@ -40,6 +40,19 @@ public class ResourceContainerBuilding extends GeneralHologramBuilding implement
      * @param building   IBuilding - the building class.
      * @param coordinate Location - the location of the building.
      * @param level      int - the level of the building.
+     * @since 0.0.1
+     */
+    public ResourceContainerBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, byte rotation, int level) {
+        this(uuid, buildingUUID, building, coordinate, rotation, level, 0);
+    }
+
+    /**
+     * Instantiates the class.
+     * @param uuid UUID - the uuid of the owner.
+     * @param buildingUUID UUID - the uuid of the building.
+     * @param building   IBuilding - the building class.
+     * @param coordinate Location - the location of the building.
+     * @param level      int - the level of the building.
      * @param amount     double - amount of building
      * @since 0.0.1
      */

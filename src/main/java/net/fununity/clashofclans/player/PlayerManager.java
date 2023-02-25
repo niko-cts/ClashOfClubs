@@ -14,14 +14,18 @@ import net.fununity.clashofclans.database.DatabasePlayer;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.troops.ITroop;
 import net.fununity.clashofclans.troops.Troops;
+import net.fununity.clashofclans.util.HotbarItems;
 import net.fununity.main.api.FunUnityAPI;
-import net.fununity.main.api.actionbar.ActionbarMessage;
-import net.fununity.main.api.actionbar.ActionbarMessageType;
 import net.fununity.main.api.inventory.CustomInventory;
 import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.player.APIPlayer;
+import net.fununity.main.api.util.LocationUtil;
 import net.fununity.misc.translationhandler.translations.Language;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import java.sql.ResultSet;
@@ -50,16 +54,17 @@ public class PlayerManager {
      * @since 0.0.1
      */
     public void playerJoins(APIPlayer player) {
-        CoCPlayer coCPlayer;
         if (DatabasePlayer.getInstance().contains(player.getUniqueId())) {
             player.getTitleSender().sendTitle(TranslationKeys.COC_PLAYER_LOADING_PLAYER_DATA_TITLE, 5 * 20);
             player.getTitleSender().sendSubtitle(TranslationKeys.COC_PLAYER_LOADING_PLAYER_DATA_SUBTITLE, 5 * 20);
-            coCPlayer = loadPlayer(player.getUniqueId());
+            CoCPlayer coCPlayer = loadPlayer(player.getUniqueId());
 
             if (coCPlayer == null) {
                 player.sendRawMessage(ChatColor.RED + "CoCPlayer could not have been loaded. Please speak with an administrator.");
                 throw new IllegalStateException("CoCPlayer could not have been loaded.");
             }
+
+            playersMap.put(player.getUniqueId(), coCPlayer);
 
             player.getTitleSender().sendTitle(TranslationKeys.COC_PLAYER_LOADING_RESOURCES_TITLE, 5 * 20);
             player.getTitleSender().sendSubtitle(TranslationKeys.COC_PLAYER_LOADING_RESOURCES_SUBTITLE, 5 * 20);
@@ -75,20 +80,15 @@ public class PlayerManager {
             player.getTitleSender().sendTitle(TranslationKeys.COC_PLAYER_LOADING_FINISHED_TITLE, 20);
             player.getTitleSender().sendSubtitle(TranslationKeys.COC_PLAYER_LOADING_FINISHED_SUBTITLE, 20);
 
-            if (coCPlayer.getTownHallLevel() == 0)
-                player.sendActionbar(new ActionbarMessage(TranslationKeys.COC_PLAYER_REPAIR_TOWNHALL_FIRST).setType(ActionbarMessageType.STATIC));
-
-
             Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> {
                 coCPlayer.visit(player, true);
                 ScoreboardMenu.show(coCPlayer);
+                TutorialManager.getInstance().checkIfTutorialNeeded(coCPlayer);
             });
         } else {
             Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> player.getPlayer().setGameMode(GameMode.SPECTATOR));
-            coCPlayer = BuildingsManager.getInstance().createNewIsland(player);
+            playersMap.put(player.getUniqueId(), BuildingsManager.getInstance().createNewIsland(player));
         }
-
-        playersMap.put(player.getUniqueId(), coCPlayer);
     }
 
     /**
@@ -109,7 +109,7 @@ public class PlayerManager {
     }
 
     /**
-     * Forces an new open to the building inventory.
+     * Forces a new open to the building inventory.
      *
      * @param building {@link GeneralBuilding} - the building.
      * @since 0.0.1
@@ -129,6 +129,26 @@ public class PlayerManager {
 
     /**
      * Get the coc player instance.
+     * @param player APIPlayer - the player.
+     * @return {@link CoCPlayer} - the coc player instance.
+     * @since 0.0.1
+     */
+    public CoCPlayer getPlayer(APIPlayer player) {
+        return getPlayer(player.getUniqueId());
+    }
+
+    /**
+     * Get the coc player instance.
+     * @param player Player - the player.
+     * @return {@link CoCPlayer} - the coc player instance.
+     * @since 0.0.1
+     */
+    public CoCPlayer getPlayer(Player player) {
+        return getPlayer(player.getUniqueId());
+    }
+
+    /**
+     * Get the coc player instance.
      *
      * @param uuid UUID - uuid of player.
      * @return {@link CoCPlayer} - the coc player instance.
@@ -144,7 +164,7 @@ public class PlayerManager {
      * @param uuid UUID - the player who joins.
      * @return CoCPlayer - loaded coc player.
      */
-    private CoCPlayer loadPlayer(UUID uuid) {
+    public CoCPlayer loadPlayer(UUID uuid) {
         try (ResultSet data = DatabasePlayer.getInstance().getPlayerData(uuid)) {
             if (data != null && data.next()) {
 
@@ -187,7 +207,7 @@ public class PlayerManager {
                         buildings.add(building);
                     }
 
-                    return new CoCPlayer(uuid, new Location(ClashOfClubs.getInstance().getWorld(), playerX, ClashOfClubs.getBaseYCoordinate(), playerZ), xp, elo, gems, lastJoin, lastServer, buildings);
+                    return new CoCPlayer(uuid, new Location(ClashOfClubs.getInstance().getWorld(), playerX, ClashOfClubs.getBaseYCoordinate(), playerZ), xp, elo, gems, lastServer, lastJoin, buildings);
 
                 } catch (SQLException exception) {
                     ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
@@ -199,32 +219,45 @@ public class PlayerManager {
         return null;
     }
 
+    public void giveDefaultItems(CoCPlayer coCPlayer) {
+        giveDefaultItems(coCPlayer, coCPlayer.getOwner());
+    }
+
+    /**
+     * Clears the inventory and gets the default items for the base.
+     * @param coCPlayer CoCPlayer - the cocplayer
+     * @param apiPlayer APIPlayer - the apiplayer
+     * @since 0.0.2
+     */
     public void giveDefaultItems(CoCPlayer coCPlayer, APIPlayer apiPlayer) {
         Language lang = apiPlayer.getLanguage();
         Player player = apiPlayer.getPlayer();
         player.getInventory().clear();
 
 
-        player.getInventory().setItem(0, new ItemBuilder(Material.TRIPWIRE_HOOK)
+        player.getInventory().setItem(0, new ItemBuilder(HotbarItems.POINTER)
                 .setName(lang.getTranslation(TranslationKeys.COC_INV_POINTER_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_INV_POINTER_LORE).split(";")).craft());
 
         int townHallLevel = coCPlayer.getTownHallLevel();
-        for (ResourceTypes resourceTypes : ResourceTypes.canReachWithTownHall(townHallLevel)) {
-            if (resourceTypes != ResourceTypes.GEMS)
-                player.getInventory().addItem(new ItemBuilder(resourceTypes.getGlass())
-                        .setName(lang.getTranslation(TranslationKeys.COC_INV_RESOURCE_NAME, Arrays.asList("${color}", "${type}"), Arrays.asList(resourceTypes.getChatColor() + "", resourceTypes.getColoredName(lang)))).setLore(lang.getTranslation(TranslationKeys.COC_INV_RESOURCE_LORE).split(";")).craft());
-        }
 
-        if (townHallLevel > 1) {
-            player.getInventory().setItem(6, new ItemBuilder(Material.PAPER)
-                    .setName(lang.getTranslation(TranslationKeys.COC_INV_ATTACKHISTORY_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_INV_ATTACKHISTORY_LORE).split(";")).craft());
-            player.getInventory().setItem(8, new ItemBuilder(Material.CLOCK)
+
+        player.getInventory().setItem(7, new ItemBuilder(HotbarItems.TUTORIAL_BOOK)
+                .setName(lang.getTranslation(TranslationKeys.COC_INV_BOOK_NAME))
+                .setLore(lang.getTranslation(TranslationKeys.COC_INV_BOOK_LORE).split(";")).craft());
+
+        if (townHallLevel > 0) {
+            for (ResourceTypes resourceTypes : ResourceTypes.canReachWithTownHall(townHallLevel)) {
+                if (resourceTypes != ResourceTypes.GEMS)
+                    player.getInventory().addItem(new ItemBuilder(resourceTypes.getRepresentativeMaterial())
+                            .setName(lang.getTranslation(TranslationKeys.COC_INV_RESOURCE_NAME, Arrays.asList("${color}", "${type}"), Arrays.asList(resourceTypes.getChatColor() + "", resourceTypes.getColoredName(lang)))).setLore(lang.getTranslation(TranslationKeys.COC_INV_RESOURCE_LORE).split(";")).craft());
+            }
+
+            //player.getInventory().setItem(6, new ItemBuilder(HotbarItems.ATTACK_HISTORY).setName(lang.getTranslation(TranslationKeys.COC_INV_ATTACKHISTORY_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_INV_ATTACKHISTORY_LORE).split(";")).craft());
+            //player.getInventory().setItem(7, new ItemBuilder(Material.IRON_SWORD).addItemFlags(ItemFlag.HIDE_ATTRIBUTES).setName(lang.getTranslation(TranslationKeys.COC_GUI_ATTACK_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_GUI_ATTACK_LORE).split(";")).craft());
+
+            player.getInventory().setItem(8, new ItemBuilder(HotbarItems.SHOP)
                     .setName(lang.getTranslation(TranslationKeys.COC_INV_CONSTRUCTION_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_INV_CONSTRUCTION_LORE).split(";")).craft());
         }
-
-        player.getInventory().setItem(7, new ItemBuilder(Material.WRITTEN_BOOK)
-                .setName(lang.getTranslation(TranslationKeys.COC_INV_BOOK_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_INV_BOOK_LORE).split(";")).craft());
-        //apiPlayer.getPlayer().getInventory().setItem(7, new ItemBuilder(Material.IRON_SWORD).addItemFlags(ItemFlag.HIDE_ATTRIBUTES).setName(lang.getTranslation(TranslationKeys.COC_GUI_ATTACK_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_GUI_ATTACK_LORE).split(";")).craft());
     }
 
     public boolean isCached(UUID uuid) {
@@ -241,8 +274,12 @@ public class PlayerManager {
         return new HashMap<>(playersMap);
     }
 
-    public void openHelpBook(APIPlayer player, int townHallLevel) {
-        player.openBook(new ItemBuilder(Material.WRITTEN_BOOK)
-                .addPage(player.getLanguage().getTranslation(TranslationKeys.COC_INV_BOOK_CONTENT + townHallLevel, "${player}", player.getDisplayName()).split(";")).craft());
+    public void clickBlock(CoCPlayer player, Block targetBlock) {
+        Location location = targetBlock.getLocation();
+        player.getAllBuildings().stream().filter(b -> LocationUtil.isBetween(b.getCoordinate(), location, b.getMaxCoordinate())).findFirst().ifPresent(b -> {
+            APIPlayer apiPlayer = player.getOwner();
+            if (apiPlayer != null)
+                b.getInventory(apiPlayer.getLanguage()).open(apiPlayer);
+        });
     }
 }

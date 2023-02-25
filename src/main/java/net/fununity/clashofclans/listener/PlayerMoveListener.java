@@ -13,28 +13,37 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 
+/**
+ * A class for listening to spigot MoveEvents.
+ * This will be used for creating and moving buildings.
+ * @author Niko
+ * @since 0.0.2
+ */
 public class PlayerMoveListener implements Listener {
 
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
-        if (event.getTo() == null || event.getTo().getYaw() < 20) return;
-
-        if (!event.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.PISTON) &&
-                !event.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.NETHER_STAR)) return;
+        if (event.getTo() == null ||
+                (event.getFrom().getBlockX() == event.getTo().getBlockX() &&
+                event.getFrom().getBlockZ() == event.getTo().getBlockZ())) return;
 
         Player player = event.getPlayer();
-        Block targetBlock = LocationUtil.getTargetBlock(player, 3);
-        if (targetBlock == null || targetBlock.getLocation().getBlockY() != ClashOfClubs.getBaseYCoordinate() + 1) return;
-        CoCPlayer coCPlayer = ClashOfClubs.getInstance().getPlayerManager().getPlayer(player.getUniqueId());
 
+        if (!player.getInventory().contains(Material.PISTON) && !player.getInventory().contains(Material.NETHER_STAR)) return;
+
+        Location groundLocation = event.getTo().clone();
+        groundLocation.setY(ClashOfClubs.getBaseYCoordinate() + 1);
+        
+        CoCPlayer coCPlayer = ClashOfClubs.getInstance().getPlayerManager().getPlayer(player);
         Location lastLoc = (Location) coCPlayer.getBuildingMode()[0];
 
-        if (targetBlock.getLocation().equals(lastLoc)) return;
+        if (groundLocation.equals(lastLoc))
+            return;
 
         if (lastLoc != null)
             BuildingLocationUtil.removeBuildingGround(player, coCPlayer.getBuildingMode());
 
-        coCPlayer.setBuildingMode(targetBlock.getLocation());
-        BuildingLocationUtil.createFakeGround(event.getPlayer(), coCPlayer);
+        coCPlayer.setBuildingMode(groundLocation);
+        BuildingLocationUtil.createFakeGround(player, coCPlayer);
     }
 }

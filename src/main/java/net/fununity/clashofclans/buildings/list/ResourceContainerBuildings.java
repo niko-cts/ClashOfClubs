@@ -21,16 +21,14 @@ public enum ResourceContainerBuildings implements IResourceContainerBuilding {
     private final String descriptionKey;
     private final int[] size;
     private final ResourceTypes resourceType;
-    private final Material material;
     private final ResourceTypes containingResourceType;
     private final ResourceContainerLevelData[] buildingLevelData;
 
-    ResourceContainerBuildings(String nameKey, String descriptionKey, int[] size, ResourceTypes resourceType, Material material, ResourceTypes containingResourceType, ResourceContainerLevelData[] buildingLevelData) {
+    ResourceContainerBuildings(String nameKey, String descriptionKey, int[] size, ResourceTypes resourceType, ResourceTypes containingResourceType, ResourceContainerLevelData[] buildingLevelData) {
         this.nameKey = nameKey;
         this.descriptionKey = descriptionKey;
         this.size = size;
         this.resourceType = resourceType;
-        this.material = material;
         this.containingResourceType = containingResourceType;
         this.buildingLevelData = buildingLevelData;
     }
@@ -96,7 +94,7 @@ public enum ResourceContainerBuildings implements IResourceContainerBuilding {
      */
     @Override
     public Material getMaterial() {
-        return material;
+        return getContainingResourceType().getRepresentativeMaterial();
     }
 
     /**

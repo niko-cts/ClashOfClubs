@@ -24,6 +24,13 @@ public class TranslationKeys {
     public static final String COC_COMMAND_RESET_DESCRIPTION = "coc.command.reset.description";
     public static final String COC_COMMAND_RESET_SUCCESS = "coc.command.reset.success";
 
+    // REBUILD
+    public static final String COC_COMMAND_REBUILD_USAGE = "coc.command.rebuild.usage";
+    public static final String COC_COMMAND_REBUILD_DESCRIPTION = "coc.command.rebuild.description";
+    public static final String COC_COMMAND_REBUILD_NO_BASE = "coc.command.rebuild.nobase";
+    public static final String COC_COMMAND_REBUILD_SUCCESS = "coc.command.rebuild.success";
+
+
     // PLAYER
     public static final String COC_PLAYER_LOADING_PLAYER_DATA_TITLE = "coc.player.info.loading.playerdata.title";
     public static final String COC_PLAYER_LOADING_PLAYER_DATA_SUBTITLE = "coc.player.info.loading.playerdata.subtitle";
@@ -44,7 +51,8 @@ public class TranslationKeys {
     public static final String COC_PLAYER_NO_MORE_BUILDINGS = "coc.player.illegal.nomorebuildings";
     public static final String COC_PLAYER_NO_RESOURCE_TANKS = "coc.player.illegal.noresourcecontainer";
     public static final String COC_PLAYER_BUILDERS_WORKING = "coc.player.illegal.buildersworking";
-    public static final String COC_PLAYER_REPAIR_TOWNHALL_FIRST = "coc.player.illegal.repairtownhallfirst";
+    public static final String COC_PLAYER_REPAIR_TOWNHALL_FIRST_ACTIONBAR = "coc.player.illegal.repairtownhallfirst.actionbar";
+    public static final String COC_PLAYER_REPAIR_TOWNHALL_FIRST_MESSAGE = "coc.player.illegal.repairtownhallfirst.actionbar";
 
     //RESOURCES
     public static final String COC_RESOURCE_FOOD = "coc.resource.food";
@@ -62,6 +70,7 @@ public class TranslationKeys {
     public static final String COC_GUI_BUILDING_REPAIR_LORE = "coc.gui.building.repair.lore";
     public static final String COC_GUI_BUILDING_MOVING_NAME = "coc.gui.building.moving.name";
     public static final String COC_GUI_BUILDING_MOVING_LORE = "coc.gui.building.moving.lore";
+    public static final String COC_GUI_BUILDING_CANTUPGRADEYET = "coc.gui.building.cantupgrade";
     public static final String COC_GUI_BUILDING_UNDERCONSTRUCTION = "coc.gui.building.underconstruction";
     public static final String COC_GUI_BUILDING_DESTROY_NAME = "coc.gui.building.destroy.name";
     public static final String COC_GUI_BUILDING_DESTROY_LORE = "coc.gui.building.destroy.lore";
@@ -94,7 +103,7 @@ public class TranslationKeys {
     public static final String COC_INV_POINTER_LORE = "coc.inv.pointer.lore";
     public static final String COC_INV_RESOURCE_NAME = "coc.inv.resource.name";
     public static final String COC_INV_RESOURCE_LORE = "coc.inv.resource.lore";
-    public static final String COC_INV_BOOK_NAME = "coc.inv.resource.name";
+    public static final String COC_INV_BOOK_NAME = "coc.inv.book.name";
     public static final String COC_INV_BOOK_LORE = "coc.inv.book.lore";
     public static final String COC_INV_BOOK_CONTENT = "coc.inv.book.content.";
 
@@ -150,6 +159,8 @@ public class TranslationKeys {
     public static final String COC_CONSTRUCTION_MOVE_ITEM_CANCEL_LORE = "coc.construction.move.item.cancel.lore";
     public static final String COC_CONSTRUCTION_BUILDINGINWAY = "coc.construction.buildinginway";
     public static final String COC_CONSTRUCTION_MOVED = "coc.construction.moved";
+    public static final String COC_CONSTRUCTION_HELP = "coc.construction.help";
+
 
     public static final String COC_CONSTRUCTION_CREATE_ITEM_CREATE_NAME = "coc.construction.create.item.create.name";
     public static final String COC_CONSTRUCTION_CREATE_ITEM_CREATE_LORE = "coc.construction.create.item.create.lore";

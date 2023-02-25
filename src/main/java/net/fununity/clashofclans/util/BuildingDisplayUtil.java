@@ -1,9 +1,12 @@
 package net.fununity.clashofclans.util;
 
+import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.buildings.list.*;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.CoCPlayer;
+import net.fununity.misc.translationhandler.translations.Language;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
 import java.util.ArrayList;
@@ -31,10 +34,29 @@ public class BuildingDisplayUtil {
         }
     }
 
-    public static IBuilding[][] getBuildings(int slot) {
+    public static IBuilding[][] getBuildingsForBuyGUI(int slot) {
         switch (slot) {
             case 10:
-                return new IBuilding[][]{ResourceContainerBuildings.values(), ResourceGathererBuildings.values()};
+                return new IBuilding[][]{new IBuilding[]{ResourceGathererBuildings.FARM, ResourceContainerBuildings.BARN_STOCK},
+                        {ResourceGathererBuildings.GOLD_MINER, ResourceContainerBuildings.GOLD_STOCK},
+                        {ResourceGathererBuildings.COAL_MINER, ResourceContainerBuildings.GENERATOR}};
+            case 12:
+                return new IBuilding[][]{DefenseBuildings.values()};
+            case 14:
+                return new IBuilding[][]{TroopBuildings.values(), TroopCreationBuildings.values()};
+            case 16:
+                return new IBuilding[][]{new IBuilding[]{Buildings.BUILDER}, DecorativeBuildings.values(), WallBuildings.values()};
+            default:
+                return new IBuilding[0][0];
+        }
+    }
+
+    private static IBuilding[][] getBuildingsOverviewForLore(int slot) {
+        switch (slot) {
+            case 10:
+                return new IBuilding[][]{new IBuilding[]{ResourceGathererBuildings.FARM, ResourceContainerBuildings.BARN_STOCK},
+                        {ResourceGathererBuildings.GOLD_MINER, ResourceContainerBuildings.GOLD_STOCK},
+                        {ResourceGathererBuildings.COAL_MINER, ResourceContainerBuildings.GENERATOR}};
             case 12:
                 return new IBuilding[][]{DefenseBuildings.values()};
             case 14:
@@ -84,17 +106,34 @@ public class BuildingDisplayUtil {
      * @since 1.0
      */
     public static List<String> getLore(CoCPlayer coCPlayer, int slot) {
-        List<String> lore = new ArrayList<>(Arrays.asList(coCPlayer.getOwner().getLanguage().getTranslation(getLoreKey(slot)).split(";")));
+        Language lang = coCPlayer.getOwner().getLanguage();
+        List<String> lore = new ArrayList<>(Arrays.asList(lang.getTranslation(getLoreKey(slot)).split(";")));
         int townHallLevel = coCPlayer.getTownHallLevel();
-        for (IBuilding[] buildings : getBuildings(slot)) {
-            for (IBuilding building : buildings) {
+        List<GeneralBuilding> allBuildings = coCPlayer.getAllBuildings();
+
+        for (IBuilding[] buildings : getBuildingsForBuyGUI(slot)) {
+            StringBuilder builder = new StringBuilder();
+
+            for (int i = 0; i < buildings.length; i++) {
+                IBuilding building = buildings[i];
+                if (building.getBuildingLevelData()[0].getMinTownHall() > townHallLevel) continue;
+
+                if (i % 3 == 0 && !builder.isEmpty()) {
+                    lore.add(builder.toString());
+                    builder = new StringBuilder();
+                }
+
                 int amountOfBuilding = BuildingsAmountUtil.getAmountOfBuilding(building, townHallLevel);
-                long buildingsPlayerHas = coCPlayer.getNormalBuildings().stream().filter(b -> b.getBuilding() == building).count();
-                if (buildingsPlayerHas >= amountOfBuilding)
-                    lore.add("§7- §c§m"+ coCPlayer.getOwner().getLanguage().getTranslation(building.getNameKey()));
-                else
-                    lore.add("§7- §a" + coCPlayer.getOwner().getLanguage().getTranslation(building.getNameKey()));
+                long buildingsPlayerHas = allBuildings.stream().filter(b -> b.getBuilding() == building).count();
+                if (builder.isEmpty())
+                    builder.append(ChatColor.GRAY).append("- ");
+                builder.append(buildingsPlayerHas >= amountOfBuilding ? ChatColor.RED : ChatColor.GREEN).append("§m").append(lang.getTranslation(building.getNameKey()));
+                if (i + 1 < buildings.length)
+                    builder.append(ChatColor.GRAY).append(", ");
             }
+            if (!builder.isEmpty())
+                lore.add(builder.toString());
+
         }
         return lore;
     }

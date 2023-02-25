@@ -17,6 +17,7 @@ public class CoCCommand extends APICommand {
     public CoCCommand() {
         super("coc", "command.coc", "usage", "description");
         addSubCommand(new CoCAddCommand());
+        addSubCommand(new CoCRebuildCommand());
     }
 
     @Override

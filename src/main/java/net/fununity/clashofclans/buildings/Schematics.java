@@ -24,7 +24,7 @@ public class Schematics {
     }
 
     private static final int PARTITION_SIZE = 5000;
-    private static final long TICK_PER_PARTITION = 5L;
+    private static final long TICK_PER_PARTITION = 10L;
     private static final Map<String, List<String>> SCHEMATICS = new HashMap<>();
 
     public static void removeBuilding(Location location, int[] size, byte rotation) {
@@ -37,7 +37,12 @@ public class Schematics {
             for (int y = BuildingLocationUtil.getHighestYCoordinate(blockLoc); y >= ClashOfClubs.getBaseYCoordinate(); y--) {
                 loc.setY(y);
 
-                Material material = y <= ClashOfClubs.getBaseYCoordinate() + 1 ? GroundMaterials.getRandomMaterial() : Material.AIR;
+                Material material = Material.AIR;
+                if (y == ClashOfClubs.getBaseYCoordinate() + 1)
+                    material = GroundMaterials.getRandomMaterial();
+                else if (y == ClashOfClubs.getBaseYCoordinate())
+                    material = Material.STONE;
+
                 if (material != loc.getBlock().getType())
                     blockSettingMap.put(loc.clone(), material);
             }

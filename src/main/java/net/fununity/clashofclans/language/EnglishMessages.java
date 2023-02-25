@@ -10,6 +10,8 @@ public class EnglishMessages extends MessageList {
     public EnglishMessages() {
         super(TranslationHandler.getInstance().getLanguageHandler().getLanguageByCode("en"));
 
+        String theodor = "&eTheodore&7: ";
+        
         // COMMANDS
         // VISIT
         add(TranslationKeys.COC_COMMAND_VISIT_USAGE, "visit <User>");
@@ -27,6 +29,12 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_COMMAND_RESET_USAGE, "reset (<User>)");
         add(TranslationKeys.COC_COMMAND_RESET_DESCRIPTION, "&7Resets a users home.");
         add(TranslationKeys.COC_COMMAND_RESET_SUCCESS, "&aSuccessfully reset.");
+
+        // REBUILD
+        add(TranslationKeys.COC_COMMAND_REBUILD_USAGE, "coc rebuild (<User>)");
+        add(TranslationKeys.COC_COMMAND_REBUILD_DESCRIPTION, "&7Rebuilds a player base.");
+        add(TranslationKeys.COC_COMMAND_REBUILD_NO_BASE, "&cThere is no base stored for this player.");
+        add(TranslationKeys.COC_COMMAND_REBUILD_SUCCESS, "&aRebuild started...");
 
 
         // PLAYER
@@ -46,43 +54,44 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_PLAYER_LOADING_NEW_FINISHED_SUBTITLE, "&a" + SpecialChars.LINE_EXTRA_BOLD + SpecialChars.LINE_EXTRA_BOLD + SpecialChars.LINE_EXTRA_BOLD);
 
 
-        add(TranslationKeys.COC_PLAYER_NOT_ENOUGH_RESOURCE, "&eTheodore&7: Seems like we need &emore &7${type}&7!");
-        add(TranslationKeys.COC_PLAYER_NO_MORE_BUILDINGS, "&eTheodore&7: I'm sorry! &e:/ &7I can only build that &e${max} times &7at this town hall level...");
-        add(TranslationKeys.COC_PLAYER_NO_RESOURCE_TANKS, "&eTheodore&7: Chief, we &cdon't &7have any more capacity!");
-        add(TranslationKeys.COC_PLAYER_BUILDERS_WORKING, "&eTheodore&7: We're trying our best, but at this point, all builder are bussy!");
-        add(TranslationKeys.COC_PLAYER_REPAIR_TOWNHALL_FIRST, "&eTheodore&7: I'll have to repair your town hall first!");
+        add(TranslationKeys.COC_PLAYER_NOT_ENOUGH_RESOURCE, theodor + "Seems like we need &emore &7${type}&7!");
+        add(TranslationKeys.COC_PLAYER_NO_MORE_BUILDINGS, theodor + "I'm sorry! &e:/ &7I can only build that &e${max} times &7at this town hall level...");
+        add(TranslationKeys.COC_PLAYER_NO_RESOURCE_TANKS, theodor + "Chief, we &cdon't &7have any more capacity!");
+        add(TranslationKeys.COC_PLAYER_BUILDERS_WORKING, theodor + "We're trying our best, but at this point, all builder are bussy!");
+        add(TranslationKeys.COC_PLAYER_REPAIR_TOWNHALL_FIRST_ACTIONBAR, theodor + "I'll have to repair your town hall first!");
+        add(TranslationKeys.COC_PLAYER_REPAIR_TOWNHALL_FIRST_MESSAGE, "&cRepair your town hall first!");
 
         // RESOURCE
         add(TranslationKeys.COC_RESOURCE_FOOD, "&dFood");
         add(TranslationKeys.COC_RESOURCE_GOLD, "&6Gold");
-        add(TranslationKeys.COC_RESOURCE_ELECTRIC, "&e");
+        add(TranslationKeys.COC_RESOURCE_ELECTRIC, "&eElectricity");
         add(TranslationKeys.COC_RESOURCE_GEMS, "&2Gems");
 
         // BUILDINGS
         add(TranslationKeys.COC_BUILDING_GENERAL_TOWN_HALL_NAME, "&6Town Hall");
         add(TranslationKeys.COC_BUILDING_GENERAL_TOWN_HALL_DESCRIPTION, "&7The town hall is the main building;&7in your village.");
         add(TranslationKeys.COC_BUILDING_GENERAL_BUILDER_NAME, "&6Builder");
-        add(TranslationKeys.COC_BUILDING_GENERAL_BUILDER_DESCRIPTION, "&7The builders live here.;Yes, our beloved Theodore as well!");
+        add(TranslationKeys.COC_BUILDING_GENERAL_BUILDER_DESCRIPTION, "&7The builders live here.;&7Yes, our beloved Theodore as well!");
         add(TranslationKeys.COC_BUILDING_GENERAL_CLUB_TOWER_NAME, "&6Club Tower");
         add(TranslationKeys.COC_BUILDING_GENERAL_CLUB_TOWER_DESCRIPTION, "&7The club tower is of utmost;&7importance to conduct all the;&7tasks surrounding your club! ");
 
         // CONTAINER
         add(TranslationKeys.COC_BUILDING_CONTAINER_GOLD_STOCK_NAME, "&6Gold stock");
-        add(TranslationKeys.COC_BUILDING_CONTAINER_GOLD_STOCK_DESCRIPTION, "&7Your gold is stored in this;&7vault. It is absolutly burglarproof.;&7Well... almost.");
+        add(TranslationKeys.COC_BUILDING_CONTAINER_GOLD_STOCK_DESCRIPTION, "&7Your gold is stored in this;&7vault. It is absolutly burglarproof.;&7Well... almost.;");
         add(TranslationKeys.COC_BUILDING_CONTAINER_BARN_NAME, "&dBarn");
-        add(TranslationKeys.COC_BUILDING_CONTAINER_BARN_DESCRIPTION, "&7This building stores all of your;&7food. You need food to;&7train your troops.");
+        add(TranslationKeys.COC_BUILDING_CONTAINER_BARN_DESCRIPTION, "&7This building stores food.;&7You need food;&7to train your troops.;");
         add(TranslationKeys.COC_BUILDING_CONTAINER_GENERATOR_NAME, "&eGenerator");
-        add(TranslationKeys.COC_BUILDING_CONTAINER_GENERATOR_DESCRIPTION, "&7This building generates &eelectricity;&7while consuming &8coal&7.");
-        add(TranslationKeys.COC_BUILDING_CONTAINER_LOREDETAILS, ";&7ResourceType: ${type};&7Maximum amount: ${color}${max}");
+        add(TranslationKeys.COC_BUILDING_CONTAINER_GENERATOR_DESCRIPTION, "&7This building generates &eelectricity;&7while consuming &8coal&7.;");
+        add(TranslationKeys.COC_BUILDING_CONTAINER_LOREDETAILS, ";&7Stores: ${type};&7Maximum amount: ${color}${max}");
 
         // GATHER
         add(TranslationKeys.COC_BUILDING_GATHER_GOLD_MINER_NAME, "&6Gold miner");
         add(TranslationKeys.COC_BUILDING_GATHER_GOLD_MINER_DESCRIPTION, "&7This mine produces gold;&7for you. How convenient!");
         add(TranslationKeys.COC_BUILDING_GATHER_FARM_NAME, "&dFarm");
-        add(TranslationKeys.COC_BUILDING_GATHER_FARM_DESCRIPTION, "&7This is your food production;&7facility. No rats and mice;&7are allowed in here.");
+        add(TranslationKeys.COC_BUILDING_GATHER_FARM_DESCRIPTION, "&7This is your food production.;&No rats and mice;&7are allowed in here.");
         add(TranslationKeys.COC_BUILDING_GATHER_COAL_DRILL_NAME, "&8Coal drill");
         add(TranslationKeys.COC_BUILDING_GATHER_COAL_DRILL_DESCRIPTION, "&7This building gathers coal for the &eGenerator&7.");
-        add(TranslationKeys.COC_BUILDING_GATHER_LOREDETAILS, ";&7Gathers ${type};&7Maximum storage amount: ${color}${max};&7Resource per hour: ${color}${max}");
+        add(TranslationKeys.COC_BUILDING_GATHER_LOREDETAILS, ";&7Gathers ${color}${hour} ${type}&7/hour;&7Maximum storage amount: ${color}${max}");
 
         // DEFENSE
         add(TranslationKeys.COC_BUILDING_DEFENSE_LOREDETAILS, ";&7Max hp: ${hp};&7Damage per second: ${damage};&7Radius: &e${radius};&7Attacks flying enemies: ${flying};&7Prioritize Trooptype: ${prioritize}");
@@ -130,6 +139,7 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_GUI_BUILDING_REPAIR_LORE, "&7Click to repair;&7Repair cost: &e${cost}");
         add(TranslationKeys.COC_GUI_BUILDING_MOVING_NAME, "&6Move Building");
         add(TranslationKeys.COC_GUI_BUILDING_MOVING_LORE, "&7Click to move the building.");
+        add(TranslationKeys.COC_GUI_BUILDING_CANTUPGRADEYET, "&cBuild all buildings first");
         add(TranslationKeys.COC_GUI_CONTAINER_AMOUNT, "&6Amount: ${color}${current}&7/${color}${max}");
 
         add(TranslationKeys.COC_GUI_BUILDING_DESTROY_NAME, "&cDestroy");
@@ -153,7 +163,7 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_GUI_CONSTRUCTION_TROOP_NAME, "&cTroops");
         add(TranslationKeys.COC_GUI_CONSTRUCTION_TROOP_LORE, "&7Open the troop buildings menu;&7Includes barracks and troops field");
         add(TranslationKeys.COC_GUI_CONSTRUCTION_BUILDING_NAME, "&6Buildings menu");
-        add(TranslationKeys.COC_GUI_CONSTRUCTION_BUILDING_LORE, "&7Building cost: &e${cost} ${type};&7Amounts of building;&7with town hall level ${level}: &e${amount}&7/&e${max}");
+        add(TranslationKeys.COC_GUI_CONSTRUCTION_BUILDING_LORE, "&7Building cost: &e${cost} ${type};&7Amounts of building;&7with town hall level ${level}:;&e${amount}&7/&e${max}");
 
         // INV ITEMS
         add(TranslationKeys.COC_GUI_ATTACK_NAME, "&6Start matchmaking search...");
@@ -165,35 +175,45 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_INV_POINTER_LORE, "&7Point your cursor at a building;&7click to interact with it;&7through the air");
         add(TranslationKeys.COC_INV_RESOURCE_NAME, "&7Collect ${color}${type}");
         add(TranslationKeys.COC_INV_RESOURCE_LORE, "&7Click to collect all resources;&7from this type.");
-        add(TranslationKeys.COC_INV_BOOK_NAME, "&7Open &ehelp");
-        add(TranslationKeys.COC_INV_BOOK_LORE, "&7Click to open a help book");
+        add(TranslationKeys.COC_INV_BOOK_NAME, "&7Open the &etutorial");
+        add(TranslationKeys.COC_INV_BOOK_LORE, "&7Click to open the help book");
 
-        add(TranslationKeys.COC_INV_BOOK_CONTENT + "0", "Welcome, ${player}!\n" +
+        add(TranslationKeys.COC_INV_BOOK_CONTENT + "collect_resource", "Welcome, ${player}&0!\n" +
                 "I'm Theodore, your trusty builder. Let's get started, shall we?\n" +
                 "\n" +
-                "\u200BThe first task at hand is repairing your town hall. This is crucial to ensure the prosperity and growth of your settlement.;" +
-                "To begin, simply click on the town hall or use your pointer to interact with the building.\n" +
+                "We need to repair the town hall to start your settlement!\n" +
+                "But the repairment requires &6gold&0.;" +
+                "Gold and other resources are collected by gatherer buildings\n" +
                 "\n" +
-                "Each structure has its own graphical user interface (GUI) that allows you to access its unique features.;" +
-                "From the town hall's GUI, select the 'repair' option to initiate the necessary repairs. This will kick-start your settlement's progress and set the stage for exciting new developments.\n" +
+                "&0Go to the &6&lGold miner&0 and click on it. \n" +
+                "You can also use the pointer to click through the air.\n" +
+                "Click \"Collect\" to fill all mined gold in your gold stock.;" +
+                "Each building has it's own GUI\n" +
                 "\n" +
-                "Let's get building!");
+                "You can see your gold filled up in the gold stock for example!");
 
-        add(TranslationKeys.COC_INV_BOOK_CONTENT + "1", "Great work, friend!\n" +
+        add(TranslationKeys.COC_INV_BOOK_CONTENT + "repair_townhall", "Perfect, ${player}&0!\n" +
+                "\n" +
+                "Let's repair the townhall now.\n" +
+                "\n" +
+                "Most buildings can be upgraded through their GUI.\n" +
+                "If you upgrade buildings their attributes improve.\n" +
+                "\n" +
+                "E.g. The &6gold miner&0's storage and mining speed improves");
+
+        add(TranslationKeys.COC_INV_BOOK_CONTENT + "build_farm", "Great work, friend!\n" +
                 "\n" +
                 "Now, it's time to dive into the exciting part of the game.\n" +
                 "\n" +
-                "\u200BOpen up your inventory and locate the \"Construction menu.\";Here, you can begin constructing new buildings!Keep in mind that any construction requires resources, so plan accordingly.\n" +
-                "To get started, we recommend building a 'Farm' and a 'Barn' to collect food. Navigate to the Construction Menu and select the 'Farm' option.;Once you have selected the 'Farm,' you can choose where to place the building by looking at the ground. If you are happy with the placement and no other buildings occupy the area, you can begin construction.\n" +
-                "\n" +
+                "Open up your inventory and locate the \"Construction menu.\";Here, you can begin constructing new buildings! Keep in mind that any construction requires resources, so plan accordingly.\n" +
+                "To get started, we recommend building a 'Farm' and a 'Barn' to collect food. Navigate to the Construction Menu and select the 'Farm' option.;Once you have selected the 'Farm', you can choose where to place the building by looking at the ground. If you are happy with the placement and no other buildings occupy the area, you can begin construction. " +
                 "So keep building and have fun!;Don't worry if you're not completely satisfied with the placement of your other buildings!\n" +
                 "\n" +
                 "You have the ability to move and rotate them to a new spot.\n" +
-                "Simply select the building you want to adjust, and choose the \"Move\" option.;Again look on the ground and place the building where ever you want!");
+                "Simply select the building you want to adjust, and choose the \"Move\" option.");
+        add(TranslationKeys.COC_INV_BOOK_CONTENT + "general", "TODO add normal tutorial");
 
-
-
-        // TROOPS
+                // TROOPS
         add(TranslationKeys.COC_GUI_TROOPS_CONTAINER_NAME, "&6Container");
         add(TranslationKeys.COC_GUI_TROOPS_CONTAINER_LORE, "&7There are currently ${current} of ${max};&7troops in this building.;&7Click to open the gui.");
         add(TranslationKeys.COC_GUI_CONTAINER_NAME, "&6Troops Container");
@@ -223,6 +243,7 @@ public class EnglishMessages extends MessageList {
         // ITEMS
         add(TranslationKeys.COC_CONSTRUCTION_BUILDINGINWAY, "&cThere is a building in the way!");
         add(TranslationKeys.COC_CONSTRUCTION_MOVED, "&aBuilding successfully moved");
+        add(TranslationKeys.COC_CONSTRUCTION_HELP, theodor + "You are in &econstruction-mode&7! Position yourself, where you want to build. &aConfirm&7 the selection with the &efirst&7 item.");
         add(TranslationKeys.COC_CONSTRUCTION_MOVE_ITEM_MOVE_NAME, "&eMove Building");
         add(TranslationKeys.COC_CONSTRUCTION_MOVE_ITEM_MOVE_LORE, "&7Hold this item and look on the;&7ground to see, where you could place the building.;&7Click on the block;&7you want to move the building.");
         add(TranslationKeys.COC_CONSTRUCTION_MOVE_ITEM_ROTATE_NAME, "&eRotate Building");

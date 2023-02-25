@@ -155,7 +155,7 @@ public class BuildingLocationUtil {
             case 3:
                 return coordinate.clone().subtract(size[1]-1, 0, 0);
             default:
-                return coordinate;
+                return coordinate.clone();
         }
     }
 
@@ -214,15 +214,17 @@ public class BuildingLocationUtil {
         Location minBuildable = player.getBaseStartLocation().add(ClashOfClubs.getBaseBackground(), 0, ClashOfClubs.getBaseBackground());
         Location maxBuildable = player.getBaseEndLocation().subtract(ClashOfClubs.getBaseBackground(), 0, ClashOfClubs.getBaseBackground());
         GeneralBuilding building = player.getBuildingMode()[1] instanceof GeneralBuilding ? (GeneralBuilding) player.getBuildingMode()[1] : null;
-        List<Location> blocks = BuildingLocationUtil.getAllLocationsOnGround(player.getBuildingMode());
-        for (Location block : blocks) {
-            if (!LocationUtil.isBetween(minBuildable, block, maxBuildable)) {
+
+        for (Location blockLoc : BuildingLocationUtil.getAllLocationsOnGround(player.getBuildingMode())) {
+            if (!LocationUtil.isBetween(minBuildable, blockLoc, maxBuildable)) {
                 return true;
             }
 
-            GeneralBuilding generalBuilding = player.getNormalBuildings().stream().filter(b -> LocationUtil.isBetween(b.getCoordinate(), block,
-                    b.getCoordinate().clone().add(b.getBuilding().getSize()[0], ClashOfClubs.getBaseYCoordinate() + 1, b.getBuilding().getSize()[1]))).findFirst().orElse(null);
-            if (building == null && generalBuilding != null || building != null && generalBuilding != null && generalBuilding.getBuilding() != building.getBuilding()) {
+            GeneralBuilding generalBuilding = player.getAllBuildings().stream().filter(b -> LocationUtil.isBetween(b.getCoordinate(), blockLoc,
+                    b.getMaxCoordinate())).findFirst().orElse(null);
+            if (building == null && generalBuilding != null ||
+
+                    building != null && generalBuilding != null && generalBuilding.getBuilding() != building.getBuilding()) {
                 return true;
             }
         }
