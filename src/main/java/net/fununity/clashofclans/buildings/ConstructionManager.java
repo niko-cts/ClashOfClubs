@@ -1,12 +1,11 @@
 package net.fununity.clashofclans.buildings;
 
 import net.fununity.clashofclans.ClashOfClubs;
+import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.instances.*;
 import net.fununity.clashofclans.buildings.instances.troops.TroopsBuilding;
 import net.fununity.clashofclans.buildings.instances.troops.TroopsCreateBuilding;
-import net.fununity.clashofclans.buildings.list.Buildings;
-import net.fununity.clashofclans.buildings.list.ResourceContainerBuildings;
-import net.fununity.clashofclans.buildings.list.ResourceGathererBuildings;
+import net.fununity.clashofclans.buildings.list.*;
 import net.fununity.clashofclans.database.DatabaseBuildings;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.player.ScoreboardMenu;
@@ -23,7 +22,7 @@ public class ConstructionManager {
     private static ConstructionManager instance;
 
     public static ConstructionManager getInstance() {
-        if(instance == null)
+        if (instance == null)
             return instance = new ConstructionManager();
         return instance;
     }
@@ -54,7 +53,6 @@ public class ConstructionManager {
             else
                 Schematics.removeBuilding(building.getCoordinate(), building.getBuilding().getSize(), building.getRotation());
 
-            BuildingLocationUtil.savePlayerFromBuilding(building);
             Schematics.createBuilding(constructionBuilding);
 
             Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> player.addBuilding(constructionBuilding));
@@ -105,11 +103,21 @@ public class ConstructionManager {
                 if (building instanceof GeneralHologramBuilding)
                    ((GeneralHologramBuilding) building).updateHologram(((GeneralHologramBuilding) building).getShowText());
 
+                // Tutorial management
                 if (building.getBuilding() == Buildings.TOWN_HALL && TutorialManager.getInstance().getState(player.getUniqueId()) == TutorialManager.TutorialState.REPAIR_TOWNHALL)
                     TutorialManager.getInstance().finished(player);
-                else if((building.getBuilding() == ResourceGathererBuildings.FARM || building.getBuilding() == ResourceContainerBuildings.BARN_STOCK) &&
-                        TutorialManager.getInstance().getState(player.getUniqueId()) == TutorialManager.TutorialState.BUILD_FARM)
+                else if ((building.getBuilding() == ResourceGathererBuildings.FARM || building.getBuilding() == ResourceContainerBuildings.BARN_STOCK) &&
+                        TutorialManager.getInstance().getState(player.getUniqueId()) == TutorialManager.TutorialState.BUILD_FARM) {
+                    // finish BUILD_FARM Tutorial if food container&gatherer were built
+                    if (!player.getResourceContainerBuildings(ResourceTypes.FOOD).isEmpty() && !player.getResourceGatherBuildings(ResourceTypes.FOOD).isEmpty())
+                        TutorialManager.getInstance().finished(player);
+                } else if((building.getBuilding() == TroopCreationBuildings.BARRACKS || building.getBuilding() == TroopBuildings.ARMY_CAMP) &&
+                        TutorialManager.getInstance().getState(player.getUniqueId()) == TutorialManager.TutorialState.TROOPS) {
+                    if (!player.getTroopsCreateBuildings().isEmpty() && !player.getTroopsCampBuildings().isEmpty())
+                        TutorialManager.getInstance().finished(player);
+                } else if(building.getBuilding() == DefenseBuildings.CANNON && TutorialManager.getInstance().getState(player.getUniqueId()) == TutorialManager.TutorialState.DEFENSE) {
                     TutorialManager.getInstance().finished(player);
+                }
             });
         });
     }

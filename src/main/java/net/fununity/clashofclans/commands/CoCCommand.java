@@ -4,6 +4,7 @@ import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.main.api.command.handler.APICommand;
 import net.fununity.main.api.player.APIPlayer;
+import net.fununity.main.api.util.LocationUtil;
 import org.bukkit.command.CommandSender;
 
 import java.util.HashSet;
@@ -12,11 +13,9 @@ import java.util.UUID;
 
 public class CoCCommand extends APICommand {
 
-    private static final Set<UUID> SCHEMATIC_SETTER = new HashSet<>();
 
     public CoCCommand() {
         super("coc", "command.coc", "usage", "description");
-        addSubCommand(new CoCAddCommand());
         addSubCommand(new CoCRebuildCommand());
     }
 
@@ -31,21 +30,10 @@ public class CoCCommand extends APICommand {
                     apiPlayer.sendRawMessage("Wrong command execute : /coc cheat <resourceType> <amount>");
                 }
             }
-        } else if (args.length == 1) {
-            if(args[0].equalsIgnoreCase("selection")) {
-                if (SCHEMATIC_SETTER.contains(apiPlayer.getUniqueId()))
-                    SCHEMATIC_SETTER.remove(apiPlayer.getUniqueId());
-                else
-                    SCHEMATIC_SETTER.add(apiPlayer.getUniqueId());
-                apiPlayer.sendRawMessage("§aSuccessful");
-            }
         } else
             apiPlayer.sendRawMessage("Execute: /coc cheat <resourceType> <amount>");
     }
 
-    public static Set<UUID> getSchematicSetter() {
-        return SCHEMATIC_SETTER;
-    }
 
     @Override
     public void onConsole(CommandSender commandSender, String[] strings) {

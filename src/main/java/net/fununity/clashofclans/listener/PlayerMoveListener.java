@@ -2,12 +2,9 @@ package net.fununity.clashofclans.listener;
 
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.player.CoCPlayer;
-import net.fununity.clashofclans.player.PlayerManager;
 import net.fununity.clashofclans.util.BuildingLocationUtil;
-import net.fununity.main.api.util.LocationUtil;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -37,13 +34,12 @@ public class PlayerMoveListener implements Listener {
         CoCPlayer coCPlayer = ClashOfClubs.getInstance().getPlayerManager().getPlayer(player);
         Location lastLoc = (Location) coCPlayer.getBuildingMode()[0];
 
-        if (groundLocation.equals(lastLoc))
+        if (groundLocation.equals(lastLoc) || lastLoc == null)
             return;
 
-        if (lastLoc != null)
-            BuildingLocationUtil.removeBuildingGround(player, coCPlayer.getBuildingMode());
 
+        BuildingLocationUtil.removeBuildingModeDecorations(player, coCPlayer.getBuildingMode());
         coCPlayer.setBuildingMode(groundLocation);
-        BuildingLocationUtil.createFakeGround(player, coCPlayer);
+        BuildingLocationUtil.createBuildingModeDecoration(player, coCPlayer);
     }
 }

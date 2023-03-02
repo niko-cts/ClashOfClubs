@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.instances.ConstructionBuilding;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
-import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.util.BuildingLocationUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -12,7 +11,10 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -23,7 +25,7 @@ public class Schematics {
         throw new UnsupportedOperationException("Schematics is a utility class.");
     }
 
-    private static final int PARTITION_SIZE = 5000;
+    private static final int PARTITION_SIZE = 3000;
     private static final long TICK_PER_PARTITION = 10L;
     private static final Map<String, List<String>> SCHEMATICS = new HashMap<>();
 
@@ -143,59 +145,6 @@ public class Schematics {
         return blockData;
     }
 
-    // FOR SCHEMATIC SAVING
-
-    public static boolean saveSchematic(Location[] minAndMax) {
-        return saveSchematic("playerbase", minAndMax);
-    }
-
-    public static void saveSchematic(IBuilding building, int level, Location[] minAndMax) {
-        saveSchematic(building.name() + "-" + level, minAndMax);
-    }
-
-    public static void saveSchematic(IBuilding building, int level, Location[] minAndMax, String version) {
-        saveSchematic(building.name() + "-" + level + "-" + version, minAndMax);
-    }
-
-    public static boolean saveSchematic(String id, Location[] minAndMax) {
-        Location min = minAndMax[0];
-        Location max = minAndMax[1];
-
-        List<Block> blockList = new ArrayList<>();
-        for (int x = min.getBlockX(); x <= max.getBlockX(); x++) {
-            for (int y = min.getBlockY(); y <= max.getBlockY(); y++) {
-                for (int z = min.getBlockZ(); z <= max.getBlockZ(); z++) {
-                    blockList.add(new Location(min.getWorld(), x, y, z).getBlock());
-                }
-            }
-        }
-
-        File file = new File(ClashOfClubs.getInstance().getDataFolder().getAbsolutePath() + "/building-schematics", id + ".schematic");
-        createPath();
-        if (file.exists())
-            file.delete();
-
-        try {
-            if (!file.createNewFile())
-                return false;
-        } catch (IOException e) {
-            ClashOfClubs.getInstance().getLogger().warning(e.getMessage());
-        }
-
-        String newLine = System.getProperty("line.separator");
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
-            for (String s : fromBlocklistToStringList(blockList, min)) {
-                bw.write(s);
-                bw.write(newLine);
-            }
-            bw.close();
-            return true;
-        } catch (IOException e) {
-            ClashOfClubs.getInstance().getLogger().warning(e.getMessage());
-        }
-        return false;
-    }
-
 
 
     /**
@@ -235,35 +184,4 @@ public class Schematics {
         }
         return list;
     }
-
-
-    private static void createPath() {
-        File file = new File(ClashOfClubs.getInstance().getDataFolder().getAbsolutePath() + "/building-schematics");
-        if (!file.exists())
-            file.mkdirs();
-    }
-
-    /**
-     * Converts a list of blocks into a list of strings.
-     *
-     * @param blocks List<Blocks> - List of blocks
-     * @param start  Location - To start from
-     * @return List<String> - Converted List
-     * @since 0.0.1
-     */
-    private static List<String> fromBlocklistToStringList(List<Block> blocks, Location start) {
-        List<String> list = new ArrayList<>();
-        blocks.forEach(b -> list.add(getStringFromBlock(b, start)));
-        return list;
-    }
-
-    private static String getStringFromBlock(Block b, Location start) {
-        int x = b.getX() - start.getBlockX();
-        int y = b.getY() - start.getBlockY();
-        int z = b.getZ() - start.getBlockZ();
-        String data = b.getBlockData().getAsString();
-
-        return x + ";" + y + ";" + z + ";" + data;
-    }
-
 }

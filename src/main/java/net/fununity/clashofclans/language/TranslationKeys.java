@@ -51,8 +51,14 @@ public class TranslationKeys {
     public static final String COC_PLAYER_NO_MORE_BUILDINGS = "coc.player.illegal.nomorebuildings";
     public static final String COC_PLAYER_NO_RESOURCE_TANKS = "coc.player.illegal.noresourcecontainer";
     public static final String COC_PLAYER_BUILDERS_WORKING = "coc.player.illegal.buildersworking";
-    public static final String COC_PLAYER_REPAIR_TOWNHALL_FIRST_ACTIONBAR = "coc.player.illegal.repairtownhallfirst.actionbar";
+    public static final String COC_PLAYER_TUTORIAL_REPAIR_TOWNHALL_FIRST_ACTIONBAR = "coc.player.tutorial.repairtownhallfirst.actionbar";
+    public static final String COC_PLAYER_TUTORIAL_COLLECT_RESOURCE = "coc.player.tutorial.collecresource.actionbar";
     public static final String COC_PLAYER_REPAIR_TOWNHALL_FIRST_MESSAGE = "coc.player.illegal.repairtownhallfirst.actionbar";
+    public static final String COC_PLAYER_TUTORIAL_BUILD_FARM_ACTIONBAR = "coc.player.tutorial.buildfarm.actionbar";
+    public static final String COC_PLAYER_TUTORIAL_DEFENSE_ACTIONBAR = "coc.player.tutorial.defense.actionbar";
+    public static final String COC_PLAYER_TUTORIAL_TROOPS_ACTIONBAR = "coc.player.tutorial.troops.actionbar";
+
+
 
     //RESOURCES
     public static final String COC_RESOURCE_FOOD = "coc.resource.food";

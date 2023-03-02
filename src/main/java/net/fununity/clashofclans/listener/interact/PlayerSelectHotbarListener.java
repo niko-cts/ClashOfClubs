@@ -5,7 +5,6 @@ import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.attacking.MatchmakingSystem;
 import net.fununity.clashofclans.buildings.BuildingsManager;
 import net.fununity.clashofclans.buildings.BuildingsMoveManager;
-import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.instances.resource.ResourceGatherBuilding;
 import net.fununity.clashofclans.gui.AttackHistoryGUI;
 import net.fununity.clashofclans.gui.BuildingBuyGUI;
@@ -73,10 +72,10 @@ public class PlayerSelectHotbarListener implements Listener {
         if (handMaterial == HotbarItems.CANCEL) {
             BuildingsMoveManager.getInstance().quitEditorMode(player);
         } else if (handMaterial == HotbarItems.ROTATE_BUILDING) {
-            BuildingLocationUtil.removeBuildingGround(event.getPlayer(), player.getBuildingMode());
+            BuildingLocationUtil.removeBuildingModeDecorations(event.getPlayer(), player.getBuildingMode());
             int rotate = (byte) player.getBuildingMode()[2];
             player.setBuildingMode(player.getBuildingMode()[0], player.getBuildingMode()[1], rotate == 3 ? (byte) 0 : (byte) (rotate + 1));
-            BuildingLocationUtil.createFakeGround(event.getPlayer(), player);
+            BuildingLocationUtil.createBuildingModeDecoration(event.getPlayer(), player);
 
         } else if (handMaterial == HotbarItems.CREATE_BUILDING || handMaterial == HotbarItems.MOVE_BUILDING) {
             if (BuildingLocationUtil.otherBuildingInWay(player)) {
@@ -84,8 +83,7 @@ public class PlayerSelectHotbarListener implements Listener {
                 return;
             }
 
-            if (player.getBuildingMode()[0] != null)
-                BuildingLocationUtil.removeBuildingGround(event.getPlayer(), player.getBuildingMode());
+            BuildingLocationUtil.removeBuildingModeDecorations(event.getPlayer(), player.getBuildingMode());
 
             if (handMaterial == HotbarItems.MOVE_BUILDING) {
                 BuildingsMoveManager.getInstance().moveBuilding(player.getBuildingMode());

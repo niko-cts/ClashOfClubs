@@ -7,9 +7,7 @@ import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.main.api.common.util.RandomUtil;
 import net.fununity.main.api.util.LocationUtil;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 
@@ -34,7 +32,8 @@ public class BuildingLocationUtil {
      * @see net.fununity.clashofclans.player.CoCPlayer#getBuildingMode()
      * @since 0.0.1
      */
-    public static void removeBuildingGround(Player player, Object[] buildingMode) {
+    public static void removeBuildingModeDecorations(Player player, Object[] buildingMode) {
+        CircleParticleUtil.deleteParticleTask(buildingMode);
         getAllLocationsOnGround(buildingMode).forEach(b -> player.sendBlockChange(b, b.getBlock().getBlockData()));
     }
 
@@ -44,16 +43,32 @@ public class BuildingLocationUtil {
      * @param coCPlayer CoCPlayer - CoCPlayer instance.
      * @since 0.0.1
      */
-    public static void createFakeGround(Player player, CoCPlayer coCPlayer) {
+    public static void createBuildingModeDecoration(Player player, CoCPlayer coCPlayer) {
         Object[] buildingMode = coCPlayer.getBuildingMode();
-        GeneralBuilding building = buildingMode[1] instanceof GeneralBuilding ? (GeneralBuilding) buildingMode[1] : null;
+
+        CircleParticleUtil.createParticleTask(buildingMode); // creates the particle circle if it is a defense building
 
         List<Location> blocks = getAllLocationsOnGround(buildingMode);
 
-        int[] size = building == null ? ((IBuilding) buildingMode[1]).getSize() : building.getBuilding().getSize();
-        Location originalCoordinate = getCoordinate(size, (byte) buildingMode[2], (Location) buildingMode[0]);
+        int[] size = buildingMode[1] instanceof GeneralBuilding ? ((GeneralBuilding) buildingMode[1]).getBuilding().getSize() : ((IBuilding)buildingMode[1]).getSize();
+
+        Location originalCoordinate = getRealMinimum(size, (byte) buildingMode[2], (Location) buildingMode[0]);
         BlockData data = BuildingLocationUtil.otherBuildingInWay(coCPlayer) ? Material.REDSTONE_BLOCK.createBlockData() : Material.EMERALD_BLOCK.createBlockData();
         blocks.forEach(b -> player.sendBlockChange(b, LocationUtil.equalsLocationBlock(originalCoordinate, b) ? Material.LAPIS_BLOCK.createBlockData() : data));
+    }
+
+    /**
+     * Gets the center location from the building mode.
+     * @param buildingMode Object[] - the building mode of the player.
+     * @return Location - the center location.
+     */
+    public static Location getCenterLocation(Object[] buildingMode) {
+        int[] size = buildingMode[1] instanceof GeneralBuilding ? ((GeneralBuilding) buildingMode[1]).getBuilding().getSize() : ((IBuilding)buildingMode[1]).getSize();
+        Location location = (Location) buildingMode[0];
+        byte rotation = (byte) buildingMode[2];
+        Location min = getRealMinimum(size, rotation, location);
+        Location max = min.clone().add(size[rotation == 1 || rotation == 3 ? 1 : 0] - 1, 0, size[rotation == 1 || rotation == 3 ? 0 : 1] - 1);
+        return new Location(min.getWorld(), (min.getBlockX() + max.getBlockX()) * 0.5, ClashOfClubs.getBaseYCoordinate() + 2, (min.getBlockZ() + max.getBlockZ()) * 0.5);
     }
 
 
@@ -67,7 +82,7 @@ public class BuildingLocationUtil {
     public static List<Location> getAllLocationsOnGround(Object[] buildingMode) {
         Location location = (Location) buildingMode[0];
         if (location == null) return new ArrayList<>();
-        return getAllLocationsOnGround(location, getSize(buildingMode));
+        return getAllLocationsOnGround(location, getRealDimensionFromCoordinate(buildingMode));
     }
 
     /**
@@ -100,7 +115,7 @@ public class BuildingLocationUtil {
      * @return int[] - the size of the building with rotation.
      * @since 0.0.1
      */
-    private static int[] getSize(Object[] buildingMode) {
+    private static int[] getRealDimensionFromCoordinate(Object[] buildingMode) {
         byte rotation = (byte) buildingMode[2];
         int[] size;
         if (buildingMode[1] instanceof GeneralBuilding) {
@@ -134,26 +149,27 @@ public class BuildingLocationUtil {
         }
     }
 
-    public static Location getCoordinate(GeneralBuilding building) {
-        return getCoordinate(building.getBuilding().getSize(), building.getRotation(), building.getCoordinate().clone());
+    public static Location getRealMinimum(GeneralBuilding building) {
+        return getRealMinimum(building.getBuilding().getSize(), building.getRotation(), building.getCoordinate());
     }
 
     /**
      * Subtracts the coordinate to the new minimum coordinate.
+     * Uses the rotation, the size(x,y) to calculate the new minimum location based on the given coordinate.
      * @param size int[] - x,z size of the building.
      * @param rotation byte - the rotation 0-3
      * @param coordinate Location - the old location.
      * @return Location - the new location subtracted with the rotation.
      * @since 0.0.1
      */
-    public static Location getCoordinate(int[] size, byte rotation, Location coordinate) {
+    public static Location getRealMinimum(int[] size, byte rotation, Location coordinate) {
         switch (rotation) {
             case 1:
-                return coordinate.clone().subtract(0, 0, size[0]-1);
+                return coordinate.clone().subtract(0, 0, size[0] - 1);
             case 2:
-                return coordinate.clone().subtract(size[0]-1, 0, size[1]-1);
+                return coordinate.clone().subtract(size[0] - 1, 0, size[1] - 1);
             case 3:
-                return coordinate.clone().subtract(size[1]-1, 0, 0);
+                return coordinate.clone().subtract(size[1] - 1, 0, 0);
             default:
                 return coordinate.clone();
         }
@@ -301,10 +317,10 @@ public class BuildingLocationUtil {
      */
     public static void savePlayerFromBuilding(GeneralBuilding building) {
         for (Player visitor : Bukkit.getOnlinePlayers()) {
-            if (LocationUtil.isBetween(building.getCoordinate(), visitor.getLocation(), building.getMaxCoordinate().add(0, 80, 0))) {
-                Location teleport = building.getCoordinate().subtract(1, 0, 1);
-                teleport.setY(BuildingLocationUtil.getHighestYCoordinate(teleport) + 1);
-                Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> visitor.teleport(teleport));
+            if (LocationUtil.isBetween(building.getCoordinate(), visitor.getLocation(), building.getMaxCoordinate().add(0, 10, 0))) {
+                Location playerLocation = visitor.getLocation().clone();
+                playerLocation.setY(ClashOfClubs.getBaseYCoordinate() + 15);
+                Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> visitor.teleport(playerLocation));
             }
         }
     }

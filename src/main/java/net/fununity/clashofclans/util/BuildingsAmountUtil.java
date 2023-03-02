@@ -1,6 +1,7 @@
 package net.fununity.clashofclans.util;
 
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
+import net.fununity.clashofclans.buildings.interfaces.IWall;
 import net.fununity.clashofclans.buildings.list.*;
 
 /**
@@ -52,14 +53,21 @@ public class BuildingsAmountUtil {
                 default:
                     return 4;
             }
-        } else if(building == DefenseBuildings.ARCHER_TOWER || building == DefenseBuildings.CANNON) {
+        } else if (building == DefenseBuildings.CANNON) {
+            return Math.min(5, townHallLevel + 2);
+        } else if (building == DefenseBuildings.ARCHER_TOWER) {
+            if (townHallLevel == 1) {
+                return 0;
+            }
+            return townHallLevel;
+        } else if (building instanceof IWall) {
             switch (townHallLevel) {
                 case 1:
-                    return 2;
+                    return 30;
                 case 2:
-                    return 3;
+                    return 60;
                 default:
-                    return 4;
+                    return 120;
             }
         }
         return 0;

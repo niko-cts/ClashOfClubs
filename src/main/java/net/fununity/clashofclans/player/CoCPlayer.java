@@ -3,6 +3,7 @@ package net.fununity.clashofclans.player;
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.instances.ConstructionBuilding;
+import net.fununity.clashofclans.buildings.instances.DefenseBuilding;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.instances.GeneralHologramBuilding;
 import net.fununity.clashofclans.buildings.instances.resource.ResourceContainerBuilding;
@@ -46,6 +47,7 @@ public class CoCPlayer {
     private final List<GeneralBuilding> normalBuildings;
     private final Map<ResourceTypes, List<ResourceContainerBuilding>> resourceBuildings;
     private final List<TroopsBuilding> troopsBuildings;
+    private final List<DefenseBuilding> defenseBuildings;
     private final List<ConstructionBuilding> constructionBuildings;
     private final List<UUID> visitors;
 
@@ -78,6 +80,7 @@ public class CoCPlayer {
             resourceBuildings.put(type, new ArrayList<>());
         }
         this.troopsBuildings = new ArrayList<>();
+        this.defenseBuildings = new ArrayList<>();
         this.constructionBuildings = new ArrayList<>();
 
         for (GeneralBuilding generalBuilding : allBuildings) {
@@ -105,10 +108,6 @@ public class CoCPlayer {
         apiPlayer.getPlayer().getInventory().clear();
 
         if (apiPlayer.getUniqueId().equals(uuid)) {
-            System.out.println("visited: ");
-            System.out.println(getAllBuildings().size());
-            System.out.println(getAllBuildings().stream().filter(b -> b instanceof GeneralHologramBuilding).count());
-
             getAllBuildings().stream().filter(b -> b instanceof GeneralHologramBuilding).forEach(b -> ((GeneralHologramBuilding) b).updateHologram(((GeneralHologramBuilding) b).getShowText()));
             ClashOfClubs.getInstance().getPlayerManager().giveDefaultItems(this, apiPlayer);
         }
@@ -292,6 +291,15 @@ public class CoCPlayer {
     }
 
     /**
+     * Get all defense buildings the player has.
+     * @return List<DefenseBuilding> - all defense buildings.
+     * @since 0.0.2
+     */
+    public List<DefenseBuilding> getDefenseBuildings() {
+        return new ArrayList<>(defenseBuildings);
+    }
+
+    /**
      * Get all construction buildings the player has.
      * @return List<ConstructionBuilding> - all buildings.
      * @since 0.0.1
@@ -318,6 +326,7 @@ public class CoCPlayer {
         List<GeneralBuilding> allBuildings = new ArrayList<>();
         allBuildings.addAll(normalBuildings);
         allBuildings.addAll(troopsBuildings);
+        allBuildings.addAll(defenseBuildings);
         allBuildings.addAll(constructionBuildings);
         for (ResourceTypes type : ResourceTypes.values()) {
             allBuildings.addAll(resourceBuildings.get(type));
@@ -354,6 +363,8 @@ public class CoCPlayer {
             list.add((ResourceContainerBuilding) generalBuilding);
         } else if (generalBuilding instanceof TroopsBuilding)
             troopsBuildings.add((TroopsBuilding) generalBuilding);
+        else if(generalBuilding instanceof DefenseBuilding)
+            defenseBuildings.add((DefenseBuilding) generalBuilding);
         else
             normalBuildings.add(generalBuilding);
     }

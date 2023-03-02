@@ -92,10 +92,9 @@ public class BuildingsManager {
         List<GeneralBuilding> startBuildings = new ArrayList<>(Arrays.asList(
                 new GeneralBuilding(uuid, UUID.randomUUID(), Buildings.TOWN_HALL, baseLoc.clone().add(82, 0, 90), (byte) 0, 0),
                 new GeneralBuilding(uuid, UUID.randomUUID(), Buildings.BUILDER, baseLoc.clone().add(113, 0, 117), (byte) 0, 1),
-                new ResourceGatherBuilding(uuid, UUID.randomUUID(), ResourceGathererBuildings.GOLD_MINER, baseLoc.clone().add(77, 0, 80), (byte) 0, 1, 350),
+                new ResourceGatherBuilding(uuid, UUID.randomUUID(), ResourceGathererBuildings.GOLD_MINER, baseLoc.clone().add(65, 0, 75), (byte) 0, 1, 650),
                 new ResourceContainerBuilding(uuid, UUID.randomUUID(), ResourceContainerBuildings.GOLD_STOCK, baseLoc.clone().add(117, 0, 104), (byte) 0, 1, 0),
-                new DefenseBuilding(uuid, UUID.randomUUID(), DefenseBuildings.CANNON, BuildingLocationUtil.getCoordinate(DefenseBuildings.CANNON.getSize(), (byte) 2, baseLoc.clone().add(116, 0, 83)), (byte) 2, 1),
-                new DefenseBuilding(uuid, UUID.randomUUID(), DefenseBuildings.CANNON,  baseLoc.clone().add(116, 0, 83), (byte) 0, 1)));
+                new DefenseBuilding(uuid, UUID.randomUUID(), DefenseBuildings.CANNON, BuildingLocationUtil.getRealMinimum(DefenseBuildings.CANNON.getSize(), (byte) 2, baseLoc.clone().add(116, 0, 83)), (byte) 2, 1)));
 
         List<RandomWorldBuilding> rdmBuildings = new ArrayList<>();
         for (int i = 0; i < RandomUtil.getRandomInt(10) + 7; i++) {
@@ -103,7 +102,7 @@ public class BuildingsManager {
             Location randomBuildingLocation = BuildingLocationUtil.getRandomBuildingLocation(baseLoc, startBuildings, building.getSize());
             byte rotation = (byte) RandomUtil.getRandomInt(4);
             if (randomBuildingLocation != null)
-                rdmBuildings.add(new RandomWorldBuilding(uuid, UUID.randomUUID(), building, BuildingLocationUtil.getCoordinate(building.getSize(), rotation, randomBuildingLocation), rotation, 1));
+                rdmBuildings.add(new RandomWorldBuilding(uuid, UUID.randomUUID(), building, BuildingLocationUtil.getRealMinimum(building.getSize(), rotation, randomBuildingLocation), rotation, 1));
         }
 
         startBuildings.addAll(rdmBuildings);
@@ -122,7 +121,7 @@ public class BuildingsManager {
         Bukkit.getScheduler().runTaskLater(ClashOfClubs.getInstance(), () -> {
             player.getTitleSender().sendTitle(TranslationKeys.COC_PLAYER_LOADING_NEW_FINISHED_TITLE, 2 * 20);
             player.getTitleSender().sendSubtitle(TranslationKeys.COC_PLAYER_LOADING_NEW_FINISHED_SUBTITLE, 2 * 20);
-            TutorialManager.getInstance().nextTutorial(coCPlayer, TutorialManager.TutorialState.COLLECT_RESOURCE);
+            TutorialManager.getInstance().startTutorialState(coCPlayer, TutorialManager.TutorialState.COLLECT_RESOURCE);
             coCPlayer.visit(player, true);
             ScoreboardMenu.show(coCPlayer);
         }, takingTicks);
@@ -146,7 +145,7 @@ public class BuildingsManager {
         byte rotation = (byte) player.getBuildingMode()[2];
 
         GeneralBuilding generalBuilding = getBuildingInstance(player.getUniqueId(), UUID.randomUUID(), building,
-                BuildingLocationUtil.getCoordinate(building.getSize(), rotation, newLocation), rotation, 0);
+                BuildingLocationUtil.getRealMinimum(building.getSize(), rotation, newLocation), rotation, 0);
         if (generalBuilding == null)
             return;
 
@@ -168,7 +167,7 @@ public class BuildingsManager {
             return false;
         }
 
-        if (player.getNormalBuildings().stream().filter(b -> b.getBuilding() == Buildings.BUILDER).count() <= player.getNormalBuildings().stream().filter(b -> b instanceof ConstructionBuilding).count()) {
+        if (player.getNormalBuildings().stream().filter(b -> b.getBuilding() == Buildings.BUILDER).count() <= player.getConstructionBuildings().size()) {
             FunUnityAPI.getInstance().getActionbarManager().addActionbar(building.getOwnerUUID(), new ActionbarMessage(TranslationKeys.COC_PLAYER_BUILDERS_WORKING));
             return false;
         }

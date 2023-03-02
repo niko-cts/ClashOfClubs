@@ -54,12 +54,19 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_PLAYER_LOADING_NEW_FINISHED_SUBTITLE, "&a" + SpecialChars.LINE_EXTRA_BOLD + SpecialChars.LINE_EXTRA_BOLD + SpecialChars.LINE_EXTRA_BOLD);
 
 
-        add(TranslationKeys.COC_PLAYER_NOT_ENOUGH_RESOURCE, theodor + "Seems like we need &emore &7${type}&7!");
-        add(TranslationKeys.COC_PLAYER_NO_MORE_BUILDINGS, theodor + "I'm sorry! &e:/ &7I can only build that &e${max} times &7at this town hall level...");
+        add(TranslationKeys.COC_PLAYER_NOT_ENOUGH_RESOURCE, theodor + "&cSeems like we need &emore ${type}&c!");
+        add(TranslationKeys.COC_PLAYER_NO_MORE_BUILDINGS, theodor + "&csorry! &e:/ &7I can only build that &e${max} times &7at this town hall level...");
         add(TranslationKeys.COC_PLAYER_NO_RESOURCE_TANKS, theodor + "Chief, we &cdon't &7have any more capacity!");
-        add(TranslationKeys.COC_PLAYER_BUILDERS_WORKING, theodor + "We're trying our best, but at this point, all builder are bussy!");
-        add(TranslationKeys.COC_PLAYER_REPAIR_TOWNHALL_FIRST_ACTIONBAR, theodor + "I'll have to repair your town hall first!");
+        add(TranslationKeys.COC_PLAYER_BUILDERS_WORKING, theodor + "We're trying our best, but at this point, &call builder are busy&7!");
         add(TranslationKeys.COC_PLAYER_REPAIR_TOWNHALL_FIRST_MESSAGE, "&cRepair your town hall first!");
+
+        // tutorial actionbars
+        add(TranslationKeys.COC_PLAYER_TUTORIAL_REPAIR_TOWNHALL_FIRST_ACTIONBAR, theodor + "Let's repair your town hall!");
+        add(TranslationKeys.COC_PLAYER_TUTORIAL_COLLECT_RESOURCE, theodor + "Collect gold at the miner first!");
+        add(TranslationKeys.COC_PLAYER_TUTORIAL_BUILD_FARM_ACTIONBAR, theodor + "Build a &dFarm &7and &dBarn&7!");
+        add(TranslationKeys.COC_PLAYER_TUTORIAL_DEFENSE_ACTIONBAR, theodor + "Build a &6Cannon&7!");
+        add(TranslationKeys.COC_PLAYER_TUTORIAL_TROOPS_ACTIONBAR, theodor + "Build an &6Army camp &7and a &6Barrack&7!");
+
 
         // RESOURCE
         add(TranslationKeys.COC_RESOURCE_FOOD, "&dFood");
@@ -88,7 +95,7 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_BUILDING_GATHER_GOLD_MINER_NAME, "&6Gold miner");
         add(TranslationKeys.COC_BUILDING_GATHER_GOLD_MINER_DESCRIPTION, "&7This mine produces gold;&7for you. How convenient!");
         add(TranslationKeys.COC_BUILDING_GATHER_FARM_NAME, "&dFarm");
-        add(TranslationKeys.COC_BUILDING_GATHER_FARM_DESCRIPTION, "&7This is your food production.;&No rats and mice;&7are allowed in here.");
+        add(TranslationKeys.COC_BUILDING_GATHER_FARM_DESCRIPTION, "&7This is your food production.;&7No rats and mice;&7are allowed in here.");
         add(TranslationKeys.COC_BUILDING_GATHER_COAL_DRILL_NAME, "&8Coal drill");
         add(TranslationKeys.COC_BUILDING_GATHER_COAL_DRILL_DESCRIPTION, "&7This building gathers coal for the &eGenerator&7.");
         add(TranslationKeys.COC_BUILDING_GATHER_LOREDETAILS, ";&7Gathers ${color}${hour} ${type}&7/hour;&7Maximum storage amount: ${color}${max}");
@@ -100,8 +107,8 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_BUILDING_DEFENSE_ARCHERTOWER_NAME, "&eArcher tower");
         add(TranslationKeys.COC_BUILDING_DEFENSE_ARCHERTOWER_DESCRIPTION, "&7The archer tower is a tower :)");
 
-        // BARACK BUILDINGS
-        add(TranslationKeys.COC_BUILDING_TROOPS_CREATION_BARRACKS_NORMAL_NAME, "&6Baracks");
+        // Barrack BUILDINGS
+        add(TranslationKeys.COC_BUILDING_TROOPS_CREATION_BARRACKS_NORMAL_NAME, "&6Barracks");
         add(TranslationKeys.COC_BUILDING_TROOPS_CREATION_BARRACKS_NORMAL_DESCRIPTION, "&7This building trains your troops.");
         add(TranslationKeys.COC_BUILDING_TROOPS_ARMYCAMP_NAME, "&6Army Camp");
         add(TranslationKeys.COC_BUILDING_TROOPS_ARMYCAMP_DESCRIPTION, "&7This building stores your troops.");
@@ -163,7 +170,7 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_GUI_CONSTRUCTION_TROOP_NAME, "&cTroops");
         add(TranslationKeys.COC_GUI_CONSTRUCTION_TROOP_LORE, "&7Open the troop buildings menu;&7Includes barracks and troops field");
         add(TranslationKeys.COC_GUI_CONSTRUCTION_BUILDING_NAME, "&6Buildings menu");
-        add(TranslationKeys.COC_GUI_CONSTRUCTION_BUILDING_LORE, "&7Building cost: &e${cost} ${type};&7Amounts of building;&7with town hall level ${level}:;&e${amount}&7/&e${max}");
+        add(TranslationKeys.COC_GUI_CONSTRUCTION_BUILDING_LORE, ";&7Building cost: &e${cost} ${type};&7Amounts of building;&7with town hall level ${level}:;&e${amount}&7/&e${max}");
 
         // INV ITEMS
         add(TranslationKeys.COC_GUI_ATTACK_NAME, "&6Start matchmaking search...");
@@ -211,9 +218,31 @@ public class EnglishMessages extends MessageList {
                 "\n" +
                 "You have the ability to move and rotate them to a new spot.\n" +
                 "Simply select the building you want to adjust, and choose the \"Move\" option.");
-        add(TranslationKeys.COC_INV_BOOK_CONTENT + "general", "TODO add normal tutorial");
+        add(TranslationKeys.COC_INV_BOOK_CONTENT + "defense", "Awesome!\n" +
+                "You can collect and store food now!\n\n" +
+                "" +
+                "&cEnemies &0can attack your base very easily, we need some defense buildings to defend ourself!\n" +
+                ";Go in the \"Construction menu\" and build a &6Cannon&0.");
+        add(TranslationKeys.COC_INV_BOOK_CONTENT + "troops", "Awesome!\n" +
+                "The cannon shoots at attacking enemies.\n\n" +
+                "Let's train some own troops so we can attack bases, shall we?" +
+                ";" +
+                "Build an &6Army camp &0and a &6Barrack&0.\n" +
+                "You can train some troops in the &6Barrack&0.\n" +
+                "Trained troops will move to the &6Army camp&0.");
+        add(TranslationKeys.COC_INV_BOOK_CONTENT + "finished", "Great job, my friend!\n" +
+                "When you attack other bases you can:\n" +
+                "- Loot resources\n" +
+                "- Receive elo\n" +
+                "But watch out: The enemy has also defenses!\n" +
+                "You can start attacking players at the right corner of your inventory.;" +
+                "&2Attacking system is not yet implemented." +
+                ";" +
+                "The tutorial ends here, but I'll give you my book.\n" +
+                "If you have any questions just read through it!");
+        add(TranslationKeys.COC_INV_BOOK_CONTENT + "general", "TODO add normal help book");
 
-                // TROOPS
+        // TROOPS
         add(TranslationKeys.COC_GUI_TROOPS_CONTAINER_NAME, "&6Container");
         add(TranslationKeys.COC_GUI_TROOPS_CONTAINER_LORE, "&7There are currently ${current} of ${max};&7troops in this building.;&7Click to open the gui.");
         add(TranslationKeys.COC_GUI_CONTAINER_NAME, "&6Troops Container");

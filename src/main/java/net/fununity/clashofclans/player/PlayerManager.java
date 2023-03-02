@@ -234,17 +234,14 @@ public class PlayerManager {
         Player player = apiPlayer.getPlayer();
         player.getInventory().clear();
 
-
         player.getInventory().setItem(0, new ItemBuilder(HotbarItems.POINTER)
                 .setName(lang.getTranslation(TranslationKeys.COC_INV_POINTER_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_INV_POINTER_LORE).split(";")).craft());
-
-        int townHallLevel = coCPlayer.getTownHallLevel();
-
 
         player.getInventory().setItem(7, new ItemBuilder(HotbarItems.TUTORIAL_BOOK)
                 .setName(lang.getTranslation(TranslationKeys.COC_INV_BOOK_NAME))
                 .setLore(lang.getTranslation(TranslationKeys.COC_INV_BOOK_LORE).split(";")).craft());
 
+        int townHallLevel = coCPlayer.getTownHallLevel();
         if (townHallLevel > 0) {
             for (ResourceTypes resourceTypes : ResourceTypes.canReachWithTownHall(townHallLevel)) {
                 if (resourceTypes != ResourceTypes.GEMS)
@@ -252,8 +249,10 @@ public class PlayerManager {
                             .setName(lang.getTranslation(TranslationKeys.COC_INV_RESOURCE_NAME, Arrays.asList("${color}", "${type}"), Arrays.asList(resourceTypes.getChatColor() + "", resourceTypes.getColoredName(lang)))).setLore(lang.getTranslation(TranslationKeys.COC_INV_RESOURCE_LORE).split(";")).craft());
             }
 
-            //player.getInventory().setItem(6, new ItemBuilder(HotbarItems.ATTACK_HISTORY).setName(lang.getTranslation(TranslationKeys.COC_INV_ATTACKHISTORY_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_INV_ATTACKHISTORY_LORE).split(";")).craft());
-            //player.getInventory().setItem(7, new ItemBuilder(Material.IRON_SWORD).addItemFlags(ItemFlag.HIDE_ATTRIBUTES).setName(lang.getTranslation(TranslationKeys.COC_GUI_ATTACK_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_GUI_ATTACK_LORE).split(";")).craft());
+            if (!coCPlayer.getTroopsCampBuildings().isEmpty() && !coCPlayer.getTroopsCreateBuildings().isEmpty()) {
+                //player.getInventory().setItem(5, new ItemBuilder(HotbarItems.ATTACK_HISTORY).setName(lang.getTranslation(TranslationKeys.COC_INV_ATTACKHISTORY_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_INV_ATTACKHISTORY_LORE).split(";")).craft());
+                //player.getInventory().setItem(6, new ItemBuilder(Material.IRON_SWORD).addItemFlags(ItemFlag.HIDE_ATTRIBUTES).setName(lang.getTranslation(TranslationKeys.COC_GUI_ATTACK_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_GUI_ATTACK_LORE).split(";")).craft());
+            }
 
             player.getInventory().setItem(8, new ItemBuilder(HotbarItems.SHOP)
                     .setName(lang.getTranslation(TranslationKeys.COC_INV_CONSTRUCTION_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_INV_CONSTRUCTION_LORE).split(";")).craft());

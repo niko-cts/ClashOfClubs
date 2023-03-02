@@ -3,11 +3,13 @@ package net.fununity.clashofclans.buildings;
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
+import net.fununity.clashofclans.buildings.interfaces.IDefenseBuilding;
 import net.fununity.clashofclans.database.DatabaseBuildings;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.util.BuildingLocationUtil;
 import net.fununity.clashofclans.util.HotbarItems;
+import net.fununity.clashofclans.util.CircleParticleUtil;
 import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.messages.MessagePrefix;
 import net.fununity.main.api.player.APIPlayer;
@@ -42,13 +44,19 @@ public class BuildingsMoveManager {
 
     /**
      * Enters the moving mode for a player.
+     * @param coCPlayer CoCPlayer - the cocplayer
      * @param apiPlayer APIPlayer - the player who enters.
      * @param generalBuilding GeneralBuilding - the building which should be moved.
      * @since 0.0.1
      */
-    public void enterMovingMode(APIPlayer apiPlayer, GeneralBuilding generalBuilding) {
+    public void enterMovingMode(CoCPlayer coCPlayer, APIPlayer apiPlayer, GeneralBuilding generalBuilding) {
         Player player = apiPlayer.getPlayer();
-        ClashOfClubs.getInstance().getPlayerManager().getPlayer(apiPlayer.getUniqueId()).setBuildingMode(player.getLocation(), generalBuilding, generalBuilding.getRotation());
+        Location location = player.getLocation().clone();
+        location.setY(ClashOfClubs.getBaseYCoordinate() + 1);
+
+        CircleParticleUtil.hideRadius(generalBuilding.getCenterCoordinate());
+        coCPlayer.setBuildingMode(location, generalBuilding, generalBuilding.getRotation());
+        BuildingLocationUtil.createBuildingModeDecoration(player, coCPlayer);
 
         Language lang = apiPlayer.getLanguage();
 
@@ -73,7 +81,7 @@ public class BuildingsMoveManager {
         Location newLocation = (Location) buildingMode[0];
         newLocation.setY(ClashOfClubs.getBaseYCoordinate());
 
-        building.setCoordinate(BuildingLocationUtil.getCoordinate(building.getBuilding().getSize(), building.getRotation(), newLocation));
+        building.setCoordinate(BuildingLocationUtil.getRealMinimum(building.getBuilding().getSize(), building.getRotation(), newLocation));
         Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
             DatabaseBuildings.getInstance().moveBuilding(building);
             Schematics.removeBuilding(oldLocation, building.getBuilding().getSize(), oldRotation);
@@ -87,8 +95,10 @@ public class BuildingsMoveManager {
      * @since 0.0.1
      */
     public void quitEditorMode(CoCPlayer coCPlayer) {
-        if (coCPlayer.getBuildingMode()[0] != null)
-            BuildingLocationUtil.removeBuildingGround(coCPlayer.getOwner().getPlayer(), coCPlayer.getBuildingMode());
+        if (coCPlayer.getBuildingMode()[0] != null) {
+            BuildingLocationUtil.removeBuildingModeDecorations(coCPlayer.getOwner().getPlayer(), coCPlayer.getBuildingMode());
+        }
+
         coCPlayer.setBuildingMode(null, null, null);
         ClashOfClubs.getInstance().getPlayerManager().giveDefaultItems(coCPlayer);
     }
@@ -103,9 +113,15 @@ public class BuildingsMoveManager {
         APIPlayer apiPlayer = coCPlayer.getOwner();
         Language lang = apiPlayer.getLanguage();
         Player player = apiPlayer.getPlayer();
+        Location location = player.getLocation().clone();
+        location.setY(ClashOfClubs.getBaseYCoordinate() + 1);
 
-        coCPlayer.setBuildingMode(player.getLocation(), building, (byte) 0);
-        BuildingLocationUtil.createFakeGround(player, coCPlayer);
+        if (building instanceof IDefenseBuilding) {
+            CircleParticleUtil.displayRadius(location, ((IDefenseBuilding) building).getRadius());
+        }
+
+        coCPlayer.setBuildingMode(location, building, (byte) 0);
+        BuildingLocationUtil.createBuildingModeDecoration(player, coCPlayer);
 
         player.getInventory().clear();
         player.getInventory().setItem(0, new ItemBuilder(HotbarItems.CREATE_BUILDING)

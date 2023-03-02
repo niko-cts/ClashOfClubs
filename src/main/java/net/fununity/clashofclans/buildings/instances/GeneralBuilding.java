@@ -8,7 +8,6 @@ import net.fununity.clashofclans.buildings.interfaces.IDifferentVersionBuildings
 import net.fununity.clashofclans.buildings.interfaces.IUpgradeDetails;
 import net.fununity.clashofclans.buildings.list.Buildings;
 import net.fununity.clashofclans.language.TranslationKeys;
-import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.player.TutorialManager;
 import net.fununity.clashofclans.util.BuildingLocationUtil;
 import net.fununity.main.api.common.util.SpecialChars;
@@ -22,6 +21,7 @@ import net.fununity.misc.translationhandler.translations.Language;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
 
 import java.text.DecimalFormat;
@@ -88,8 +88,11 @@ public class GeneralBuilding {
                     .setLore(upgradeLore).craft(), new ClickAction() {
                 @Override
                 public void onClick(APIPlayer apiPlayer, ItemStack itemStack, int i) {
-                    if (BuildingsManager.getInstance().upgrade(GeneralBuilding.this))
+                    if (BuildingsManager.getInstance().upgrade(GeneralBuilding.this)) {
                         setCloseInventory(true);
+                        apiPlayer.playSound(Sound.ENTITY_VILLAGER_YES);
+                    } else
+                        apiPlayer.playSound(Sound.ENTITY_VILLAGER_NO);
                 }
             });
         }
@@ -100,7 +103,7 @@ public class GeneralBuilding {
             menu.setItem(14, new ItemBuilder(Material.PISTON).setName(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_MOVING_NAME)).setLore(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_MOVING_LORE)).craft(), new ClickAction(true) {
                 @Override
                 public void onClick(APIPlayer apiPlayer, ItemStack itemStack, int i) {
-                    BuildingsMoveManager.getInstance().enterMovingMode(apiPlayer, GeneralBuilding.this);
+                    BuildingsMoveManager.getInstance().enterMovingMode(ClashOfClubs.getInstance().getPlayerManager().getPlayer(apiPlayer.getUniqueId()), apiPlayer, GeneralBuilding.this);
                 }
             });
 
@@ -214,9 +217,8 @@ public class GeneralBuilding {
      * @since 0.0.1
      */
     public Location getCenterCoordinate() {
-        Location min = getCoordinate();
         Location max = getMaxCoordinate();
-        return new Location(min.getWorld(), (min.getBlockX() + max.getBlockX()) * 0.5, min.getBlockY(), (min.getBlockZ() + max.getBlockZ()) * 0.5);
+        return new Location(coordinate.getWorld(), (coordinate.getBlockX() + max.getBlockX()) * 0.5, coordinate.getBlockY(), (coordinate.getBlockZ() + max.getBlockZ()) * 0.5);
     }
 
     /**

@@ -76,7 +76,6 @@ public class ClashOfClubs extends JavaPlugin {
 
             RegisterUtil registerUtil = new RegisterUtil(this);
             registerUtil.addListeners(new JoinListener(), new QuitListener(), new PlayerInteractListener(), new PlayerSelectHotbarListener(), new PlayerMoveListener(), new InventoryClickListener());
-            // registerUtil.addListener(new SetupInteractListener());
             registerUtil.addCommands(new CoCCommand(), new HomeCommand(), new VisitCommand(), new ResetCommand());
 
             this.tickTimerManager = new TickTimerManager();

@@ -2,11 +2,15 @@ package net.fununity.clashofclans.buildings.instances;
 
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IDefenseBuilding;
+import net.fununity.clashofclans.util.CircleParticleUtil;
+import net.fununity.main.api.inventory.CustomInventory;
+import net.fununity.misc.translationhandler.translations.Language;
 import org.bukkit.Location;
 
 import java.util.UUID;
 
 public class DefenseBuilding extends GeneralBuilding {
+
 
     /**
      * Instantiates the class.
@@ -23,12 +27,20 @@ public class DefenseBuilding extends GeneralBuilding {
     }
 
     @Override
+    public CustomInventory getInventory(Language language) {
+        CircleParticleUtil.displayRadius(getCenterCoordinate(), getBuilding().getRadius(), 15);
+        return super.getInventory(language);
+    }
+
+    @Override
     public IDefenseBuilding getBuilding() {
         return (IDefenseBuilding) super.getBuilding();
     }
 
+
+
     /**
-     * Gets the damage of the building.
+     * Gets the damage to the building.
      * @return double - amount of damage.
      * @since 0.0.1
      */

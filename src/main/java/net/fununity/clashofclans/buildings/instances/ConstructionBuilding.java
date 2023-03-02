@@ -34,7 +34,8 @@ public class ConstructionBuilding extends GeneralHologramBuilding {
     public CustomInventory getInventory(Language language) {
         CustomInventory inventory = super.getInventory(language);
         CustomInventory menu = new CustomInventory(getBuildingTitle(language), 9 * 4);
-        menu.setSpecialHolder(getId() + "-" + getCoordinate().toString());
+        menu.setSpecialHolder(inventory.getSpecialHolder());
+
         for (int i = 0; i < inventory.getInventory().getSize() && i < 15; i++)
             menu.addItem(inventory.getInventory().getItem(i), inventory.getClickAction(i));
 
