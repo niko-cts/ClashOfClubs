@@ -120,12 +120,16 @@ public class EnglishMessages extends MessageList {
         // TROOPS
         add(TranslationKeys.COC_TROOPS_TYPE_LAND, "&eLand");
         add(TranslationKeys.COC_TROOPS_TYPE_FLYING, "&aFlying");
-        add(TranslationKeys.COC_TROOPS_LOREDETAILS, ";&7Type: ${type};&7Max hp: &c${hp};&7Damage: &e${damage};&7Prioritize Defense: ${prioritize};&7Size: &e${size};&7Cost: ${cost}");
+        add(TranslationKeys.COC_TROOPS_LOREDETAILS, ";&7Type: ${type};&7Max hp: &c${hp};&7Damage: &e${damage};&7Prioritize building: ${prioritize};&7Size: &e${size};&7Cost: ${cost}");
         add(TranslationKeys.COC_TROOPS_BARBARIAN_NAME, "&eBarbarian");
         add(TranslationKeys.COC_TROOPS_BARBARIAN_DESCRIPTION, "&7This idyet will run to the;&7next building and attacks it.");
 
         // WALLS
-        add(TranslationKeys.COC_WALLS_STRAIGHT_WALL_NAME, "&6Normal wall &7(&e│&7)");
+        add(TranslationKeys.COC_WALLS_SMALL_STRAIGHT_WALL_NAME, "&6Small wall &7(&e│&7 *3)");
+        add(TranslationKeys.COC_WALLS_SMALL_STRAIGHT_WALL_DESCRIPTION, "&7Small wall to prevent enemy;&7troops from entering your base.");
+        add(TranslationKeys.COC_WALLS_LARGE_STRAIGHT_WALL_NAME, "&6Large wall &7(&e│ &7 *18)");
+        add(TranslationKeys.COC_WALLS_LARGE_STRAIGHT_WALL_DESCRIPTION, "&7Large wall to prevent enemy;&7troops from entering your base.");
+        add(TranslationKeys.COC_WALLS_STRAIGHT_WALL_NAME, "&6Normal wall &7(&e│ &7*9)");
         add(TranslationKeys.COC_WALLS_STRAIGHT_WALL_DESCRIPTION, "&7Normal wall to prevent enemy;&7troops from entering your base.");
         add(TranslationKeys.COC_WALLS_CORNER_WALL_NAME, "&6Corner wall &7(&e∟&7)");
         add(TranslationKeys.COC_WALLS_CORNER_WALL_DESCRIPTION, "&7Corner wall to prevent enemy;&7troops from entering your base.");
@@ -141,6 +145,7 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_GUI_BUILDING_HP_NAME, "&6Hitpoints");
         add(TranslationKeys.COC_GUI_BUILDING_HP_LORE, "&c${current}&7/&c${max}");
         add(TranslationKeys.COC_GUI_BUILDING_UPGRADE_NAME, "&6Upgrade");
+        add(TranslationKeys.COC_GUI_BUILDING_NO_UPGRADE_NAME, "&7No further upgrades");
         add(TranslationKeys.COC_GUI_BUILDING_UPGRADE_LORE, "&7Click to upgrade;&7Upgrade cost: &e${cost}");
         add(TranslationKeys.COC_GUI_BUILDING_REPAIR_NAME, "&6Repair");
         add(TranslationKeys.COC_GUI_BUILDING_REPAIR_LORE, "&7Click to repair;&7Repair cost: &e${cost}");
@@ -171,6 +176,7 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_GUI_CONSTRUCTION_TROOP_LORE, "&7Open the troop buildings menu;&7Includes barracks and troops field");
         add(TranslationKeys.COC_GUI_CONSTRUCTION_BUILDING_NAME, "&6Buildings menu");
         add(TranslationKeys.COC_GUI_CONSTRUCTION_BUILDING_LORE, ";&7Building cost: &e${cost} ${type};&7Amounts of building;&7with town hall level ${level}:;&e${amount}&7/&e${max}");
+        add(TranslationKeys.COC_CONSTRUCTION_TIMELEFT, "&7Time left:");
 
         // INV ITEMS
         add(TranslationKeys.COC_GUI_ATTACK_NAME, "&6Start matchmaking search...");
@@ -231,28 +237,31 @@ public class EnglishMessages extends MessageList {
                 "You can train some troops in the &6Barrack&0.\n" +
                 "Trained troops will move to the &6Army camp&0.");
         add(TranslationKeys.COC_INV_BOOK_CONTENT + "finished", "Great job, my friend!\n" +
-                "When you attack other bases you can:\n" +
+                "If you attack another base you can:\n" +
                 "- Loot resources\n" +
-                "- Receive elo\n" +
+                "- Receive elo\n\n" +
                 "But watch out: The enemy has also defenses!\n" +
                 "You can start attacking players at the right corner of your inventory.;" +
-                "&2Attacking system is not yet implemented." +
-                ";" +
-                "The tutorial ends here, but I'll give you my book.\n" +
+                "&2Attacking system is not yet implemented.;" +
+                "I recommend you to build some &6walls&0, so our &cenemies &0have it harder to get to your resources!\n" +
+                "For building walls the item \"&6Add another building&0\" is very useful!\n" +
+                "It lets you build &6multiple buildings &0at once.\nJust try it out!;" +
+                "The tutorial ends here, but I'll give you my book.\n\n" +
                 "If you have any questions just read through it!");
         add(TranslationKeys.COC_INV_BOOK_CONTENT + "general", "TODO add normal help book");
 
         // TROOPS
         add(TranslationKeys.COC_GUI_TROOPS_CONTAINER_NAME, "&6Container");
-        add(TranslationKeys.COC_GUI_TROOPS_CONTAINER_LORE, "&7There are currently ${current} of ${max};&7troops in this building.;&7Click to open the gui.");
+        add(TranslationKeys.COC_GUI_TROOPS_CONTAINER_LORE, "&7There are currently ${current} of ${max};&7troops in this building.");
         add(TranslationKeys.COC_GUI_CONTAINER_NAME, "&6Troops Container");
         add(TranslationKeys.COC_GUI_CONTAINER_LORE, "&7Amount of units: &e${amount}");
         add(TranslationKeys.COC_GUI_TROOPS_TRAIN_NAME, "&6Train your troops");
         add(TranslationKeys.COC_GUI_TROOPS_TRAIN_LORE, "&7Click to train troops.");
         add(TranslationKeys.COC_GUI_TRAIN_NAME, "&6Train troops");
         add(TranslationKeys.COC_GUI_TRAIN_QUEUE_LORE, "&7This troop is currently in queue;&7Duration left: &e${duration} &7/ &e${max} seconds");
+        add(TranslationKeys.COC_GUI_TRAIN_QUEUE_FINISHED_LORE, "&7This troop is educated;&7It waits till there is more space in an &6army camp&7.");
         add(TranslationKeys.COC_GUI_TRAIN_LORE, "&7Barracks minimum level: &e${minlevel};&7Train duration: &e${duration} seconds");
-        add(TranslationKeys.COC_GUI_TRAIN_RELOAD, "&eReload this menu");
+        add(TranslationKeys.COC_GUI_TRAIN_FULL, "&7You've reached the &cmaximum amount of troops &7in this building!");
 
         // ATTACK HISTORY GUI
         add(TranslationKeys.COC_GUI_ATTACKHISTORY_TITLE, "&6Attack history");
@@ -282,8 +291,14 @@ public class EnglishMessages extends MessageList {
 
         add(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_CREATE_NAME, "&eCreate Building");
         add(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_CREATE_LORE, "&7Hold this item and look on the;&7ground to see, where you could place the building.;&7Click on the block;&7you want to construct the building.");
+        add(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_ANOTHER_NAME, "&7Add &aanother building");
+        add(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_ANOTHER_LORE, "&7&aConfirms the current selection;&7and adds another selection.;;&7Use this, if you want to create more than;&7one building from the same type.");
+        add(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_REMOVE_NAME, "&cRemove &7last building");
+        add(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_REMOVE_LORE, "&cDeny &7the last selection");
+
         add(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_CANCEL_NAME, "&aCancel operation");
         add(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_CANCEL_LORE, "&7Click to cancel the construct operation");
+
         add(TranslationKeys.COC_CONSTRUCTION_BUILD, "&aBuilding will be constructed!");
 
         // ATTACKING

@@ -10,8 +10,8 @@ import org.bukkit.Material;
 
 public enum TroopBuildings implements ITroopBuilding {
     ARMY_CAMP(TranslationKeys.COC_BUILDING_TROOPS_ARMYCAMP_NAME, TranslationKeys.COC_BUILDING_TROOPS_ARMYCAMP_DESCRIPTION, new int[]{17, 17}, ResourceTypes.FOOD, Material.CAMPFIRE,
-            new TroopsLevelData[]{new TroopsLevelData(100, 1, 150, 3 * 60, 10),
-                        new TroopsLevelData(200, 1, 350, 10 * 60, 15),});
+            new TroopsLevelData[]{new TroopsLevelData(100, 1, 150, 3 * 60, 20),
+                        new TroopsLevelData(200, 2, 350, 10 * 60, 30),});
 
     private final String nameKey;
     private final String descriptionKey;

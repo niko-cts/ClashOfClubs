@@ -1,28 +1,22 @@
 package net.fununity.clashofclans.buildings.instances.troops;
 
 import net.fununity.clashofclans.ClashOfClubs;
-import net.fununity.clashofclans.buildings.Schematics;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
-import net.fununity.clashofclans.buildings.interfaces.IDifferentVersionBuildings;
 import net.fununity.clashofclans.buildings.interfaces.ITroopBuilding;
-import net.fununity.clashofclans.gui.TroopsGUI;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.troops.ITroop;
-import net.fununity.main.api.inventory.ClickAction;
+import net.fununity.clashofclans.troops.Troops;
 import net.fununity.main.api.inventory.CustomInventory;
 import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.item.UsefulItems;
-import net.fununity.main.api.player.APIPlayer;
 import net.fununity.misc.translationhandler.translations.Language;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemFlag;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -32,7 +26,7 @@ import java.util.concurrent.ConcurrentMap;
  * @author Niko
  * @since 0.0.1
  */
-public class TroopsBuilding extends GeneralBuilding implements IDifferentVersionBuildings {
+public class TroopsBuilding extends GeneralBuilding {
 
     private final ConcurrentMap<ITroop, Integer> troopAmount;
 
@@ -46,31 +40,53 @@ public class TroopsBuilding extends GeneralBuilding implements IDifferentVersion
      * @since 0.0.1
      */
     public TroopsBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, byte rotation, int level) {
+        this(uuid, buildingUUID, building, coordinate, rotation, level, new ConcurrentHashMap<>());
+    }
+
+    /**
+     * Instantiates the class.
+     * @param uuid UUID - the uuid of the owner.
+     * @param buildingUUID UUID - the uuid of the building.
+     * @param building   IBuilding - the building class.
+     * @param coordinate Location - the location of the building.
+     * @param level      int - the level of the building.
+     * @param troopAmount ConcurrentHashMap - the troops and amount
+     * @since 0.0.1
+     */
+    public TroopsBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, byte rotation, int level, ConcurrentHashMap<ITroop, Integer> troopAmount) {
         super(uuid, buildingUUID, building, coordinate, rotation, level);
-        this.troopAmount = new ConcurrentHashMap<>();
+        this.troopAmount = troopAmount;
     }
 
     @Override
     public CustomInventory getInventory(Language language) {
         CustomInventory inventory = super.getInventory(language);
-        CustomInventory menu = new CustomInventory(getBuildingTitle(language), 9 * 4);
-        menu.setSpecialHolder(getId() + "-" + getCoordinate().toString());
-        for (int i=0;i<inventory.getInventory().getContents().length;i++)
+        CustomInventory menu = new CustomInventory(getBuildingTitle(language), 9 * 5);
+        menu.setSpecialHolder(inventory.getSpecialHolder());
+
+        for (int i = 0; i < inventory.getInventory().getContents().length; i++)
             menu.setItem(i, inventory.getInventory().getItem(i), inventory.getClickAction(i));
 
-        menu.setItem(20, new ItemBuilder(Material.CHEST)
+        menu.setItem(22, new ItemBuilder(Material.CHEST)
+                        .addEnchantment(getCurrentSizeOfTroops() >= getMaxAmountOfTroops() ? Enchantment.ARROW_FIRE : null, 1, true, false)
                         .setName(language.getTranslation(TranslationKeys.COC_GUI_TROOPS_CONTAINER_NAME))
-                        .setLore(language.getTranslation(TranslationKeys.COC_GUI_TROOPS_CONTAINER_LORE, Arrays.asList("${current}", "${max}"), Arrays.asList(getCurrentSizeOfTroops() + "", getMaxAmountOfTroops()+"")).split(";")).craft(),
-                new ClickAction() {
-                    @Override
-                    public void onClick(APIPlayer apiPlayer, ItemStack itemStack, int i) {
-                        apiPlayer.getPlayer().closeInventory();
-                        TroopsGUI.openContainer(apiPlayer, TroopsBuilding.this);
-                    }
-                });
+                        .setLore(language.getTranslation(TranslationKeys.COC_GUI_TROOPS_CONTAINER_LORE,
+                                Arrays.asList("${current}", "${max}"), Arrays.asList(getCurrentSizeOfTroops() + "", getMaxAmountOfTroops()+"")).split(";")).craft());
+
+        int i = 36 + (4 / Troops.values().length);
+        for (Map.Entry<ITroop, Integer> entry : getTroopAmount().entrySet()) {
+            List<String> lore = new ArrayList<>(Arrays.asList(entry.getKey().getDescription(language)));
+            lore.addAll(Arrays.asList(language.getTranslation(TranslationKeys.COC_GUI_CONTAINER_LORE, "${amount}", entry.getValue()+"").split(";")));
+
+            menu.setItem(i, new ItemBuilder(entry.getKey().getRepresentativeItem())
+                    .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+                    .setName(entry.getKey().getName(language))
+                    .setAmount(Math.min(Math.max(1, entry.getValue()), 64))
+                    .setLore(lore).craft());
+            i++;
+        }
 
         menu.fill(UsefulItems.BACKGROUND_GRAY);
-
         return menu;
     }
 
@@ -81,7 +97,7 @@ public class TroopsBuilding extends GeneralBuilding implements IDifferentVersion
      * @since 0.0.1
      */
     public void addTroopAmount(ITroop troop, int amount) {
-        setTroopAmount(troop, getTroopAmount(troop) + amount);
+        setTroopAmount(troop, Math.min(getMaxAmountOfTroops(), getTroopAmount(troop) + amount));
     }
 
 
@@ -92,7 +108,7 @@ public class TroopsBuilding extends GeneralBuilding implements IDifferentVersion
      * @since 0.0.1
      */
     public void removeTroopAmount(ITroop troop, int amount) {
-        setTroopAmount(troop, getTroopAmount(troop) - amount);
+        setTroopAmount(troop, Math.max(0, getTroopAmount(troop) - amount));
     }
 
     /**
@@ -101,10 +117,9 @@ public class TroopsBuilding extends GeneralBuilding implements IDifferentVersion
      * @param amount int - the amount of troop.
      * @since 0.0.1
      */
-    public void setTroopAmount(ITroop troop, int amount) {
-        int oldVersion = getCurrentBuildingVersion();
-        troopAmount.put(troop, this.troopAmount.getOrDefault(troop, 0) + amount);
-        updateVersion(oldVersion != getCurrentBuildingVersion());
+    private void setTroopAmount(ITroop troop, int amount) {
+        troopAmount.put(troop, amount);
+        ClashOfClubs.getInstance().getPlayerManager().forceUpdateInventory(this);
     }
 
     public int getTroopAmount(ITroop troop) {
@@ -144,29 +159,6 @@ public class TroopsBuilding extends GeneralBuilding implements IDifferentVersion
         for (Map.Entry<ITroop, Integer> entry : getTroopAmount().entrySet())
             amount += entry.getValue() * entry.getKey().getSize();
         return amount;
-    }
-
-    /**
-     * Called when the version was updated.
-     * @param schematic boolean - schematic change
-     * @since 0.0.1
-     */
-    @Override
-    public void updateVersion(boolean schematic) {
-        ClashOfClubs.getInstance().getPlayerManager().forceUpdateInventory(this);
-        if (schematic)
-            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> Schematics.createBuilding(this));
-    }
-
-    /**
-     * Gets the current version of the building.
-     * E.g. percentage of fill.
-     * @return int - building version
-     * @since 0.0.1
-     */
-    @Override
-    public int getCurrentBuildingVersion() {
-        return 100 * getCurrentSizeOfTroops() / getMaxAmountOfTroops();
     }
 
 }

@@ -1,9 +1,8 @@
 package net.fununity.clashofclans.util;
 
 import net.fununity.clashofclans.ClashOfClubs;
-import net.fununity.clashofclans.buildings.BuildingsMoveManager;
-import net.fununity.clashofclans.buildings.instances.DefenseBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IDefenseBuilding;
+import net.fununity.clashofclans.player.buildingmode.IBuildingMode;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -12,6 +11,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class CircleParticleUtil {
 
@@ -19,29 +19,31 @@ public class CircleParticleUtil {
         throw new UnsupportedOperationException("RadiusParticleUtil is a utility class");
     }
 
-    private static final Map<Location, BukkitTask> TASK_MAP = new HashMap<>();
+    private static final Map<UUID, BukkitTask> TASK_MAP = new HashMap<>();
 
 
     /**
      * Displays particles in a circle with given radius.
+     * @param uuid UUID - Building uuid.
      * @param location Location - Center location.
      * @param radius double - circle radius
      */
-    public static void displayRadius(Location location, double radius) {
-        if (TASK_MAP.containsKey(location)) return;
-        TASK_MAP.put(location, Bukkit.getScheduler().runTaskTimer(ClashOfClubs.getInstance(), () -> spawnParticle(location, radius), 0, 20L));
+    public static void displayRadius(UUID uuid, Location location, double radius) {
+        if (TASK_MAP.containsKey(uuid)) return;
+        TASK_MAP.put(uuid, Bukkit.getScheduler().runTaskTimer(ClashOfClubs.getInstance(), () -> spawnParticle(location, radius), 0, 20L));
     }
 
     /**
-     * Displays particles in a circle with given radius in a defined timespan.
+     * Displays particles in a circle with given radius in a defined time-span.
+     * @param uuid UUID - Building uuid.
      * @param location Location - Center location.
      * @param radius double - circle radius
      * @param timeInSeconds int - seconds to display
      */
-    public static void displayRadius(Location location, double radius, int timeInSeconds) {
-        if (TASK_MAP.containsKey(location)) return;
-        displayRadius(location, radius);
-        Bukkit.getScheduler().runTaskLater(ClashOfClubs.getInstance(), () -> hideRadius(location), timeInSeconds * 20L);
+    public static void displayRadius(UUID uuid, Location location, double radius, int timeInSeconds) {
+        if (TASK_MAP.containsKey(uuid)) return;
+        displayRadius(uuid, location, radius);
+        Bukkit.getScheduler().runTaskLater(ClashOfClubs.getInstance(), () -> hideRadius(uuid), timeInSeconds * 20L);
     }
 
     /**
@@ -62,13 +64,13 @@ public class CircleParticleUtil {
 
     /**
      * Hides particles.
-     * @param location Location - Center location.
+     * @param uuid UUID - Building uuid.
      */
-    public static void hideRadius(Location location) {
-        BukkitTask task = TASK_MAP.getOrDefault(location, null);
+    public static void hideRadius(UUID uuid) {
+        BukkitTask task = TASK_MAP.getOrDefault(uuid, null);
         if (task != null) {
             task.cancel();
-            TASK_MAP.remove(location);
+            TASK_MAP.remove(uuid);
         }
     }
 
@@ -77,10 +79,9 @@ public class CircleParticleUtil {
      * Creates the particle circle based of the building mode.
      * @param buildingMode Object[] - the players building mode data
      */
-    public static void createParticleTask(Object[] buildingMode) {
-        if (buildingMode[1] instanceof DefenseBuilding || buildingMode[1] instanceof IDefenseBuilding) {
-            IDefenseBuilding defenseBuilding = buildingMode[1] instanceof IDefenseBuilding ? (IDefenseBuilding) buildingMode[1] : ((DefenseBuilding) buildingMode[1]).getBuilding();
-            displayRadius(BuildingLocationUtil.getCenterLocation(buildingMode), defenseBuilding.getRadius());
+    public static void createParticleTask(IBuildingMode buildingMode) {
+        if (buildingMode.getBuilding() instanceof IDefenseBuilding) {
+            displayRadius(buildingMode.getBuildingUUID(), BuildingLocationUtil.getCenterLocation(buildingMode), ((IDefenseBuilding) buildingMode.getBuilding()).getRadius());
         }
     }
 
@@ -88,9 +89,9 @@ public class CircleParticleUtil {
      * Deletes the particle task based on the building mode.
      * @param buildingMode Object[] - the players building mode data
      */
-    public static void deleteParticleTask(Object[] buildingMode) {
-        if (buildingMode[1] instanceof DefenseBuilding || buildingMode[1] instanceof IDefenseBuilding) {
-            hideRadius(BuildingLocationUtil.getCenterLocation(buildingMode));
+    public static void deleteParticleTask(IBuildingMode buildingMode) {
+        if (buildingMode.getBuilding() instanceof IDefenseBuilding) {
+            hideRadius(buildingMode.getBuildingUUID());
         }
     }
 }

@@ -1,15 +1,13 @@
 package net.fununity.clashofclans.gui;
 
-import net.fununity.clashofclans.buildings.BuildingsMoveManager;
+import net.fununity.clashofclans.buildings.BuildingModeManager;
+import net.fununity.clashofclans.buildings.BuildingsManager;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IUpgradeDetails;
-import net.fununity.clashofclans.buildings.list.Buildings;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.util.BuildingDisplayUtil;
 import net.fununity.clashofclans.util.BuildingsAmountUtil;
-import net.fununity.main.api.actionbar.ActionbarMessage;
-import net.fununity.main.api.common.util.SpecialChars;
 import net.fununity.main.api.inventory.ClickAction;
 import net.fununity.main.api.inventory.CustomInventory;
 import net.fununity.main.api.item.ItemBuilder;
@@ -75,7 +73,6 @@ public class BuildingBuyGUI {
      * @since 0.0.1
      */
     private static void openSpecified(APIPlayer player, CoCPlayer coCPlayer, IBuilding[][] allDisplayingBuildings) {
-        player.getPlayer().closeInventory();
         Language lang = player.getLanguage();
 
         int townHallLevel = coCPlayer.getTownHallLevel();
@@ -103,7 +100,7 @@ public class BuildingBuyGUI {
         for (Map.Entry<Integer, List<IBuilding>> entry : displayingBuildings.entrySet()) {
             int startX = 4 - entry.getValue().size() / 2 + entry.getKey() * 9;
             for (IBuilding building : entry.getValue()) {
-                int amountOfBuilding = BuildingsAmountUtil.getAmountOfBuilding(building, townHallLevel);
+                int buildingsPerLevel = BuildingsAmountUtil.getAmountOfBuilding(building, townHallLevel);
                 long buildingsPlayerHas = coCPlayer.getAllBuildings().stream().filter(b -> b.getBuilding() == building).count();
                 List<String> lore = new ArrayList<>(Arrays.asList(lang.getTranslation(building.getDescriptionKey()).split(";")));
 
@@ -111,42 +108,25 @@ public class BuildingBuyGUI {
                         TranslationKeys.COC_GUI_CONSTRUCTION_BUILDING_LORE,
                         Arrays.asList("${cost}", "${type}", "${max}", "${amount}", "${level}"),
                         Arrays.asList(building.getBuildingLevelData()[0].getUpgradeCost() + "", building.getResourceType().getColoredName(lang),
-                                ""+amountOfBuilding, "" + buildingsPlayerHas, townHallLevel + "")).split(";")));
+                                ""+buildingsPerLevel, "" + buildingsPlayerHas, townHallLevel + "")).split(";")));
                 if (building instanceof IUpgradeDetails)
                     lore.addAll(((IUpgradeDetails) building).getLoreDetails(building.getBuildingLevelData()[0], lang));
 
                 menu.setItem(startX, new ItemBuilder(building.getMaterial())
                         .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                         .setName(lang.getTranslation(building.getNameKey()) + ChatColor.translateAlternateColorCodes('&',
-                                " &7- &e" + buildingsPlayerHas + "&7/&e" + amountOfBuilding))
-                        .addEnchantment(buildingsPlayerHas == amountOfBuilding ? Enchantment.ARROW_FIRE : null, 1, true, false)
+                                " &7- &e" + buildingsPlayerHas + "&7/&e" + buildingsPerLevel))
+                        .addEnchantment(buildingsPlayerHas == buildingsPerLevel ? Enchantment.ARROW_FIRE : null, 1, true, false)
                         .setAmount(buildingsPlayerHas > 0 ? (int) buildingsPlayerHas : 1)
                         .setLore(lore).craft(), new ClickAction() {
                     @Override
                     public void onClick(APIPlayer apiPlayer, ItemStack itemStack, int i) {
 
-                        if (coCPlayer.getNormalBuildings().stream().filter(b -> b.getBuilding() == Buildings.BUILDER).count() <= coCPlayer.getConstructionBuildings().size()) {
-                            apiPlayer.sendActionbar(new ActionbarMessage(TranslationKeys.COC_PLAYER_BUILDERS_WORKING).setDuration(3));
-                            apiPlayer.playSound(Sound.ENTITY_VILLAGER_NO);
-                            return;
+                        if (BuildingsManager.getInstance().checkIfPlayerCanBuildAnotherBuilding(coCPlayer, apiPlayer, building, 1)) {
+                            BuildingModeManager.getInstance().enterCreationMode(coCPlayer, building);
+                            apiPlayer.playSound(Sound.ENTITY_VILLAGER_YES);
+                            setCloseInventory(true);
                         }
-
-                        if (buildingsPlayerHas >= amountOfBuilding) {
-                            apiPlayer.sendActionbar(new ActionbarMessage(TranslationKeys.COC_PLAYER_NO_MORE_BUILDINGS).setDuration(3), "${max}", amountOfBuilding + "");
-                            apiPlayer.playSound(Sound.ENTITY_VILLAGER_NO);
-                            return;
-                        }
-
-                        if (building.getBuildingLevelData()[0].getUpgradeCost() > coCPlayer.getResourceAmount(building.getResourceType())) {
-                            apiPlayer.sendActionbar(new ActionbarMessage(TranslationKeys.COC_PLAYER_NOT_ENOUGH_RESOURCE).setDuration(3), "${type}", building.getResourceType().getColoredName(lang));
-                            apiPlayer.playSound(Sound.ENTITY_VILLAGER_NO);
-                            return;
-                        }
-
-
-                        BuildingsMoveManager.getInstance().enterCreationMode(coCPlayer, building);
-                        apiPlayer.playSound(Sound.ENTITY_VILLAGER_YES);
-                        setCloseInventory(true);
                     }
                 });
                 startX += entry.getValue().size() == 2 ? 2 : 1 ;
@@ -162,6 +142,7 @@ public class BuildingBuyGUI {
 
         menu.fill(UsefulItems.BACKGROUND_BLACK);
 
+        player.getPlayer().closeInventory();
         menu.open(player);
     }
 }

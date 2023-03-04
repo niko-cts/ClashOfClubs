@@ -20,82 +20,47 @@ public class BuildingDisplayUtil {
     }
 
     public static Material getMaterial(int slot) {
-        switch (slot) {
-            case 10:
-                return Material.GOLD_INGOT;
-            case 12:
-                return Material.IRON_CHESTPLATE;
-            case 14:
-                return Material.DIAMOND_SWORD;
-            case 16:
-                return Material.JUNGLE_SAPLING;
-            default:
-                return Material.AIR;
-        }
+        return switch (slot) {
+            case 10 -> Material.GOLD_INGOT;
+            case 12 -> Material.IRON_CHESTPLATE;
+            case 14 -> Material.DIAMOND_SWORD;
+            case 16 -> Material.JUNGLE_SAPLING;
+            default -> Material.AIR;
+        };
     }
 
     public static IBuilding[][] getBuildingsForBuyGUI(int slot) {
-        switch (slot) {
-            case 10:
-                return new IBuilding[][]{new IBuilding[]{ResourceGathererBuildings.FARM, ResourceContainerBuildings.BARN_STOCK},
-                        {ResourceGathererBuildings.GOLD_MINER, ResourceContainerBuildings.GOLD_STOCK},
-                        {ResourceGathererBuildings.COAL_MINER, ResourceContainerBuildings.GENERATOR}};
-            case 12:
-                return new IBuilding[][]{DefenseBuildings.values()};
-            case 14:
-                return new IBuilding[][]{TroopBuildings.values(), TroopCreationBuildings.values()};
-            case 16:
-                return new IBuilding[][]{new IBuilding[]{Buildings.BUILDER}, DecorativeBuildings.values(), WallBuildings.values()};
-            default:
-                return new IBuilding[0][0];
-        }
-    }
-
-    private static IBuilding[][] getBuildingsOverviewForLore(int slot) {
-        switch (slot) {
-            case 10:
-                return new IBuilding[][]{new IBuilding[]{ResourceGathererBuildings.FARM, ResourceContainerBuildings.BARN_STOCK},
-                        {ResourceGathererBuildings.GOLD_MINER, ResourceContainerBuildings.GOLD_STOCK},
-                        {ResourceGathererBuildings.COAL_MINER, ResourceContainerBuildings.GENERATOR}};
-            case 12:
-                return new IBuilding[][]{DefenseBuildings.values()};
-            case 14:
-                return new IBuilding[][]{TroopBuildings.values(), TroopCreationBuildings.values()};
-            case 16:
-                return new IBuilding[][]{new IBuilding[]{Buildings.BUILDER}, DecorativeBuildings.values(), WallBuildings.values()};
-            default:
-                return new IBuilding[0][0];
-        }
+        return switch (slot) {
+            case 10 ->
+                    new IBuilding[][]{new IBuilding[]{ResourceGathererBuildings.FARM, ResourceContainerBuildings.BARN_STOCK},
+                            {ResourceGathererBuildings.GOLD_MINER, ResourceContainerBuildings.GOLD_STOCK},
+                            {ResourceGathererBuildings.COAL_MINER, ResourceContainerBuildings.GENERATOR}};
+            case 12 -> new IBuilding[][]{DefenseBuildings.values()};
+            case 14 -> new IBuilding[][]{TroopBuildings.values(), TroopCreationBuildings.values()};
+            case 16 ->
+                    new IBuilding[][]{new IBuilding[]{Buildings.BUILDER}, DecorativeBuildings.values(), WallBuildings.values()};
+            default -> new IBuilding[0][0];
+        };
     }
 
     public static String getNameKey(int slot) {
-        switch (slot) {
-            case 10:
-                return TranslationKeys.COC_GUI_CONSTRUCTION_RESOURCE_NAME;
-            case 12:
-                return TranslationKeys.COC_GUI_CONSTRUCTION_DEFENSE_NAME;
-            case 14:
-                return TranslationKeys.COC_GUI_CONSTRUCTION_TROOP_NAME;
-            case 16:
-                return TranslationKeys.COC_GUI_CONSTRUCTION_DECORATIVE_NAME;
-            default:
-                return "";
-        }
+        return switch (slot) {
+            case 10 -> TranslationKeys.COC_GUI_CONSTRUCTION_RESOURCE_NAME;
+            case 12 -> TranslationKeys.COC_GUI_CONSTRUCTION_DEFENSE_NAME;
+            case 14 -> TranslationKeys.COC_GUI_CONSTRUCTION_TROOP_NAME;
+            case 16 -> TranslationKeys.COC_GUI_CONSTRUCTION_DECORATIVE_NAME;
+            default -> "";
+        };
     }
 
     private static String getLoreKey(int slot) {
-        switch (slot) {
-            case 10:
-                return TranslationKeys.COC_GUI_CONSTRUCTION_RESOURCE_LORE;
-            case 12:
-                return TranslationKeys.COC_GUI_CONSTRUCTION_DEFENSE_LORE;
-            case 14:
-                return TranslationKeys.COC_GUI_CONSTRUCTION_TROOP_LORE;
-            case 16:
-                return TranslationKeys.COC_GUI_CONSTRUCTION_DECORATIVE_LORE;
-            default:
-                return "";
-        }
+        return switch (slot) {
+            case 10 -> TranslationKeys.COC_GUI_CONSTRUCTION_RESOURCE_LORE;
+            case 12 -> TranslationKeys.COC_GUI_CONSTRUCTION_DEFENSE_LORE;
+            case 14 -> TranslationKeys.COC_GUI_CONSTRUCTION_TROOP_LORE;
+            case 16 -> TranslationKeys.COC_GUI_CONSTRUCTION_DECORATIVE_LORE;
+            default -> "";
+        };
     }
 
     /**

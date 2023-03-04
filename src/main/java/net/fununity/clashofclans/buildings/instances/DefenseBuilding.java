@@ -28,7 +28,7 @@ public class DefenseBuilding extends GeneralBuilding {
 
     @Override
     public CustomInventory getInventory(Language language) {
-        CircleParticleUtil.displayRadius(getCenterCoordinate(), getBuilding().getRadius(), 15);
+        CircleParticleUtil.displayRadius(getBuildingUUID(), getCenterCoordinate(), getBuilding().getRadius(), 15);
         return super.getInventory(language);
     }
 
@@ -46,5 +46,9 @@ public class DefenseBuilding extends GeneralBuilding {
      */
     public double getDamage() {
         return getBuilding().getBuildingLevelData()[getLevel()-1].getDamage();
+    }
+
+    public double getRadius() {
+        return getBuilding().getRadius();
     }
 }

@@ -1,25 +1,23 @@
 package net.fununity.clashofclans.buildings.instances.resource;
 
 import net.fununity.clashofclans.ClashOfClubs;
-import net.fununity.clashofclans.ResourceTypes;
+import net.fununity.clashofclans.buildings.BuildingsManager;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IResourceGatherBuilding;
 import net.fununity.clashofclans.buildings.interfaces.data.ResourceGatherLevelData;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.CoCPlayer;
-import net.fununity.clashofclans.player.TutorialManager;
-import net.fununity.main.api.actionbar.ActionbarMessage;
 import net.fununity.main.api.inventory.ClickAction;
 import net.fununity.main.api.inventory.CustomInventory;
 import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.item.UsefulItems;
 import net.fununity.main.api.player.APIPlayer;
 import net.fununity.misc.translationhandler.translations.Language;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -83,25 +81,13 @@ public class ResourceGatherBuilding extends ResourceContainerBuilding {
                 if (getAmount() < 1)
                     return;
 
-                emptyGatherer();
-
-                if (TutorialManager.getInstance().getState(getOwnerUUID()) == TutorialManager.TutorialState.COLLECT_RESOURCE) {
-                    setCloseInventory(true);
-                    Bukkit.getScheduler().runTaskLater(ClashOfClubs.getInstance(), ()->
-                            TutorialManager.getInstance().finished(ClashOfClubs.getInstance().getPlayerManager().getPlayer(getOwnerUUID())), 1L);
-                }
+                setCloseInventory(BuildingsManager.getInstance().emptyGatherer(List.of(ResourceGatherBuilding.this)));
             }
 
             @Override
             public void onShiftClick(APIPlayer apiPlayer, ItemStack itemStack, int slot) {
                 CoCPlayer player = ClashOfClubs.getInstance().getPlayerManager().getPlayer(getOwnerUUID());
-                player.getResourceGatherBuildings(getContainingResourceType()).forEach(ResourceGatherBuilding::emptyGatherer);
-
-                if (TutorialManager.getInstance().getState(getOwnerUUID()) == TutorialManager.TutorialState.COLLECT_RESOURCE) {
-                    setCloseInventory(true);
-                    Bukkit.getScheduler().runTaskLater(ClashOfClubs.getInstance(), ()->
-                            TutorialManager.getInstance().finished(ClashOfClubs.getInstance().getPlayerManager().getPlayer(getOwnerUUID())), 1L);
-                }
+                setCloseInventory(BuildingsManager.getInstance().emptyGatherer(player.getResourceGatherBuildings(getContainingResourceType())));
             }
         });
 
@@ -111,12 +97,14 @@ public class ResourceGatherBuilding extends ResourceContainerBuilding {
 
     /**
      * Adds the amount of gathering resource per second
+     * @return boolean - needs a rebuild
      * @since 0.0.2
      */
-    public void addAmountPerSecond() {
+    public boolean addAmountPerSecond() {
         ResourceGatherLevelData levelData = getBuilding().getBuildingLevelData()[getLevel() - 1];
         if (getAmount() < levelData.getMaximumResource())
-            setAmount(getAmount() + levelData.getResourceGatheringPerHour() / (3600.0)); // each s
+            return setAmount(getAmount() + levelData.getResourceGatheringPerHour() / (3600.0)); // each s
+        return false;
     }
 
     /**
@@ -129,26 +117,6 @@ public class ResourceGatherBuilding extends ResourceContainerBuilding {
         if (getAmount() < levelData.getMaximumResource())
             setAmount(getAmount() + levelData.getResourceGatheringPerHour() / 3600.0 * secondsGone); // each s
     }
-
-
-    /**
-     * Drains the gatherer and calls {@link CoCPlayer#fillResourceToContainer(ResourceTypes, int)}.
-     * @since 0.0.2
-     */
-    public void emptyGatherer() {
-        CoCPlayer cocPlayer = ClashOfClubs.getInstance().getPlayerManager().getPlayer(getOwnerUUID());
-
-        int toAdd = Math.min(cocPlayer.getMaxResourceContainable(getContainingResourceType()) - cocPlayer.getResourceAmount(getContainingResourceType()), (int) getAmount());
-        if (toAdd <= 0) {
-            APIPlayer owner = cocPlayer.getOwner();
-            if(owner != null)
-                owner.sendActionbar(new ActionbarMessage(TranslationKeys.COC_PLAYER_NO_RESOURCE_TANKS));
-            return;
-        }
-
-        setAmount(getAmount() - toAdd);
-        cocPlayer.fillResourceToContainer(getContainingResourceType(), toAdd);
-     }
 
     /**
      * Get the resource gathering per hour on the current level.

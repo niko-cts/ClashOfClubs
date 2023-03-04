@@ -14,9 +14,13 @@ import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IResourceContainerBuilding;
 import net.fununity.clashofclans.buildings.interfaces.ITroopBuilding;
 import net.fununity.clashofclans.buildings.list.*;
+import net.fununity.clashofclans.player.buildingmode.ConstructionMode;
+import net.fununity.clashofclans.player.buildingmode.IBuildingMode;
+import net.fununity.clashofclans.player.buildingmode.MovingMode;
 import net.fununity.clashofclans.troops.ITroop;
 import net.fununity.clashofclans.util.BuildingLocationUtil;
 import net.fununity.clashofclans.util.BuildingsAmountUtil;
+import net.fununity.clashofclans.util.CircleParticleUtil;
 import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.player.APIPlayer;
 import org.bukkit.GameMode;
@@ -43,13 +47,14 @@ public class CoCPlayer {
     private final String lastServer;
     private final long lastJoin;
 
-    private final Object[] buildingMode;
     private final List<GeneralBuilding> normalBuildings;
     private final Map<ResourceTypes, List<ResourceContainerBuilding>> resourceBuildings;
     private final List<TroopsBuilding> troopsBuildings;
     private final List<DefenseBuilding> defenseBuildings;
     private final List<ConstructionBuilding> constructionBuildings;
     private final List<UUID> visitors;
+
+    private IBuildingMode buildingMode;
 
     /**
      * Instantiates the class.
@@ -72,7 +77,7 @@ public class CoCPlayer {
         this.lastServer = lastServer;
         this.lastJoin = lastJoin;
         this.visitors = new ArrayList<>();
-        this.buildingMode = new Object[3];
+        this.buildingMode = null;
 
         this.normalBuildings = new ArrayList<>();
         this.resourceBuildings = new HashMap<>();
@@ -106,6 +111,9 @@ public class CoCPlayer {
         apiPlayer.getPlayer().setGameMode(GameMode.SURVIVAL);
         apiPlayer.getPlayer().setAllowFlight(true);
         apiPlayer.getPlayer().getInventory().clear();
+        apiPlayer.getPlayer().setLevel(0);
+        apiPlayer.getPlayer().setExp(0);
+        apiPlayer.getPlayer().giveExp(getExp());
 
         if (apiPlayer.getUniqueId().equals(uuid)) {
             getAllBuildings().stream().filter(b -> b instanceof GeneralHologramBuilding).forEach(b -> ((GeneralHologramBuilding) b).updateHologram(((GeneralHologramBuilding) b).getShowText()));
@@ -160,9 +168,9 @@ public class CoCPlayer {
     /**
      * Gets the resource amount the player currently has.
      * @param type ResourceType - type of resource.
-     * @return int - amount of resource
+     * @return double - amount of resource
      */
-    public int getResourceAmount(ResourceTypes type) {
+    public double getResourceAmount(ResourceTypes type) {
         if (type == ResourceTypes.GEMS)
            return getGems();
         int amount = 0;
@@ -214,16 +222,19 @@ public class CoCPlayer {
     /**
      * Add resource to the player.
      * @param type ResourceTypes - the resource type.
-     * @param add int - the amount of resource
+     * @param add double - the amount of resource
+     * @return List<ResourceContainerBuilding> - buildings that need a rebuild
      * @since 0.0.1
      */
-    public void fillResourceToContainer(ResourceTypes type, int add) {
+    public List<ResourceContainerBuilding> fillResourceToContainer(ResourceTypes type, double add) {
+        List<ResourceContainerBuilding> toRebuildBuildings = new ArrayList<>();
+
         List<ResourceContainerBuilding> containerBuildings = getResourceContainerBuildings(type);
-        if (containerBuildings.isEmpty()) return;
+        if (containerBuildings.isEmpty()) return toRebuildBuildings;
 
         containerBuildings.sort(Comparator.comparingInt(ResourceContainerBuilding::getMaximumResource));
 
-        int needToAddPerBuilding = add / containerBuildings.size();
+        double needToAddPerBuilding = add / containerBuildings.size();
 
         for (int i = 0; i < containerBuildings.size(); i++) {
             if (add <= 0)
@@ -233,8 +244,8 @@ public class CoCPlayer {
             if (resourceContainerBuilding.getMaximumResource() == resourceContainerBuilding.getAmount())
                 continue;
 
-            int newAmount;
-            int summedAmount = needToAddPerBuilding + (int) resourceContainerBuilding.getAmount();
+            double newAmount;
+            double summedAmount = needToAddPerBuilding + resourceContainerBuilding.getAmount();
 
             if (summedAmount <= resourceContainerBuilding.getMaximumResource()) {
                 newAmount = summedAmount;
@@ -245,10 +256,12 @@ public class CoCPlayer {
                 needToAddPerBuilding = add / (containerBuildings.size() - i);
             }
 
-            resourceContainerBuilding.setAmount(newAmount);
+            if (resourceContainerBuilding.setAmount(newAmount))
+                toRebuildBuildings.add(resourceContainerBuilding);
         }
 
         ScoreboardMenu.show(this);
+        return toRebuildBuildings;
     }
 
 
@@ -287,7 +300,7 @@ public class CoCPlayer {
      * @since 0.0.1
      */
     public List<TroopsBuilding> getTroopsCampBuildings() {
-        return troopsBuildings.stream().filter(t -> !(t instanceof TroopsCreateBuilding)).collect(Collectors.toList());
+        return troopsBuildings.stream().filter(t -> !(t instanceof TroopsCreateBuilding)).sorted(Comparator.comparingInt(TroopsBuilding::getCurrentSizeOfTroops)).collect(Collectors.toList());
     }
 
     /**
@@ -369,6 +382,13 @@ public class CoCPlayer {
             normalBuildings.add(generalBuilding);
     }
 
+    public void removeConstructions(List<ConstructionBuilding> constructions) {
+        constructionBuildings.removeAll(constructions);
+    }
+
+    public void addConstructions(List<ConstructionBuilding> constructions) {
+        constructionBuildings.addAll(constructions);
+    }
 
     /**
      * Get the maximum amount of containable resource from a type.
@@ -397,30 +417,6 @@ public class CoCPlayer {
         }
         return troopsAmount;
     }
-
-
-
-
-
-    /**
-     * Get the building mode data from the player.
-     * @return Object[] - IBuilding/GeneralBuilding, Location, byte rotation
-     * @since 0.0.1
-     */
-    public Object[] getBuildingMode() {
-        return buildingMode;
-    }
-
-    /**
-     * Sets the given objects to the building mode array.
-     * @param objects Object... - the objects.
-     * @since 0.0.1
-     */
-    public void setBuildingMode(Object... objects) {
-        System.arraycopy(objects, 0, this.buildingMode, 0, objects.length);
-    }
-
-
 
 
     /**
@@ -507,6 +503,26 @@ public class CoCPlayer {
      */
     public UUID getUniqueId() {
         return uuid;
+    }
+
+    public void setBuildingMode(IBuildingMode buildingMode) {
+        this.buildingMode = buildingMode;
+
+        if (buildingMode == null) {
+            getDefenseBuildings().forEach(d -> CircleParticleUtil.hideRadius(d.getBuildingUUID()));
+        } else {
+            getDefenseBuildings().stream().filter(d -> !d.getBuildingUUID().equals(buildingMode.getBuildingUUID()))
+                    .forEach(d -> CircleParticleUtil.displayRadius(d.getBuildingUUID(), d.getCenterCoordinate(), d.getRadius()));
+        }
+    }
+
+    /**
+     * Get the building mode interface of either {@link ConstructionMode} or {@link MovingMode}.
+     * @return {@link IBuilding} - the building mode.
+     * @since 0.0.2
+     */
+    public IBuildingMode getBuildingMode() {
+        return buildingMode;
     }
 
     public long getLastJoinMillis() {

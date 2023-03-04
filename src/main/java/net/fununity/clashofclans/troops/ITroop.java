@@ -44,7 +44,7 @@ public interface ITroop {
     int getMaxHP();
 
     /**
-     * Get the damage of the troop.
+     * Get the damage to the troop.
      * @return double - the damage.
      * @since 0.0.1
      */
@@ -70,6 +70,13 @@ public interface ITroop {
      * @since 0.0.1
      */
     String name();
+
+    /**
+     * Get the enum ordinal of the troop.
+     * @return int - the ordinal.
+     * @since 0.0.1
+     */
+    int ordinal();
 
     /**
      * The size the troop needs.

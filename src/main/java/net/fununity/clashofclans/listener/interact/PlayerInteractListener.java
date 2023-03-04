@@ -1,15 +1,7 @@
 package net.fununity.clashofclans.listener.interact;
 
 import net.fununity.clashofclans.ClashOfClubs;
-import net.fununity.clashofclans.buildings.BuildingsManager;
-import net.fununity.clashofclans.buildings.BuildingsMoveManager;
-import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
-import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.CoCPlayer;
-import net.fununity.clashofclans.util.BuildingLocationUtil;
-import net.fununity.main.api.FunUnityAPI;
-import net.fununity.main.api.actionbar.ActionbarMessage;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -45,7 +37,7 @@ public class PlayerInteractListener implements Listener {
             Block targetBlock = event.getClickedBlock();
             if (targetBlock != null) {
                 CoCPlayer player = ClashOfClubs.getInstance().getPlayerManager().getPlayer(uuid);
-                if (player != null)
+                if (player != null && player.getBuildingMode() != null)
                     ClashOfClubs.getInstance().getPlayerManager().clickBlock(player, targetBlock);
             }
         }

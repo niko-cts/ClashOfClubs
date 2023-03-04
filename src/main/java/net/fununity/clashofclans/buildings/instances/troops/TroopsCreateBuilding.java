@@ -1,5 +1,6 @@
 package net.fununity.clashofclans.buildings.instances.troops;
 
+import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.TroopsBuildingManager;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.buildings.interfaces.ITroopCreateBuilding;
@@ -13,6 +14,7 @@ import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.item.UsefulItems;
 import net.fununity.main.api.player.APIPlayer;
 import net.fununity.misc.translationhandler.translations.Language;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
@@ -22,6 +24,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The troop creation building class.
@@ -44,17 +47,36 @@ public class TroopsCreateBuilding extends TroopsBuilding {
      * @since 0.0.1
      */
     public TroopsCreateBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, byte rotation, int level) {
-        super(uuid, buildingUUID, building, coordinate, rotation, level);
+        this (uuid, buildingUUID, building, coordinate, rotation, level, new ConcurrentHashMap<>());
+    }
+
+    /**
+     * Instantiates the class.
+     * @param uuid UUID - the uuid of the owner.
+     * @param buildingUUID UUID - the uuid of the building.
+     * @param building   IBuilding - the building class.
+     * @param coordinate Location - the location of the building.
+     * @param level      int - the level of the building.
+     * @param troopAmount ConcurrentHashMap - the troops and amount
+     * @since 0.0.1
+     */
+    public TroopsCreateBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, byte rotation, int level, ConcurrentHashMap<ITroop, Integer> troopAmount) {
+        super(uuid, buildingUUID, building, coordinate, rotation, level, troopAmount);
         this.troopsQueue = new LinkedList<>();
     }
+
 
     @Override
     public CustomInventory getInventory(Language language) {
         CustomInventory inventory = super.getInventory(language);
-        CustomInventory menu = new CustomInventory(getBuildingTitle(language), 9 * 4);
-        menu.setSpecialHolder(getId() + "-" + getCoordinate().toString());
-        for (int i = 0; i < inventory.getInventory().getContents().length; i++)
+        CustomInventory menu = new CustomInventory(getBuildingTitle(language), 9 * (getCurrentSizeOfTroops() > 0 ? 5 : 4));
+        menu.setSpecialHolder(inventory.getSpecialHolder());
+
+        for (int i = 0; i < menu.getInventory().getSize(); i++)
             menu.setItem(i, inventory.getInventory().getItem(i), inventory.getClickAction(i));
+
+        if (getCurrentSizeOfTroops() == 0)
+            menu.setItem(22, UsefulItems.BACKGROUND_BLACK);
 
         menu.setItem(24, new ItemBuilder(Material.IRON_SWORD)
                         .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
@@ -64,17 +86,18 @@ public class TroopsCreateBuilding extends TroopsBuilding {
                     @Override
                     public void onClick(APIPlayer apiPlayer, ItemStack itemStack, int i) {
                         apiPlayer.getPlayer().closeInventory();
-                        TroopsGUI.openTraining(apiPlayer, TroopsCreateBuilding.this);
+                        Bukkit.getScheduler().runTaskLater(ClashOfClubs.getInstance(), () ->
+                                TroopsGUI.openTraining(apiPlayer, TroopsCreateBuilding.this), 1L);
                     }
                 });
 
-        menu.fill(UsefulItems.BACKGROUND_GRAY);
+        menu.fill(UsefulItems.BACKGROUND_BLACK);
 
         return menu;
     }
 
     /**
-     * Checks the queue. If the training time is finished, calls {@link TroopsBuildingManager#troopEducated(TroopsCreateBuilding)}.
+     * Checks the queue. If the training time is finished, calls {@link TroopsBuildingManager#troopEducated(TroopsCreateBuilding, ITroop)}.
      * @since 0.0.2
      */
     public void checkQueue() {
@@ -84,33 +107,62 @@ public class TroopsCreateBuilding extends TroopsBuilding {
         queueSecondsLast--;
 
         if (queueSecondsLast < 1) {
-            TroopsBuildingManager.getInstance().troopEducated(this);
+            TroopsBuildingManager.getInstance().troopEducated(this, troopsQueue.poll());
             if (!troopsQueue.isEmpty())
                 queueSecondsLast = troopsQueue.peek().getTrainDuration();
         }
+
+        ClashOfClubs.getInstance().getPlayerManager().forceUpdateInventory(this);
     }
 
-    public void checkQueuePlayerWasGone(double secondsGone) {
-        for (int i = 0; i < secondsGone; i++) {
-            if (troopsQueue.isEmpty()) break;
-            checkQueue();
-        }
+    /**
+     * Skips the queue for the amount of seconds player was gone.
+     * @param secondsGone int - the seconds the player was gone.
+     */
+    public void checkQueuePlayerWasGone(int secondsGone) {
+        do {
+            if (troopsQueue.isEmpty())
+                break;
+
+            if (queueSecondsLast <= secondsGone) {
+                TroopsBuildingManager.getInstance().troopEducated(this, troopsQueue.poll());
+                if (!troopsQueue.isEmpty())
+                    queueSecondsLast = troopsQueue.peek().getTrainDuration();
+                secondsGone -= queueSecondsLast;
+            } else {
+                queueSecondsLast -= secondsGone;
+                secondsGone = 0;
+            }
+        } while (secondsGone > 0);
     }
 
     /**
      * Adds a troop to the queue.
-     * @param troopsQueue ITroop - the troop
+     * @param troop ITroop - the troop
      * @return boolean - could be added to the queue
      * @since 0.0.2
      */
-    public boolean addTroop(ITroop troopsQueue) {
-        if (troopsQueue.getSize() + getCurrentSizeOfTroops() > getMaxAmountOfTroops())
+    public boolean addTroop(ITroop troop) {
+        if (getCurrentSizeOfTroops() >= getMaxAmountOfTroops())
             return false;
         if (this.troopsQueue.isEmpty())
-            this.queueSecondsLast = troopsQueue.getTrainDuration();
-        this.troopsQueue.add(troopsQueue);
+            this.queueSecondsLast = troop.getTrainDuration();
+        this.troopsQueue.add(troop);
         return true;
     }
+
+
+    public void removeTroop(ITroop troop) {
+        if (this.troopsQueue.isEmpty()) return;
+        if (this.troopsQueue.peek().equals(troop)) {
+            this.troopsQueue.poll();
+            if (!this.troopsQueue.isEmpty())
+                this.queueSecondsLast = troopsQueue.peek().getTrainDuration();
+        } else {
+            this.troopsQueue.remove(troop);
+        }
+    }
+
 
     /**
      * Calculates the size of troops already educated and the size of troops in queue.
@@ -119,9 +171,9 @@ public class TroopsCreateBuilding extends TroopsBuilding {
     @Override
     public int getCurrentSizeOfTroops() {
         int sizeOfTroops = super.getCurrentSizeOfTroops();
-        Queue<ITroop> troops = new LinkedList<>(troopsQueue);
-        while(!troops.isEmpty())
-            sizeOfTroops += troops.poll().getSize();
+        for (ITroop iTroop : getTroopsQueue()) {
+            sizeOfTroops += iTroop.getSize();
+        }
         return sizeOfTroops;
     }
 
@@ -133,20 +185,7 @@ public class TroopsCreateBuilding extends TroopsBuilding {
         return new LinkedList<>(troopsQueue);
     }
 
-    /**
-     * Returns a string with every troop in queue.
-     * Example: name,name2,...
-     * @return String - all troop names in lowercase split by ','.
-     */
-    public String getTroopsQueueId() {
-        StringBuilder stringBuilder = new StringBuilder();
-        Iterator<ITroop> iterator = getTroopsQueue().iterator();
-        while (iterator.hasNext()) {
-            stringBuilder.append(iterator.next().name().toLowerCase());
-            if(iterator.hasNext()) stringBuilder.append(",");
-        }
-        return stringBuilder.toString();
-    }
+
 
     @Override
     public ITroopCreateBuilding getBuilding() {
@@ -159,14 +198,29 @@ public class TroopsCreateBuilding extends TroopsBuilding {
      * @since 0.0.2
      */
     public int getTrainSecondsLeft() {
-        return (int) ((queueSecondsLast - System.currentTimeMillis()) / 1000);
+        return (int) queueSecondsLast;
     }
 
+    /**
+     * Returns a string with every troop in queue.
+     * Example: ordinal1,ordinal2,...
+     * @return String - all troop ordinals split by ','.
+     */
+    public String getTroopsQueueId() {
+        StringBuilder stringBuilder = new StringBuilder();
+        Iterator<ITroop> iterator = getTroopsQueue().iterator();
+        while (iterator.hasNext()) {
+            stringBuilder.append(iterator.next().ordinal());
+            if (iterator.hasNext())
+                stringBuilder.append(",");
+        }
+        return stringBuilder.toString();
+    }
     public void insertQueue(String queue) {
-        if (queue.isEmpty()) return;
-
+        if (queue.isBlank()) return;
         for (String troop : queue.split(",")) {
-            addTroop(Troops.valueOf(troop.toUpperCase()));
+            addTroop(Troops.values()[Integer.parseInt(troop)]);
         }
     }
+
 }

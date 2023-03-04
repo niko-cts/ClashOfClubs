@@ -12,6 +12,9 @@ public class HotbarItems {
     }
 
     public static final Material CREATE_BUILDING = Material.NETHER_STAR;
+    public static final Material CREATE_BUILDING_ANOTHER = Material.LEAD;
+    public static final Material CREATE_BUILDING_REMOVE = Material.REDSTONE;
+
     public static final Material MOVE_BUILDING = Material.PISTON;
     public static final Material ROTATE_BUILDING = Material.STICK;
     public static final Material CANCEL = Material.BARRIER;

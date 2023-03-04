@@ -3,19 +3,24 @@ package net.fununity.clashofclans.listener.interact;
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.attacking.MatchmakingSystem;
+import net.fununity.clashofclans.buildings.BuildingModeManager;
 import net.fununity.clashofclans.buildings.BuildingsManager;
-import net.fununity.clashofclans.buildings.BuildingsMoveManager;
-import net.fununity.clashofclans.buildings.instances.resource.ResourceGatherBuilding;
 import net.fununity.clashofclans.gui.AttackHistoryGUI;
 import net.fununity.clashofclans.gui.BuildingBuyGUI;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.player.TutorialManager;
+import net.fununity.clashofclans.player.buildingmode.BuildingData;
+import net.fununity.clashofclans.player.buildingmode.ConstructionMode;
+import net.fununity.clashofclans.player.buildingmode.IBuildingMode;
+import net.fununity.clashofclans.player.buildingmode.MovingMode;
 import net.fununity.clashofclans.util.BuildingLocationUtil;
 import net.fununity.clashofclans.util.HotbarItems;
 import net.fununity.main.api.FunUnityAPI;
-import net.fununity.main.api.actionbar.ActionbarMessage;
+import net.fununity.main.api.messages.MessagePrefix;
+import net.fununity.main.api.player.APIPlayer;
 import net.fununity.main.api.util.LocationUtil;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
@@ -30,7 +35,7 @@ import java.util.UUID;
 public class PlayerSelectHotbarListener implements Listener {
 
     private static final List<Material> WHITELIST_MATERIALS =
-            Arrays.asList(HotbarItems.CANCEL, HotbarItems.CREATE_BUILDING, HotbarItems.MOVE_BUILDING, HotbarItems.ROTATE_BUILDING,
+            Arrays.asList(HotbarItems.CANCEL, HotbarItems.CREATE_BUILDING, HotbarItems.MOVE_BUILDING, HotbarItems.ROTATE_BUILDING, HotbarItems.CREATE_BUILDING_ANOTHER, HotbarItems.CREATE_BUILDING_REMOVE,
                     HotbarItems.SHOP, HotbarItems.POINTER, HotbarItems.TUTORIAL_BOOK,
                     HotbarItems.START_ATTACK, HotbarItems.ATTACK_HISTORY);
 
@@ -62,37 +67,68 @@ public class PlayerSelectHotbarListener implements Listener {
         ResourceTypes resourceType = Arrays.stream(ResourceTypes.values()).filter(r -> r.getRepresentativeMaterial() == handMaterial).findFirst().orElse(null);
 
         if (resourceType != null) {
-            for (ResourceGatherBuilding building : player.getResourceGatherBuildings(resourceType)) {
-                if (building.getAmount() > 0)
-                    building.emptyGatherer();
-            }
+            BuildingsManager.getInstance().emptyGatherer(player.getResourceGatherBuildings(resourceType));
             return;
         }
 
         if (handMaterial == HotbarItems.CANCEL) {
-            BuildingsMoveManager.getInstance().quitEditorMode(player);
+            BuildingModeManager.getInstance().quitEditorMode(player);
         } else if (handMaterial == HotbarItems.ROTATE_BUILDING) {
             BuildingLocationUtil.removeBuildingModeDecorations(event.getPlayer(), player.getBuildingMode());
-            int rotate = (byte) player.getBuildingMode()[2];
-            player.setBuildingMode(player.getBuildingMode()[0], player.getBuildingMode()[1], rotate == 3 ? (byte) 0 : (byte) (rotate + 1));
+            int rotate = player.getBuildingMode().getRotation();
+            player.getBuildingMode().setRotation(rotate == 3 ? (byte) 0 : (byte) (rotate + 1));
             BuildingLocationUtil.createBuildingModeDecoration(event.getPlayer(), player);
+        } else if (handMaterial == HotbarItems.CREATE_BUILDING_ANOTHER) {
+            IBuildingMode buildingMode = player.getBuildingMode();
+            APIPlayer apiPlayer = player.getOwner();
+            if (BuildingLocationUtil.otherBuildingInWay(player, BuildingLocationUtil.getAllLocationsOnGround(buildingMode))) {
+                apiPlayer.sendMessage(MessagePrefix.ERROR, TranslationKeys.COC_CONSTRUCTION_BUILDINGINWAY);
+                return;
+            }
 
+            if (BuildingsManager.getInstance().checkIfPlayerCanBuildAnotherBuilding(player, player.getOwner(), buildingMode.getBuilding(),
+                    ((ConstructionMode) buildingMode).getBuildings().size() + 1)) {
+                BuildingLocationUtil.removeBuildingModeDecorations(event.getPlayer(), buildingMode);
+
+
+                byte rotation = player.getBuildingMode().getRotation();
+                Location newLocation = player.getBuildingMode().getLocation().clone().add(0, 0, 2);
+
+                List<BuildingData> buildings = ((ConstructionMode) player.getBuildingMode()).getBuildings();
+                buildings.add(new BuildingData(UUID.randomUUID(), newLocation, rotation));
+
+                BuildingLocationUtil.createBuildingModeDecoration(event.getPlayer(), player);
+            }
+        } else if (handMaterial == HotbarItems.CREATE_BUILDING_REMOVE) {
+
+            BuildingLocationUtil.removeBuildingModeDecorations(event.getPlayer(), player.getBuildingMode());
+
+            List<BuildingData> buildings = ((ConstructionMode) player.getBuildingMode()).getBuildings();
+
+            if (buildings.size() > 1)
+                buildings.remove(buildings.size() - 1);
+
+            BuildingLocationUtil.createBuildingModeDecoration(event.getPlayer(), player);
         } else if (handMaterial == HotbarItems.CREATE_BUILDING || handMaterial == HotbarItems.MOVE_BUILDING) {
-            if (BuildingLocationUtil.otherBuildingInWay(player)) {
-                FunUnityAPI.getInstance().getActionbarManager().addActionbar(uuid, new ActionbarMessage(TranslationKeys.COC_CONSTRUCTION_BUILDINGINWAY));
+
+            APIPlayer apiPlayer = player.getOwner();
+
+            // check if any building is in way
+            if (BuildingLocationUtil.otherBuildingInWay(player, BuildingLocationUtil.getAllLocationsOnGround(player.getBuildingMode()))) {
+                apiPlayer.sendMessage(MessagePrefix.ERROR, TranslationKeys.COC_CONSTRUCTION_BUILDINGINWAY);
                 return;
             }
 
             BuildingLocationUtil.removeBuildingModeDecorations(event.getPlayer(), player.getBuildingMode());
 
-            if (handMaterial == HotbarItems.MOVE_BUILDING) {
-                BuildingsMoveManager.getInstance().moveBuilding(player.getBuildingMode());
-                FunUnityAPI.getInstance().getActionbarManager().addActionbar(uuid, new ActionbarMessage(TranslationKeys.COC_CONSTRUCTION_MOVED));
+            if (player.getBuildingMode() instanceof MovingMode) {
+                BuildingModeManager.getInstance().moveBuilding((MovingMode) player.getBuildingMode());
+                apiPlayer.sendMessage(MessagePrefix.SUCCESS, TranslationKeys.COC_CONSTRUCTION_MOVED);
             } else {
                 BuildingsManager.getInstance().build(player);
-                FunUnityAPI.getInstance().getActionbarManager().addActionbar(uuid, new ActionbarMessage(TranslationKeys.COC_CONSTRUCTION_BUILD));
+                apiPlayer.sendMessage(MessagePrefix.SUCCESS, TranslationKeys.COC_CONSTRUCTION_BUILD);
             }
-            BuildingsMoveManager.getInstance().quitEditorMode(player);
+            BuildingModeManager.getInstance().quitEditorMode(player);
         } else if (handMaterial == HotbarItems.SHOP) {
             BuildingBuyGUI.open(player);
         } else if (handMaterial == HotbarItems.POINTER) {

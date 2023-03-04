@@ -72,6 +72,7 @@ public class TranslationKeys {
     public static final String COC_GUI_BUILDING_HP_LORE = "coc.gui.building.hp.lore";
     public static final String COC_GUI_BUILDING_UPGRADE_NAME = "coc.gui.building.upgrade.name";
     public static final String COC_GUI_BUILDING_UPGRADE_LORE = "coc.gui.building.upgrade.lore";
+    public static final String COC_GUI_BUILDING_NO_UPGRADE_NAME = "coc.gui.building.noupgrade.name";
     public static final String COC_GUI_BUILDING_REPAIR_NAME = "coc.gui.building.repair.name";
     public static final String COC_GUI_BUILDING_REPAIR_LORE = "coc.gui.building.repair.lore";
     public static final String COC_GUI_BUILDING_MOVING_NAME = "coc.gui.building.moving.name";
@@ -100,6 +101,7 @@ public class TranslationKeys {
     public static final String COC_GUI_CONSTRUCTION_TROOP_LORE = "coc.gui.construction.troop.lore";
     public static final String COC_GUI_CONSTRUCTION_BUILDING_NAME = "coc.gui.construction.building.name";
     public static final String COC_GUI_CONSTRUCTION_BUILDING_LORE = "coc.gui.construction.building.lore";
+    public static final String COC_CONSTRUCTION_TIMELEFT = "coc.gui.construction.timeleft";
 
     public static final String COC_GUI_ATTACK_NAME = "coc.inv.attack.name";
     public static final String COC_GUI_ATTACK_LORE = "coc.inv.attack.lore";
@@ -136,11 +138,13 @@ public class TranslationKeys {
     // CONTAINER
     public static final String COC_GUI_CONTAINER_NAME = "coc.building.container.name";
     public static final String COC_GUI_CONTAINER_LORE = "coc.building.container.lore";
+
     // TRAIN
     public static final String COC_GUI_TRAIN_NAME = "coc.building.train.name";
+    public static final String COC_GUI_TRAIN_QUEUE_FINISHED_LORE = "coc.building.train.finished.lore";
     public static final String COC_GUI_TRAIN_QUEUE_LORE = "coc.building.train.queue.lore";
+    public static final String COC_GUI_TRAIN_FULL = "coc.building.train.full";
     public static final String COC_GUI_TRAIN_LORE = "coc.building.train.lore";
-    public static final String COC_GUI_TRAIN_RELOAD = "coc.building.train.reload";
 
 
     // GENERAL BUILDINGS
@@ -170,6 +174,11 @@ public class TranslationKeys {
 
     public static final String COC_CONSTRUCTION_CREATE_ITEM_CREATE_NAME = "coc.construction.create.item.create.name";
     public static final String COC_CONSTRUCTION_CREATE_ITEM_CREATE_LORE = "coc.construction.create.item.create.lore";
+    public static final String COC_CONSTRUCTION_CREATE_ITEM_ANOTHER_NAME = "coc.construction.create.item.create.another.name";
+    public static final String COC_CONSTRUCTION_CREATE_ITEM_ANOTHER_LORE = "coc.construction.create.item.create.another.lore";
+    public static final String COC_CONSTRUCTION_CREATE_ITEM_REMOVE_NAME = "coc.construction.create.item.create.remove.name";
+    public static final String COC_CONSTRUCTION_CREATE_ITEM_REMOVE_LORE = "coc.construction.create.item.create.remove.lore";
+
     public static final String COC_CONSTRUCTION_CREATE_ITEM_CANCEL_NAME = "coc.construction.create.item.cancel.name";
     public static final String COC_CONSTRUCTION_CREATE_ITEM_CANCEL_LORE = "coc.construction.create.item.cancel.lore";
     public static final String COC_CONSTRUCTION_BUILD = "coc.construction.build";

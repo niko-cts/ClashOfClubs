@@ -3,27 +3,35 @@ package net.fununity.clashofclans.buildings.list;
 import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.instances.WallBuilding;
-import net.fununity.clashofclans.buildings.interfaces.data.BuildingLevelData;
 import net.fununity.clashofclans.buildings.interfaces.IWall;
+import net.fununity.clashofclans.buildings.interfaces.data.BuildingLevelData;
 import net.fununity.clashofclans.language.TranslationKeys;
 import org.bukkit.Material;
 
 public enum WallBuildings implements IWall {
-    STRAIGHT_WALL(TranslationKeys.COC_WALLS_STRAIGHT_WALL_NAME, TranslationKeys.COC_WALLS_STRAIGHT_WALL_DESCRIPTION, new int[]{9, 3}, ResourceTypes.GOLD, Material.OAK_FENCE,
-            new BuildingLevelData[]{new BuildingLevelData(300, 1, 10, 0),
-                    new BuildingLevelData(500, 1, 25, 0),
+    SMALL_STRAIGHT_WALL(TranslationKeys.COC_WALLS_SMALL_STRAIGHT_WALL_NAME, TranslationKeys.COC_WALLS_SMALL_STRAIGHT_WALL_DESCRIPTION, new int[]{3, 3}, ResourceTypes.GOLD, Material.OAK_FENCE,
+            new BuildingLevelData[]{new BuildingLevelData(300, 1, 5, 0),
+                    new BuildingLevelData(500, 1, 20, 0),
                     new BuildingLevelData(700, 2, 50, 0)}),
+    STRAIGHT_WALL(TranslationKeys.COC_WALLS_STRAIGHT_WALL_NAME, TranslationKeys.COC_WALLS_STRAIGHT_WALL_DESCRIPTION, new int[]{9, 3}, ResourceTypes.GOLD, Material.OAK_FENCE,
+            new BuildingLevelData[]{new BuildingLevelData(300, 1, 15, 0),
+                    new BuildingLevelData(500, 1, 60, 0),
+                    new BuildingLevelData(700, 2, 150, 0)}),
+    LARGE_STRAIGHT_WALL(TranslationKeys.COC_WALLS_LARGE_STRAIGHT_WALL_NAME, TranslationKeys.COC_WALLS_LARGE_STRAIGHT_WALL_DESCRIPTION, new int[]{18, 3}, ResourceTypes.GOLD, Material.OAK_FENCE,
+            new BuildingLevelData[]{new BuildingLevelData(300, 1, 30, 0),
+                    new BuildingLevelData(500, 1, 120, 0),
+                    new BuildingLevelData(700, 2, 300, 0)}),
     CORNER_WALL(TranslationKeys.COC_WALLS_CORNER_WALL_NAME, TranslationKeys.COC_WALLS_CORNER_WALL_DESCRIPTION, new int[]{3, 3}, ResourceTypes.GOLD, Material.OAK_FENCE,
             new BuildingLevelData[]{new BuildingLevelData(300, 1, 5, 0),
-                    new BuildingLevelData(500, 1, 25, 0),
+                    new BuildingLevelData(500, 1, 20, 0),
                     new BuildingLevelData(700, 2, 50, 0)}),
     CROSS_WALL(TranslationKeys.COC_WALLS_CROSS_WALL_NAME, TranslationKeys.COC_WALLS_CROSS_WALL_DESCRIPTION, new int[]{3, 3}, ResourceTypes.GOLD, Material.OAK_FENCE,
             new BuildingLevelData[]{new BuildingLevelData(300, 1, 5, 0),
-                    new BuildingLevelData(500, 1, 25, 0),
+                    new BuildingLevelData(500, 1, 20, 0),
                     new BuildingLevelData(700, 2, 50, 0)}),
     HALFCROSS_WALL(TranslationKeys.COC_WALLS_HALFCROSS_WALL_NAME, TranslationKeys.COC_WALLS_HALFCROSS_WALL_DESCRIPTION, new int[]{3, 3}, ResourceTypes.GOLD, Material.OAK_FENCE,
             new BuildingLevelData[]{new BuildingLevelData(300, 1, 5, 0),
-                    new BuildingLevelData(500, 1, 25, 0),
+                    new BuildingLevelData(500, 1, 20, 0),
                     new BuildingLevelData(700, 2, 50, 0)}),
     GATE(TranslationKeys.COC_WALLS_GATE_NAME, TranslationKeys.COC_WALLS_GATE_DESCRIPTION, new int[]{5, 3}, ResourceTypes.GOLD, Material.OAK_FENCE_GATE,
             new BuildingLevelData[]{new BuildingLevelData(300, 1, 10, 0),

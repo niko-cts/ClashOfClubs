@@ -10,7 +10,10 @@ import net.fununity.clashofclans.database.DatabaseBuildings;
 import net.fununity.clashofclans.database.DatabasePlayer;
 import net.fununity.clashofclans.language.EnglishMessages;
 import net.fununity.clashofclans.language.GermanMessages;
-import net.fununity.clashofclans.listener.*;
+import net.fununity.clashofclans.listener.InventoryClickListener;
+import net.fununity.clashofclans.listener.JoinListener;
+import net.fununity.clashofclans.listener.PlayerMoveListener;
+import net.fununity.clashofclans.listener.QuitListener;
 import net.fununity.clashofclans.listener.interact.PlayerInteractListener;
 import net.fununity.clashofclans.listener.interact.PlayerSelectHotbarListener;
 import net.fununity.clashofclans.player.CoCPlayer;
@@ -26,7 +29,7 @@ import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Calendar;
-import java.util.TimeZone;
+import java.util.Collection;
 import java.util.logging.Level;
 
 /**
@@ -36,7 +39,7 @@ import java.util.logging.Level;
 public class ClashOfClubs extends JavaPlugin {
 
     private static ClashOfClubs instance;
-    private static final String TITLE = "§6§lClash§6of§b§lClubs";
+    private static final String TITLE = "§6Clash§7Of§bClubs";
     private static final int BASE_Y_COORDINATE = 50;
     private static final int BASE_SIZE = 200;
     private static final int BASE_BACKGROUND = 13;
@@ -44,7 +47,6 @@ public class ClashOfClubs extends JavaPlugin {
     private World playWorld;
 
     private PlayerManager playerManager;
-    private TickTimerManager tickTimerManager;
 
 
     /**
@@ -78,12 +80,13 @@ public class ClashOfClubs extends JavaPlugin {
             registerUtil.addListeners(new JoinListener(), new QuitListener(), new PlayerInteractListener(), new PlayerSelectHotbarListener(), new PlayerMoveListener(), new InventoryClickListener());
             registerUtil.addCommands(new CoCCommand(), new HomeCommand(), new VisitCommand(), new ResetCommand());
 
-            this.tickTimerManager = new TickTimerManager();
+            new TickTimerManager();
+
             registerUtil.register();
 
             Bukkit.getScheduler().runTaskTimer(this, () -> {
                 // Ticks = (Hours * 1000) - 6000
-                Calendar cal = Calendar.getInstance(); // Get the time instance
+                Calendar cal = Calendar.getInstance();
                 long time = (1000 * cal.get(Calendar.HOUR_OF_DAY)) + (16 * cal.get(Calendar.MINUTE)) - 6000;
                 this.playWorld.setTime(time);
             }, 20L, 20L * 30);
@@ -99,12 +102,10 @@ public class ClashOfClubs extends JavaPlugin {
     @Override
     public void onDisable() {
         if (attackingServer) return;
-
-        for (CoCPlayer coCPlayer : getPlayerManager().getPlayers().values()) {
-            getLogger().log(Level.INFO, "Saving data of {0}", coCPlayer.getUniqueId().toString());
-            DatabasePlayer.getInstance().updatePlayer(coCPlayer);
-            DatabaseBuildings.getInstance().updateBuildings(coCPlayer);
-        }
+        Collection<CoCPlayer> players = getPlayerManager().getPlayers().values();
+        getLogger().log(Level.INFO, "Saving data of {0} players", players.size());
+        DatabasePlayer.getInstance().updatePlayer(players);
+        DatabaseBuildings.getInstance().updateBuildings(players);
     }
 
     /**
@@ -114,10 +115,6 @@ public class ClashOfClubs extends JavaPlugin {
      */
     public static ClashOfClubs getInstance() {
         return instance;
-    }
-
-    public TickTimerManager getTickTimerManager() {
-        return tickTimerManager;
     }
 
     public PlayerManager getPlayerManager() {

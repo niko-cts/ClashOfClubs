@@ -53,6 +53,13 @@ public class Schematics {
         Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> blockSettingMap.forEach((key, value) -> key.getBlock().setType(value)));
     }
 
+    /**
+     * Creates all given buildings + the player base in optional partitions.
+     * @param coordinate Location - the player base location.
+     * @param buildings List<GeneralBuilding> - all buildings to create.
+     * @return long - the long in ticks it takes.
+     * @since 0.0.2
+     */
     public static long createPlayerBase(Location coordinate, List<GeneralBuilding> buildings) {
         Map<Location, Object[]> blockSettingMap = new HashMap<>();
 
@@ -65,7 +72,7 @@ public class Schematics {
             Location buildingLocation = BuildingLocationUtil.getReversedCoordinate(building);
             for (String str : SCHEMATICS.get(building.getId())) {
                 String[] array = str.split(";");
-                int[] coords = BuildingLocationUtil.getCoordinateFromRotation(building.getRotation(), Integer.parseInt(array[0]), Integer.parseInt(array[2]));
+                int[] coords = BuildingLocationUtil.getXZDimensionFromRotation(building.getRotation(), Integer.parseInt(array[0]), Integer.parseInt(array[2]));
                 blockSettingMap.put(buildingLocation.clone().add(coords[0], Integer.parseInt(array[1]), coords[1]), new Object[]{array[3], building.getRotation()});
             }
         }
@@ -73,25 +80,60 @@ public class Schematics {
         return placeBlocks(blockSettingMap);
     }
 
-    public static void createBuilding(GeneralBuilding building) {
-        if (building instanceof ConstructionBuilding)
-            createBuilding("construction" + building.getBuilding().getSize()[0] + "-" + building.getBuilding().getSize()[1], BuildingLocationUtil.getReversedCoordinate(building), building.getRotation());
-        else
-            createBuilding(building.getId(), BuildingLocationUtil.getReversedCoordinate(building), building.getRotation());
+    /**
+     * Creates all given constructions in optional partitions.
+     *
+     * @param constructionBuildings List<ConstructionsBuilding> - all buildings to create.
+     * @since 0.0.2
+     */
+    public static void createConstruction(List<ConstructionBuilding> constructionBuildings) {
+        Map<Location, Object[]> buildingMap = new HashMap<>();
+        for (ConstructionBuilding building : constructionBuildings) {
+            if (building.getBuildingFinishTime() + 500 > System.currentTimeMillis())
+                buildingMap.putAll(createBuilding("construction" + building.getBuilding().getSize()[0] + "-" + building.getBuilding().getSize()[1], BuildingLocationUtil.getReversedCoordinate(building), building.getRotation()));
+        }
+        placeBlocks(buildingMap);
     }
 
-    private static void createBuilding(String id, Location coordinate, byte rotation) {
-        if (!SCHEMATICS.containsKey(id))
-            return;
+    /**
+     * Creates all given buildings in optional partitions.
+     * @param generalBuildings List<GeneralBuilding> - all buildings to create.
+     * @return long - the long in ticks it takes.
+     * @since 0.0.2
+     */
+    public static long createBuildings(List<GeneralBuilding> generalBuildings) {
+        Map<Location, Object[]> buildingMap = new HashMap<>();
+        for (GeneralBuilding building : generalBuildings) {
+            buildingMap.putAll(createBuilding(building.getId(), BuildingLocationUtil.getReversedCoordinate(building), building.getRotation()));
+        }
+        return placeBlocks(buildingMap);
+    }
+
+    public static void createBuilding(GeneralBuilding building) {
+        placeBlocks(createBuilding(building.getId(), BuildingLocationUtil.getReversedCoordinate(building), building.getRotation()));
+    }
+
+    /**
+     * Returns a map with the location and material data.
+     * @param id String - the id of the building to create.
+     * @param coordinate Location - minimum coordinate.
+     * @param rotation byte - rotation of the building.
+     * @return Map<Location, Object[]> - all locations and material and rotation data.
+     */
+    private static Map<Location, Object[]> createBuilding(String id, Location coordinate, byte rotation) {
+        if (!SCHEMATICS.containsKey(id)) {
+            ClashOfClubs.getInstance().getLogger().log(Level.WARNING, "Schematic {0} was not found.", id);
+            return new HashMap<>();
+        }
 
         Map<Location, Object[]> blockSettingMap = new HashMap<>();
         for (String str : SCHEMATICS.get(id)) {
             String[] array = str.split(";");
-            int[] coords = BuildingLocationUtil.getCoordinateFromRotation(rotation, Integer.parseInt(array[0]), Integer.parseInt(array[2]));
+            int[] coords = BuildingLocationUtil.getXZDimensionFromRotation(rotation, Integer.parseInt(array[0]), Integer.parseInt(array[2]));
             blockSettingMap.put(coordinate.clone().add(coords[0], Integer.parseInt(array[1]), coords[1]), new Object[]{array[3], rotation});
         }
 
-        placeBlocks(blockSettingMap);
+        return blockSettingMap;
     }
 
     /**
@@ -165,11 +207,10 @@ public class Schematics {
         });
     }
 
-    private static boolean load(String id) {
+    private static void load(String id) {
         List<String> list = getStringListFromBuilding(id);
-        if (list.isEmpty()) return false;
+        if (list.isEmpty()) return;
         SCHEMATICS.put(id, list);
-        return true;
     }
 
     private static List<String> getStringListFromBuilding(String id) {

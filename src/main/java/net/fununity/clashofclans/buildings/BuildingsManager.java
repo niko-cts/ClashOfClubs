@@ -1,7 +1,7 @@
 package net.fununity.clashofclans.buildings;
 
 import net.fununity.clashofclans.ClashOfClubs;
-import net.fununity.clashofclans.buildings.instances.ConstructionBuilding;
+import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.instances.DefenseBuilding;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.instances.destroyables.RandomWorldBuilding;
@@ -16,8 +16,11 @@ import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.player.ScoreboardMenu;
 import net.fununity.clashofclans.player.TutorialManager;
+import net.fununity.clashofclans.player.buildingmode.BuildingData;
+import net.fununity.clashofclans.player.buildingmode.ConstructionMode;
 import net.fununity.clashofclans.troops.ITroop;
 import net.fununity.clashofclans.util.BuildingLocationUtil;
+import net.fununity.clashofclans.util.BuildingsAmountUtil;
 import net.fununity.cloud.client.CloudClient;
 import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.actionbar.ActionbarMessage;
@@ -135,22 +138,26 @@ public class BuildingsManager {
      * @since 0.0.1
      */
     public void build(CoCPlayer player) {
-        IBuilding building = (IBuilding) player.getBuildingMode()[1];
-        int cost = building.getBuildingLevelData()[0].getUpgradeCost();
-        if (player.getResourceAmount(building.getResourceType()) < cost)
+        ConstructionMode constructionMode = (ConstructionMode) player.getBuildingMode();
+        IBuilding building = constructionMode.getBuilding();
+
+        if (!checkIfPlayerCanBuildAnotherBuilding(player, player.getOwner(), building, constructionMode.getBuildings().size())) {
             return;
+        }
 
-        Location newLocation = (Location) player.getBuildingMode()[0];
-        newLocation.setY(ClashOfClubs.getBaseYCoordinate());
-        byte rotation = (byte) player.getBuildingMode()[2];
+        List<GeneralBuilding> allBuildings = new ArrayList<>();
+        for (BuildingData buildingToConstruct : constructionMode.getBuildings()) {
 
-        GeneralBuilding generalBuilding = getBuildingInstance(player.getUniqueId(), UUID.randomUUID(), building,
-                BuildingLocationUtil.getRealMinimum(building.getSize(), rotation, newLocation), rotation, 0);
-        if (generalBuilding == null)
-            return;
+            Location newLocation = buildingToConstruct.getLocation();
+            newLocation.setY(ClashOfClubs.getBaseYCoordinate());
+            byte rotation = buildingToConstruct.getRotation();
 
-        player.removeResource(building.getResourceType(), cost);
-        ConstructionManager.getInstance().startConstruction(player, generalBuilding);
+            allBuildings.add(getBuildingInstance(player.getUniqueId(), UUID.randomUUID(), building,
+                    BuildingLocationUtil.getRealMinimum(building.getSize(), rotation, newLocation), rotation, 0));
+        }
+
+        player.removeResource(building.getResourceType(), building.getBuildingLevelData()[0].getUpgradeCost() * constructionMode.getBuildings().size());
+        ConstructionManager.getInstance().startConstruction(player, allBuildings);
     }
 
     /**
@@ -173,7 +180,7 @@ public class BuildingsManager {
         }
 
         player.removeResource(building.getBuilding().getResourceType(), cost);
-        ConstructionManager.getInstance().startConstruction(player, building);
+        ConstructionManager.getInstance().startConstruction(player, List.of(building));
         return true;
     }
 
@@ -281,6 +288,91 @@ public class BuildingsManager {
      */
     public IBuilding getBuildingById(String name) {
         return allBuildings.stream().filter(b -> b.name().equals(name)).findFirst().orElse(null);
+    }
+
+    /**
+     * Checks and sends error messages if player is not able to build the amount of buildings.
+     * @param coCPlayer CoCPlayer - the CoCPlayer
+     * @param apiPlayer APIPlayer - the apiPlayer
+     * @param building IBuilding - the building to build
+     * @param amountOfCreation int - the amount of buildings to create at once.
+     * @return boolean - player can build the amount of buildings.
+     */
+    public boolean checkIfPlayerCanBuildAnotherBuilding(CoCPlayer coCPlayer, APIPlayer apiPlayer, IBuilding building, int amountOfCreation) {
+        long buildingPlayerHas = coCPlayer.getAllBuildings().stream().filter(b -> b.getBuilding() == building).count();
+        int buildingsPerLevel = BuildingsAmountUtil.getAmountOfBuilding(building, coCPlayer.getTownHallLevel());
+
+        if (buildingPlayerHas + amountOfCreation > buildingsPerLevel) {
+            apiPlayer.sendActionbar(new ActionbarMessage(TranslationKeys.COC_PLAYER_NO_MORE_BUILDINGS).setDuration(5), "${max}", buildingsPerLevel + "");
+            apiPlayer.playSound(Sound.ENTITY_VILLAGER_NO);
+            return false;
+        }
+
+        if (building.getBuildingLevelData()[0].getUpgradeCost() * amountOfCreation > coCPlayer.getResourceAmount(building.getResourceType())) {
+            apiPlayer.sendActionbar(new ActionbarMessage(TranslationKeys.COC_PLAYER_NOT_ENOUGH_RESOURCE).setDuration(5), "${type}", building.getResourceType().getColoredName(apiPlayer.getLanguage()));
+            apiPlayer.playSound(Sound.ENTITY_VILLAGER_NO);
+            return false;
+        }
+
+        if (building.getBuildingLevelData()[0].getBuildTime() > 0 && coCPlayer.getNormalBuildings().stream().filter(b -> b.getBuilding() == Buildings.BUILDER).count() < (coCPlayer.getConstructionBuildings().size() + amountOfCreation)) {
+            apiPlayer.sendActionbar(new ActionbarMessage(TranslationKeys.COC_PLAYER_BUILDERS_WORKING).setDuration(5));
+            apiPlayer.playSound(Sound.ENTITY_VILLAGER_NO);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Empties all given resource gatherer buildings and calls {@link BuildingsManager#emptyGatherer(ResourceGatherBuilding)}
+     * Rebuilds all necessary builder.
+     * @param emptyGatherer List<ResourceGathererBuilding> - the buildings
+     * @return boolean - close inventory
+     */
+    public boolean emptyGatherer(List<ResourceGatherBuilding> emptyGatherer) {
+        List<GeneralBuilding> rebuildBuildings = new ArrayList<>();
+        emptyGatherer.forEach(b -> rebuildBuildings.addAll(emptyGatherer(b)));
+
+        if (!rebuildBuildings.isEmpty()) {
+            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> Schematics.createBuildings(rebuildBuildings));
+        }
+
+        UUID uuid = emptyGatherer.get(0).getOwnerUUID();
+        if (TutorialManager.getInstance().getState(uuid) == TutorialManager.TutorialState.COLLECT_RESOURCE) {
+            Bukkit.getScheduler().runTaskLater(ClashOfClubs.getInstance(), ()->
+                    TutorialManager.getInstance().finished(ClashOfClubs.getInstance().getPlayerManager().getPlayer(uuid)), 1L);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Drains the gatherer and calls {@link CoCPlayer#fillResourceToContainer(ResourceTypes, double)}.
+     * @return List<ResourceContainerBuilding> - buildings that need a rebuild
+     * @since 0.0.2
+     */
+    private List<ResourceContainerBuilding> emptyGatherer(ResourceGatherBuilding building) {
+        if (building.getAmount() <= 0) {
+            return new ArrayList<>();
+        }
+
+        CoCPlayer cocPlayer = ClashOfClubs.getInstance().getPlayerManager().getPlayer(building.getOwnerUUID());
+
+        double toAdd = Math.min(cocPlayer.getMaxResourceContainable(building.getContainingResourceType())
+                - cocPlayer.getResourceAmount(building.getContainingResourceType()), building.getAmount());
+        if (toAdd <= 0) {
+            APIPlayer owner = cocPlayer.getOwner();
+            if (owner != null)
+                owner.sendActionbar(new ActionbarMessage(TranslationKeys.COC_PLAYER_NO_RESOURCE_TANKS));
+            return new ArrayList<>();
+        }
+
+        List<ResourceContainerBuilding> needRebuild = new ArrayList<>();
+        if (building.setAmount(building.getAmount() - toAdd))
+            needRebuild.add(building);
+
+        needRebuild.addAll(cocPlayer.fillResourceToContainer(building.getContainingResourceType(), toAdd));
+        return needRebuild;
     }
 
 }

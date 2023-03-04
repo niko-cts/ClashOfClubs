@@ -106,6 +106,7 @@ public class GermanMessages extends MessageList {
         add(TranslationKeys.COC_GUI_BUILDING_HP_NAME, "&6Hitpoints");
         add(TranslationKeys.COC_GUI_BUILDING_HP_LORE, "&c${current}&7/&c${max}");
         add(TranslationKeys.COC_GUI_BUILDING_UPGRADE_NAME, "&6Upgrade");
+        add(TranslationKeys.COC_GUI_BUILDING_NO_UPGRADE_NAME, "&7No further upgrades");
         add(TranslationKeys.COC_GUI_BUILDING_UPGRADE_LORE, "&7Click to upgrade;&7Upgrade cost: &e${cost}");
         add(TranslationKeys.COC_GUI_BUILDING_REPAIR_NAME, "&6Repair");
         add(TranslationKeys.COC_GUI_BUILDING_REPAIR_LORE, "&7Click to repair;&7Repair cost: &e${cost}");
@@ -134,13 +135,43 @@ public class GermanMessages extends MessageList {
         add(TranslationKeys.COC_GUI_CONSTRUCTION_TROOP_LORE, "&7Open the troop buildings menu;&7Includes barracks and troops field");
         add(TranslationKeys.COC_GUI_CONSTRUCTION_BUILDING_NAME, "&6Buildings menu");
         add(TranslationKeys.COC_GUI_CONSTRUCTION_BUILDING_LORE, "&7Building cost: &e${cost} ${type};&7Amounts of building;&7with town hall level ${level}: &e${amount}&7/&e${max}");
+        add(TranslationKeys.COC_CONSTRUCTION_TIMELEFT, "&7Time left:");
 
         // TROOPS
         add(TranslationKeys.COC_TROOPS_TYPE_LAND, "&eLand");
         add(TranslationKeys.COC_TROOPS_TYPE_FLYING, "&aFlying");
-        add(TranslationKeys.COC_TROOPS_LOREDETAILS, ";&7Type: ${type};&7Max hp: &c${hp};&7Damage: &e${damage};&7Prioritize Defense: ${prioritize};&7Size: &e${size}");
+        add(TranslationKeys.COC_TROOPS_LOREDETAILS, ";&7Type: ${type};&7Max hp: &c${hp};&7Damage: &e${damage};&7Prioritize building: ${prioritize};&7Size: &e${size}");
         add(TranslationKeys.COC_TROOPS_BARBARIAN_NAME, "&eBarbarian");
         add(TranslationKeys.COC_TROOPS_BARBARIAN_DESCRIPTION, "&7This idyet will run to the;&7next building and attacks it.");
+
+
+        // TROOPS
+        add(TranslationKeys.COC_GUI_TROOPS_CONTAINER_NAME, "&6Container");
+        add(TranslationKeys.COC_GUI_TROOPS_CONTAINER_LORE, "&7There are currently ${current} of ${max};&7troops in this building.");
+        add(TranslationKeys.COC_GUI_CONTAINER_NAME, "&6Troops Container");
+        add(TranslationKeys.COC_GUI_CONTAINER_LORE, "&7Amount of units: &e${amount}");
+        add(TranslationKeys.COC_GUI_TROOPS_TRAIN_NAME, "&6Train your troops");
+        add(TranslationKeys.COC_GUI_TROOPS_TRAIN_LORE, "&7Click to train troops.");
+        add(TranslationKeys.COC_GUI_TRAIN_NAME, "&6Train troops");
+        add(TranslationKeys.COC_GUI_TRAIN_QUEUE_LORE, "&7This troop is currently in queue;&7Duration left: &e${duration} &7/ &e${max} seconds");
+        add(TranslationKeys.COC_GUI_TRAIN_QUEUE_FINISHED_LORE, "&7This troop is educated;&7It waits till there is more space in an &6army camp&7.");
+        add(TranslationKeys.COC_GUI_TRAIN_LORE, "&7Barracks minimum level: &e${minlevel};&7Train duration: &e${duration} seconds");
+        add(TranslationKeys.COC_GUI_TRAIN_FULL, "&7You've reached the &cmaximum amount of troops &7in this building!");
+
+        // ATTACK HISTORY GUI
+        add(TranslationKeys.COC_GUI_ATTACKHISTORY_TITLE, "&6Attack history");
+        add(TranslationKeys.COC_GUI_ATTACKHISTORY_NEW_NAME, "&6New &cAttacks&6!");
+        add(TranslationKeys.COC_GUI_ATTACKHISTORY_NEW_LORE, "${name}&7: &6${stars} Stars &7" + SpecialChars.DOUBLE_ARROW_RIGHT + " &c${elo} elo, &d${food} Food &7and &e${gold} Gold");
+        add(TranslationKeys.COC_GUI_ATTACKHISTORY_ATTACKS_NAME, "&cSee attacks");
+        add(TranslationKeys.COC_GUI_ATTACKHISTORY_ATTACKS_LORE, "&7Look up all of your attacks!");
+        add(TranslationKeys.COC_GUI_ATTACKHISTORY_DEFENSE_NAME, "&6See defenses");
+        add(TranslationKeys.COC_GUI_ATTACKHISTORY_DEFENSE_LORE, "&7Look up all of your defenses!");
+        add(TranslationKeys.COC_GUI_ATTACKHISTORY_ALL_ATTACK_TITLE, "&6CoC - All attacks");
+        add(TranslationKeys.COC_GUI_ATTACKHISTORY_ALL_DEFENSE_TITLE, "&6CoC - All defenses");
+        add(TranslationKeys.COC_GUI_ATTACKHISTORY_ALL_ATTACK_LORE, "&7Attacked at ${date};&7Stars: &6${stars};&7Elo: &c${elo}; ;&7Food gained: &d${food};&7Gold gained: &e${gold}");
+        add(TranslationKeys.COC_GUI_ATTACKHISTORY_ALL_DEFENSE_LORE, "&7Defensed at ${date};&7Stars: &6${stars};&7Elo loss: &c${elo}; ;&7Food lost: &d${food};&7Gold lost: &e${gold}");
+
+
 
         // ITEMS
         add(TranslationKeys.COC_CONSTRUCTION_BUILDINGINWAY, "&cThere is a building in the way!");
@@ -154,6 +185,10 @@ public class GermanMessages extends MessageList {
 
         add(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_CREATE_NAME, "&eCreate Building");
         add(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_CREATE_LORE, "&7Hold this item and look on the;&7ground to see, where you could place the building.;&7Click on the block;&7you want to construct the building.");
+        add(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_ANOTHER_NAME, "&7Add &aanother building");
+        add(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_ANOTHER_LORE, "&7&aConfirms the current selection;&7and adds another selection.;;&7Use this, if you want to create more than;&7one building from the same type.");
+        add(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_REMOVE_NAME, "&cRemove &7last building");
+        add(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_REMOVE_LORE, "&cDeny &7the last selection");
         add(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_CANCEL_NAME, "&aCancel operation");
         add(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_CANCEL_LORE, "&7Click to cancel the construct operation");
         add(TranslationKeys.COC_CONSTRUCTION_BUILD, "&aBuilding will be constructed!");

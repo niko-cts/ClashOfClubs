@@ -1,10 +1,11 @@
 package net.fununity.clashofclans.listener;
 
 import net.fununity.clashofclans.ClashOfClubs;
+import net.fununity.clashofclans.buildings.BuildingModeManager;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.util.BuildingLocationUtil;
+import net.fununity.clashofclans.util.HotbarItems;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -26,20 +27,25 @@ public class PlayerMoveListener implements Listener {
 
         Player player = event.getPlayer();
 
-        if (!player.getInventory().contains(Material.PISTON) && !player.getInventory().contains(Material.NETHER_STAR)) return;
+        if (!player.getInventory().contains(HotbarItems.MOVE_BUILDING) && !player.getInventory().contains(HotbarItems.CREATE_BUILDING)) return;
+
+        CoCPlayer coCPlayer = ClashOfClubs.getInstance().getPlayerManager().getPlayer(player);
+        if (coCPlayer == null)
+            return;
+
+        Location lastLoc = coCPlayer.getBuildingMode().getLocation();
+        if (lastLoc == null) {
+            BuildingModeManager.getInstance().quitEditorMode(coCPlayer);
+        }
 
         Location groundLocation = event.getTo().clone();
         groundLocation.setY(ClashOfClubs.getBaseYCoordinate() + 1);
-        
-        CoCPlayer coCPlayer = ClashOfClubs.getInstance().getPlayerManager().getPlayer(player);
-        Location lastLoc = (Location) coCPlayer.getBuildingMode()[0];
 
         if (groundLocation.equals(lastLoc) || lastLoc == null)
             return;
 
-
         BuildingLocationUtil.removeBuildingModeDecorations(player, coCPlayer.getBuildingMode());
-        coCPlayer.setBuildingMode(groundLocation);
+        coCPlayer.getBuildingMode().setLocation(groundLocation);
         BuildingLocationUtil.createBuildingModeDecoration(player, coCPlayer);
     }
 }

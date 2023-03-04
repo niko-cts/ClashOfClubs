@@ -52,13 +52,12 @@ public class ScoreboardMenu {
             i--;
             obj.getScore(type.getChatColor() + lang.getTranslation(type.getNameKey())).setScore(i);
             i--;
-            if (type == ResourceTypes.GEMS)
-                obj.getScore(new StringBuilder().append(ChatColor.DARK_GRAY).append(SpecialChars.DOUBLE_ARROW_RIGHT).append(" ")
-                        .append(type.getChatColor()).append(coCPlayer.getResourceAmount(type)).toString()).setScore(i);
-            else
-                obj.getScore(new StringBuilder().append(ChatColor.DARK_GRAY).append(SpecialChars.DOUBLE_ARROW_RIGHT).append(" ")
-                        .append(type.getChatColor()).append(coCPlayer.getResourceAmount(type)).append(" ")
-                        .append(ChatColor.GRAY).append("/ ").append(type.getChatColor()).append(coCPlayer.getMaxResourceContainable(type)).toString()).setScore(i);
+
+            StringBuilder builder = new StringBuilder().append(ChatColor.DARK_GRAY).append(SpecialChars.DOUBLE_ARROW_RIGHT).append(" ")
+                    .append(type.getChatColor()).append(Math.round(coCPlayer.getResourceAmount(type)));
+            if (type != ResourceTypes.GEMS)
+                builder.append(" ").append(ChatColor.GRAY).append("/ ").append(type.getChatColor()).append(coCPlayer.getMaxResourceContainable(type));
+            obj.getScore(builder.toString()).setScore(i);
             i--;
         }
     }

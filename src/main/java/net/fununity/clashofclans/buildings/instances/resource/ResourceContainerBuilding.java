@@ -2,7 +2,6 @@ package net.fununity.clashofclans.buildings.instances.resource;
 
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
-import net.fununity.clashofclans.buildings.Schematics;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.instances.GeneralHologramBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
@@ -13,7 +12,6 @@ import net.fununity.main.api.inventory.CustomInventory;
 import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.item.UsefulItems;
 import net.fununity.misc.translationhandler.translations.Language;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
@@ -65,7 +63,7 @@ public class ResourceContainerBuilding extends GeneralHologramBuilding implement
     @Override
     public CustomInventory getInventory(Language language) {
         CustomInventory inventory = super.getInventory(language);
-        CustomInventory menu = new CustomInventory(getBuildingTitle(language), 9*4);
+        CustomInventory menu = new CustomInventory(getBuildingTitle(language), 9 * 4);
         menu.setSpecialHolder(inventory.getSpecialHolder());
 
         for (int i = 0; i < inventory.getInventory().getContents().length; i++) {
@@ -78,8 +76,9 @@ public class ResourceContainerBuilding extends GeneralHologramBuilding implement
         String name = language.getTranslation(TranslationKeys.COC_GUI_CONTAINER_AMOUNT, Arrays.asList("${color}", "${max}", "${current}"), Arrays.asList(getContainingResourceType().getChatColor() + "", getMaximumResource() + "", ((int)getAmount()) + ""));
 
         double fillTill = 90.0 * getAmount() / getMaximumResource();
-        for (int i = 9, j = 27; j < 36; i += 9, j++)
+        for (int i = 9, j = 27; j < 36; i += 9, j++) {
             menu.setItem(j, new ItemBuilder(fillTill > i ? getContainingResourceType().getGlass() : UsefulItems.BACKGROUND_GRAY).setName(name).craft());
+        }
 
         return menu;
     }
@@ -87,15 +86,17 @@ public class ResourceContainerBuilding extends GeneralHologramBuilding implement
     /**
      * Set the amount of resource in the building.
      * @param currentAmount int - the amount of resource.
+     * @return boolean - needs a rebuild
      * @since 0.0.1
      */
-    public void setAmount(double currentAmount) {
+    public boolean setAmount(double currentAmount) {
         boolean change = (int) getAmount() != (int) currentAmount;
         int oldVersion = getCurrentBuildingVersion();
         this.currentAmount = Math.min(currentAmount, getMaximumResource());
-        if (!change) return;
+        if (!change)
+            return false;
         updateHologram(getShowText());
-        this.updateVersion(oldVersion != getCurrentBuildingVersion());
+        return this.updateVersion(oldVersion != getCurrentBuildingVersion());
     }
 
     @Override
@@ -120,10 +121,9 @@ public class ResourceContainerBuilding extends GeneralHologramBuilding implement
      * @since 0.0.1
      */
     @Override
-    public void updateVersion(boolean schematic) {
-        Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> ClashOfClubs.getInstance().getPlayerManager().forceUpdateInventory(this));;
-        if (schematic)
-            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> Schematics.createBuilding(this));
+    public boolean updateVersion(boolean schematic) {
+        ClashOfClubs.getInstance().getPlayerManager().forceUpdateInventory(this);
+        return schematic;
     }
 
     /**

@@ -1,22 +1,23 @@
 package net.fununity.clashofclans.buildings.instances;
 
 import net.fununity.clashofclans.ClashOfClubs;
-import net.fununity.clashofclans.buildings.ConstructionManager;
 import net.fununity.clashofclans.language.TranslationKeys;
+import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.common.util.FormatterUtil;
 import net.fununity.main.api.inventory.CustomInventory;
 import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.item.UsefulItems;
 import net.fununity.misc.translationhandler.translations.Language;
-import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 public class ConstructionBuilding extends GeneralHologramBuilding {
 
     private final GeneralBuilding generalBuilding;
     private final long buildingFinishTime;
+    private String timeLeftText;
 
     /**
      * Instantiates the construction building class.
@@ -54,14 +55,13 @@ public class ConstructionBuilding extends GeneralHologramBuilding {
      * Set the left building time.
      * @since 0.0.1
      */
-    public void updateBuildingDuration() {
+    public boolean updateBuildingDuration() {
         if (System.currentTimeMillis() < buildingFinishTime) {
             updateHologram(getShowText());
-            Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> ClashOfClubs.getInstance().getPlayerManager().forceUpdateInventory(this));
-        } else {
-            ConstructionManager.getInstance().finishedConstruction(this);
-            ClashOfClubs.getInstance().getLogger().info("Construction finished");
+            ClashOfClubs.getInstance().getPlayerManager().forceUpdateInventory(this);
+            return false;
         }
+        return true;
     }
 
     /**
@@ -97,6 +97,9 @@ public class ConstructionBuilding extends GeneralHologramBuilding {
      */
     @Override
     public List<String> getShowText() {
-        return Collections.singletonList(FormatterUtil.getDuration(getBuildingDurationLeft()));
+        if (timeLeftText == null)
+            this.timeLeftText = FunUnityAPI.getInstance().getPlayerHandler().getPlayer(getOwnerUUID()).getLanguage().getTranslation(TranslationKeys.COC_CONSTRUCTION_TIMELEFT);
+
+        return Arrays.asList(timeLeftText, ChatColor.YELLOW + FormatterUtil.getDuration(getBuildingDurationLeft()));
     }
 }

@@ -3,13 +3,14 @@ package net.fununity.clashofclans.buildings;
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
-import net.fununity.clashofclans.buildings.interfaces.IDefenseBuilding;
 import net.fununity.clashofclans.database.DatabaseBuildings;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.CoCPlayer;
+import net.fununity.clashofclans.player.buildingmode.ConstructionMode;
+import net.fununity.clashofclans.player.buildingmode.MovingMode;
 import net.fununity.clashofclans.util.BuildingLocationUtil;
-import net.fununity.clashofclans.util.HotbarItems;
 import net.fununity.clashofclans.util.CircleParticleUtil;
+import net.fununity.clashofclans.util.HotbarItems;
 import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.messages.MessagePrefix;
 import net.fununity.main.api.player.APIPlayer;
@@ -23,24 +24,25 @@ import org.bukkit.entity.Player;
  * @author Niko
  * @since 0.0.2
  */
-public class BuildingsMoveManager {
+public class BuildingModeManager {
 
-    private static BuildingsMoveManager instance;
+    private static BuildingModeManager instance;
 
     /**
      * Gets the singleton instance of this class.
-     * @return {@link BuildingsMoveManager} - instance of this class.
+     * @return {@link BuildingModeManager} - instance of this class.
      * @since 0.0.2
      */
-    public static BuildingsMoveManager getInstance() {
+    public static BuildingModeManager getInstance() {
         if (instance == null)
-            instance = new BuildingsMoveManager();
+            instance = new BuildingModeManager();
         return instance;
     }
 
-    private BuildingsMoveManager() {
+    private BuildingModeManager() {
         // not needed atm
     }
+
 
     /**
      * Enters the moving mode for a player.
@@ -54,8 +56,8 @@ public class BuildingsMoveManager {
         Location location = player.getLocation().clone();
         location.setY(ClashOfClubs.getBaseYCoordinate() + 1);
 
-        CircleParticleUtil.hideRadius(generalBuilding.getCenterCoordinate());
-        coCPlayer.setBuildingMode(location, generalBuilding, generalBuilding.getRotation());
+        CircleParticleUtil.hideRadius(generalBuilding.getBuildingUUID());
+        coCPlayer.setBuildingMode(new MovingMode(generalBuilding, location));
         BuildingLocationUtil.createBuildingModeDecoration(player, coCPlayer);
 
         Language lang = apiPlayer.getLanguage();
@@ -69,16 +71,16 @@ public class BuildingsMoveManager {
 
     /**
      * Building will be moved
-     * @param buildingMode Object[] - move data
+     * @param movingMode {@link MovingMode} - the moving mode with the data
      * @since 0.0.1
      */
-    public void moveBuilding(Object[] buildingMode) {
-        GeneralBuilding building = (GeneralBuilding) buildingMode[1];
+    public void moveBuilding(MovingMode movingMode) {
+        GeneralBuilding building = movingMode.getMovingBuilding();
         Location oldLocation = building.getCoordinate();
         byte oldRotation = building.getRotation();
 
-        building.setRotation((byte) buildingMode[2]);
-        Location newLocation = (Location) buildingMode[0];
+        building.setRotation(movingMode.getRotation());
+        Location newLocation = movingMode.getLocation();
         newLocation.setY(ClashOfClubs.getBaseYCoordinate());
 
         building.setCoordinate(BuildingLocationUtil.getRealMinimum(building.getBuilding().getSize(), building.getRotation(), newLocation));
@@ -95,11 +97,11 @@ public class BuildingsMoveManager {
      * @since 0.0.1
      */
     public void quitEditorMode(CoCPlayer coCPlayer) {
-        if (coCPlayer.getBuildingMode()[0] != null) {
+        if (coCPlayer.getBuildingMode() != null) {
             BuildingLocationUtil.removeBuildingModeDecorations(coCPlayer.getOwner().getPlayer(), coCPlayer.getBuildingMode());
         }
 
-        coCPlayer.setBuildingMode(null, null, null);
+        coCPlayer.setBuildingMode(null);
         ClashOfClubs.getInstance().getPlayerManager().giveDefaultItems(coCPlayer);
     }
 
@@ -116,26 +118,32 @@ public class BuildingsMoveManager {
         Location location = player.getLocation().clone();
         location.setY(ClashOfClubs.getBaseYCoordinate() + 1);
 
-        if (building instanceof IDefenseBuilding) {
-            CircleParticleUtil.displayRadius(location, ((IDefenseBuilding) building).getRadius());
-        }
-
-        coCPlayer.setBuildingMode(location, building, (byte) 0);
+        coCPlayer.setBuildingMode(new ConstructionMode(building, location));
         BuildingLocationUtil.createBuildingModeDecoration(player, coCPlayer);
 
         player.getInventory().clear();
-        player.getInventory().setItem(0, new ItemBuilder(HotbarItems.CREATE_BUILDING)
-                .setName(lang.getTranslation(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_CREATE_NAME))
-                .setLore(lang.getTranslation(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_CREATE_LORE).split(";")).craft());
+        player.getInventory().addItem(
+                new ItemBuilder(HotbarItems.CREATE_BUILDING)
+                        .setName(lang.getTranslation(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_CREATE_NAME))
+                        .setLore(lang.getTranslation(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_CREATE_LORE).split(";")).craft()
+        );
+        player.getInventory().setItem(6,
+                new ItemBuilder(HotbarItems.CREATE_BUILDING_ANOTHER)
+                        .setName(lang.getTranslation(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_ANOTHER_NAME))
+                        .setLore(lang.getTranslation(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_ANOTHER_LORE).split(";")).craft());
+        player.getInventory().setItem(7, new ItemBuilder(HotbarItems.CREATE_BUILDING_REMOVE)
+                .setName(lang.getTranslation(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_REMOVE_NAME))
+                .setLore(lang.getTranslation(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_REMOVE_LORE).split(";")).craft());
         giveOtherItems(apiPlayer, lang);
     }
 
+
     private void giveOtherItems(APIPlayer apiPlayer, Language language) {
         Player player = apiPlayer.getPlayer();
-        player.getInventory().setItem(1, new ItemBuilder(HotbarItems.ROTATE_BUILDING)
+        player.getInventory().addItem(new ItemBuilder(HotbarItems.ROTATE_BUILDING)
                 .setName(language.getTranslation(TranslationKeys.COC_CONSTRUCTION_MOVE_ITEM_ROTATE_NAME))
                 .setLore(language.getTranslation(TranslationKeys.COC_CONSTRUCTION_MOVE_ITEM_ROTATE_LORE).split(";")).craft());
-        player.getInventory().setItem(2, new ItemBuilder(HotbarItems.CANCEL)
+        player.getInventory().setItem(8, new ItemBuilder(HotbarItems.CANCEL)
                 .setName(language.getTranslation(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_CANCEL_NAME))
                 .setLore(language.getTranslation(TranslationKeys.COC_CONSTRUCTION_CREATE_ITEM_CANCEL_LORE).split(";")).craft());
         player.getInventory().setHeldItemSlot(3);

@@ -11,6 +11,7 @@ import net.fununity.clashofclans.buildings.interfaces.IResourceContainerBuilding
 import net.fununity.clashofclans.buildings.interfaces.ITroopBuilding;
 import net.fununity.clashofclans.database.DatabaseBuildings;
 import net.fununity.clashofclans.database.DatabasePlayer;
+import net.fununity.clashofclans.gui.TroopsGUI;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.troops.ITroop;
 import net.fununity.clashofclans.troops.Troops;
@@ -74,7 +75,7 @@ public class PlayerManager {
 
             player.getTitleSender().sendTitle(TranslationKeys.COC_PLAYER_LOADING_TROOPS_TITLE, 5 * 20);
             player.getTitleSender().sendSubtitle(TranslationKeys.COC_PLAYER_LOADING_TROOPS_SUBTITLE, 5 * 20);
-            coCPlayer.getTroopsCreateBuildings().forEach(b -> b.checkQueuePlayerWasGone(secondsGone));
+            coCPlayer.getTroopsCreateBuildings().forEach(b -> b.checkQueuePlayerWasGone((int) secondsGone));
 
             player.clearActionbar();
             player.getTitleSender().sendTitle(TranslationKeys.COC_PLAYER_LOADING_FINISHED_TITLE, 20);
@@ -103,26 +104,27 @@ public class PlayerManager {
         CoCPlayer coCPlayer = this.playersMap.get(uuid);
         playersMap.remove(uuid);
         Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
-            DatabasePlayer.getInstance().updatePlayer(coCPlayer);
-            DatabaseBuildings.getInstance().updateBuildings(coCPlayer);
+            DatabasePlayer.getInstance().updatePlayer(Collections.singletonList(coCPlayer));
+            DatabaseBuildings.getInstance().updateBuildings(Collections.singletonList(coCPlayer));
         });
     }
 
     /**
      * Forces a new open to the building inventory.
-     *
      * @param building {@link GeneralBuilding} - the building.
      * @since 0.0.1
      */
     public void forceUpdateInventory(GeneralBuilding building) {
         APIPlayer onlinePlayer = FunUnityAPI.getInstance().getPlayerHandler().getPlayer(building.getOwnerUUID());
-        if (onlinePlayer == null) return;
 
-        if (onlinePlayer.hasCustomData("openInv")) {
+        if (onlinePlayer != null && onlinePlayer.hasCustomData("openInv")) {
             CustomInventory menu = (CustomInventory) onlinePlayer.getCustomData("openInv");
-            if (menu.getSpecialHolder() != null && menu.getSpecialHolder().equals(building.getCoordinate().toString())) {
-                //onlinePlayer.getPlayer().closeInventory();
-                building.getInventory(onlinePlayer.getLanguage()).open(onlinePlayer);
+            if (menu.getSpecialHolder() != null) {
+                if (menu.getSpecialHolder().equals(building.getBuildingUUID())) {
+                    building.getInventory(onlinePlayer.getLanguage()).open(onlinePlayer);
+                } else if (menu.getSpecialHolder().equals(building.getBuildingUUID() + "-training")) {
+                    TroopsGUI.openTraining(onlinePlayer, (TroopsCreateBuilding) building);
+                }
             }
         }
     }

@@ -1,9 +1,9 @@
 package net.fununity.clashofclans.database;
 
 import net.fununity.clashofclans.ResourceTypes;
-import net.fununity.clashofclans.buildings.instances.*;
+import net.fununity.clashofclans.buildings.instances.ConstructionBuilding;
+import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.instances.resource.ResourceContainerBuilding;
-import net.fununity.clashofclans.buildings.instances.resource.ResourceGatherBuilding;
 import net.fununity.clashofclans.buildings.instances.troops.TroopsBuilding;
 import net.fununity.clashofclans.buildings.instances.troops.TroopsCreateBuilding;
 import net.fununity.clashofclans.player.CoCPlayer;
@@ -137,10 +137,14 @@ public class DatabaseBuildings {
         }
         if (!values.isEmpty())
             this.databaseHandler.insertIntoTable(TABLE_TROOPS, values, dataTypes);
+        values.clear();
+        dataTypes.clear();
 
         while (troopsQueueBuildings.hasNext()) {
             GeneralBuilding building = troopsQueueBuildings.next();
             values.add(building.getBuildingUUID().toString());
+            dataTypes.add("string");
+            values.add("");
             dataTypes.add("string");
             if (troopsQueueBuildings.hasNext()) {
                 values.add(null);
@@ -153,48 +157,83 @@ public class DatabaseBuildings {
 
     /**
      * Updates every special building data
-     *
-     * @param coCPlayer CocPlayer - the player to update the buildings.
+     * @param coCPlayers Collection<CoCPlayer> - all players to update the buildings.
      */
-    public void updateBuildings(CoCPlayer coCPlayer) {
-        for (ResourceTypes type : ResourceTypes.values()) {
-            for (ResourceGatherBuilding resourceGatherBuilding : coCPlayer.getResourceGatherBuildings(type)) {
-                this.databaseHandler.update(TABLE_CONTAINER, Collections.singletonList("amount"), Collections.singletonList(resourceGatherBuilding.getAmount() + ""), Collections.singletonList(""), "WHERE building_uuid='" + resourceGatherBuilding.getBuildingUUID() + "' LIMIT 1");
-            }
-            for (ResourceContainerBuilding resourceContainerBuilding : coCPlayer.getResourceContainerBuildings(type)) {
-                this.databaseHandler.update(TABLE_CONTAINER, Collections.singletonList("amount"), Collections.singletonList(resourceContainerBuilding.getAmount() + ""), Collections.singletonList(""), "WHERE building_uuid='" + resourceContainerBuilding.getBuildingUUID() + "' LIMIT 1");
-            }
-        }
-        List<TroopsBuilding> troopsBuildings = new ArrayList<>(coCPlayer.getTroopsCreateBuildings());
-        for (TroopsBuilding troopsBuilding : troopsBuildings) {
-            this.databaseHandler.update(TABLE_TROOPS_QUEUE, Collections.singletonList("queue"),
-                    Collections.singletonList(((TroopsCreateBuilding) troopsBuilding).getTroopsQueueId()), Collections.singletonList("string"), "WHERE building_uuid='" + troopsBuilding.getBuildingUUID() + "' LIMIT 1");
-        }
+    public void updateBuildings(Collection<CoCPlayer> coCPlayers) {
+        List<String> tableNames = new ArrayList<>();
+        List<List<String>> allColumns = new ArrayList<>();
+        List<List<String>> allValues = new ArrayList<>();
+        List<List<String>> allDataTypes = new ArrayList<>();
+        List<String> whereClauses = new ArrayList<>();
 
-        troopsBuildings.addAll(coCPlayer.getTroopsCampBuildings());
-        for (TroopsBuilding troopsCampBuilding : troopsBuildings) {
-            List<String> columns = new ArrayList<>();
-            List<String> values = new ArrayList<>();
-            List<String> dataTypes = new ArrayList<>();
+        for (CoCPlayer coCPlayer : coCPlayers) {
+            for (ResourceTypes type : ResourceTypes.values()) {
+                List<ResourceContainerBuilding> resourceBuildings = new ArrayList<>();
+                resourceBuildings.addAll(coCPlayer.getResourceGatherBuildings(type));
+                resourceBuildings.addAll(coCPlayer.getResourceContainerBuildings(type));
 
-            for (Map.Entry<ITroop, Integer> entry : troopsCampBuilding.getTroopAmount().entrySet()) {
-                columns.add(entry.getKey().name().toLowerCase());
-                values.add(entry.getValue() + "");
-                dataTypes.add("");
+                for (ResourceContainerBuilding resourceGatherBuilding : resourceBuildings) {
+                    tableNames.add(TABLE_CONTAINER);
+                    allColumns.add(Collections.singletonList("amount"));
+                    allValues.add(Collections.singletonList(resourceGatherBuilding.getAmount() + ""));
+                    allDataTypes.add(Collections.singletonList(""));
+                    whereClauses.add("WHERE building_uuid='" + resourceGatherBuilding.getBuildingUUID() + "' LIMIT 1");
+                }
             }
 
-            this.databaseHandler.update(TABLE_TROOPS, columns, values, dataTypes, "WHERE building_uuid='" + troopsCampBuilding.getBuildingUUID() + "' LIMIT 1");
+            List<TroopsBuilding> troopsBuildings = new ArrayList<>(coCPlayer.getTroopsCreateBuildings());
+            for (TroopsBuilding troopsBuilding : troopsBuildings) {
+                tableNames.add(TABLE_TROOPS_QUEUE);
+                allColumns.add(Collections.singletonList("queue"));
+                allValues.add(Collections.singletonList(((TroopsCreateBuilding) troopsBuilding).getTroopsQueueId()));
+                allDataTypes.add(Collections.singletonList("string"));
+                whereClauses.add("WHERE building_uuid='" + troopsBuilding.getBuildingUUID() + "' LIMIT 1");
+            }
 
+            troopsBuildings.addAll(coCPlayer.getTroopsCampBuildings());
+
+            for (TroopsBuilding troopsCampBuilding : troopsBuildings) {
+                List<String> columns = new ArrayList<>();
+                List<String> values = new ArrayList<>();
+                List<String> dataTypes = new ArrayList<>();
+
+                for (Map.Entry<ITroop, Integer> entry : troopsCampBuilding.getTroopAmount().entrySet()) {
+                    columns.add(entry.getKey().name().toLowerCase());
+                    values.add(entry.getValue() + "");
+                    dataTypes.add("");
+                }
+
+                tableNames.add(TABLE_TROOPS);
+                allColumns.add(columns);
+                allValues.add(values);
+                allDataTypes.add(dataTypes);
+                whereClauses.add("WHERE building_uuid='" + troopsCampBuilding.getBuildingUUID() + "' LIMIT 1");
+            }
         }
+
+        this.databaseHandler.update(tableNames, allColumns, allValues, allDataTypes, whereClauses);
     }
 
     /**
-     * Upgrades the building.
-     * @param building {@link GeneralBuilding} - the building instance.
+     * Updates all levels in the database for all given buildings.
+     * @param buildings List<{@link GeneralBuilding}> - the buildings.
      * @since 0.0.1
      */
-    public void upgradeBuilding(GeneralBuilding building) {
-        this.databaseHandler.update(TABLE, Collections.singletonList("level"), Collections.singletonList(building.getLevel() + ""), Collections.singletonList(""), "WHERE building_uuid='" + building.getBuildingUUID() + "' LIMIT 1");
+    public void upgradeBuilding(List<GeneralBuilding> buildings) {
+        List<String> tableNames = new ArrayList<>();
+        List<List<String>> allColumns = new ArrayList<>();
+        List<List<String>> allValues = new ArrayList<>();
+        List<List<String>> allDataTypes = new ArrayList<>();
+        List<String> whereClauses = new ArrayList<>();
+        for (GeneralBuilding building : buildings) {
+            tableNames.add(TABLE);
+            allColumns.add(Collections.singletonList("level"));
+            allValues.add(Collections.singletonList(building.getLevel() + ""));
+            allDataTypes.add(Collections.singletonList(""));
+            whereClauses.add("WHERE building_uuid='" + building.getBuildingUUID() + "' LIMIT 1");
+        }
+
+        this.databaseHandler.update(tableNames, allColumns, allValues, allDataTypes, whereClauses);
     }
 
     /**
@@ -245,22 +284,42 @@ public class DatabaseBuildings {
     }
 
     /**
-     * Insert construction building in database.
-     * @param building {@link ConstructionBuilding} - the building.
+     * Insert construction buildings into the database.
+     * @param buildings List<{@link ConstructionBuilding}> - all the buildings.
      * @since 0.0.1
      */
-    public void constructBuilding(ConstructionBuilding building) {
-        this.databaseHandler.insertIntoTable(TABLE_CONSTRUCTION,
-                Arrays.asList(building.getBuildingUUID().toString(), building.getBuildingFinishTime() + ""), Arrays.asList("string", ""));
+    public void constructBuilding(List<ConstructionBuilding> buildings) {
+        List<String> values = new ArrayList<>();
+        List<String> types = new ArrayList<>();
+        Iterator<ConstructionBuilding> iterator = buildings.iterator();
+        while (iterator.hasNext()) {
+            ConstructionBuilding construction = iterator.next();
+            values.add(construction.getBuildingUUID().toString());
+            values.add(construction.getBuildingFinishTime() + "");
+            types.add("string");
+            types.add("");
+            if (iterator.hasNext()) {
+                values.add(null);
+                types.add(null);
+            }
+        }
+        this.databaseHandler.insertIntoTable(TABLE_CONSTRUCTION, values, types);
     }
 
     /**
-     * Delete the construction building from the database.
-     * @param buildingUUID UUID - the uuid of the building
+     * Delete the construction buildings from the database.
+     * @param buildingUuids List<UUID> - all buildings to delete
      * @since 0.0.1
      */
-    public void removeConstruction(UUID buildingUUID) {
-        this.databaseHandler.delete(TABLE_CONSTRUCTION, "WHERE building_uuid='" + buildingUUID + "' LIMIT 1");
+    public void removeConstruction(List<UUID> buildingUuids) {
+        StringBuilder builder = new StringBuilder();
+        Iterator<UUID> iterator = buildingUuids.iterator();
+        while (iterator.hasNext()) {
+            builder.append("'").append(iterator.next()).append("'");
+            if (iterator.hasNext())
+                builder.append(", ");
+        }
+        this.databaseHandler.delete(TABLE_CONSTRUCTION, "WHERE building_uuid IN(" + builder + ")");
     }
 
     /**
@@ -282,7 +341,7 @@ public class DatabaseBuildings {
         Iterator<UUID> iterator = uuids.iterator();
         while (iterator.hasNext()) {
             builder.append("'").append(iterator.next()).append("'");
-            if(iterator.hasNext())
+            if (iterator.hasNext())
                 builder.append(",");
         }
         builder.append(")");

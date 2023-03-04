@@ -1,8 +1,8 @@
 package net.fununity.clashofclans.buildings.instances;
 
 import net.fununity.clashofclans.ClashOfClubs;
+import net.fununity.clashofclans.buildings.BuildingModeManager;
 import net.fununity.clashofclans.buildings.BuildingsManager;
-import net.fununity.clashofclans.buildings.BuildingsMoveManager;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IDifferentVersionBuildings;
 import net.fununity.clashofclans.buildings.interfaces.IUpgradeDetails;
@@ -72,11 +72,15 @@ public class GeneralBuilding {
      */
     public CustomInventory getInventory(Language language) {
         CustomInventory menu = new CustomInventory(getBuildingTitle(language), 9*3);
-        menu.setSpecialHolder(getCoordinate().toString());
+        menu.setSpecialHolder(getBuildingUUID());
         menu.fill(UsefulItems.BACKGROUND_BLACK);
 
+        List<String> lore = new ArrayList<>(Arrays.asList(language.getTranslation(getBuilding().getDescriptionKey()).split(";")));
+        if (getBuilding() instanceof IUpgradeDetails)
+            lore.addAll(((IUpgradeDetails) getBuilding()).getLoreDetails(getBuilding().getBuildingLevelData()[level - 1], language));
 
-        menu.setItem(11, new ItemBuilder(Material.WRITABLE_BOOK).setName(language.getTranslation(getBuilding().getNameKey())).setLore(language.getTranslation(getBuilding().getDescriptionKey()).split(";")).craft());
+        menu.setItem(11, new ItemBuilder(Material.WRITABLE_BOOK).setName(language.getTranslation(getBuilding().getNameKey()))
+                .setLore(lore).craft());
 
         if (getUpgradeCost() != -1) {
             List<String> upgradeLore = new ArrayList<>(Arrays.asList(language.getTranslation(getLevel() == 0 ? TranslationKeys.COC_GUI_BUILDING_REPAIR_LORE : TranslationKeys.COC_GUI_BUILDING_UPGRADE_LORE, "${cost}", "" + getBuilding().getResourceType().getChatColor() + getUpgradeCost() + " " + language.getTranslation(getBuilding().getResourceType().getNameKey())).split(";")));
@@ -95,6 +99,9 @@ public class GeneralBuilding {
                         apiPlayer.playSound(Sound.ENTITY_VILLAGER_NO);
                 }
             });
+        } else {
+            menu.setItem(15, new ItemBuilder(UsefulItems.SKELETON_SKULL)
+                    .setName(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_NO_UPGRADE_NAME)).craft());
         }
 
         if (getLevel() > 0) {
@@ -103,7 +110,7 @@ public class GeneralBuilding {
             menu.setItem(14, new ItemBuilder(Material.PISTON).setName(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_MOVING_NAME)).setLore(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_MOVING_LORE)).craft(), new ClickAction(true) {
                 @Override
                 public void onClick(APIPlayer apiPlayer, ItemStack itemStack, int i) {
-                    BuildingsMoveManager.getInstance().enterMovingMode(ClashOfClubs.getInstance().getPlayerManager().getPlayer(apiPlayer.getUniqueId()), apiPlayer, GeneralBuilding.this);
+                    BuildingModeManager.getInstance().enterMovingMode(ClashOfClubs.getInstance().getPlayerManager().getPlayer(apiPlayer.getUniqueId()), apiPlayer, GeneralBuilding.this);
                 }
             });
 
@@ -117,12 +124,14 @@ public class GeneralBuilding {
                 }
             }
         }
-        
+
         if (getBuilding() != Buildings.TOWN_HALL && TutorialManager.getInstance().cantBuild(getOwnerUUID())) {
-            if (menu.getInventory().getItem(14) != UsefulItems.BACKGROUND_BLACK)
-                menu.setItem(14, new ItemBuilder(Material.BARRIER).setName(language.getTranslation(TranslationKeys.COC_PLAYER_REPAIR_TOWNHALL_FIRST_MESSAGE)).craft());
-            if (menu.getInventory().getItem(15) != UsefulItems.BACKGROUND_BLACK)
-                menu.setItem(15, new ItemBuilder(Material.BARRIER).setName(language.getTranslation(TranslationKeys.COC_PLAYER_REPAIR_TOWNHALL_FIRST_MESSAGE)).craft());
+            for (int i = 14; i <= 15; i++) {
+                if (menu.getInventory().getItem(i) != UsefulItems.BACKGROUND_BLACK) {
+                    menu.setItem(i, new ItemBuilder(Material.BARRIER).setName(language.getTranslation(TranslationKeys.COC_PLAYER_REPAIR_TOWNHALL_FIRST_MESSAGE)).craft());
+                    menu.setClickAction(i, null);
+                }
+            }
         }
 
         return menu;

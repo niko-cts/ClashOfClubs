@@ -15,6 +15,7 @@ import net.fununity.main.api.player.APIPlayer;
 import net.fununity.misc.translationhandler.translations.Language;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.UUID;
@@ -38,7 +39,7 @@ public class RandomWorldBuilding extends GeneralBuilding {
     @Override
     public CustomInventory getInventory(Language language) {
         CustomInventory menu = new CustomInventory(language.getTranslation(getBuilding().getNameKey()), 9 * 3);
-        menu.setSpecialHolder(getCoordinate().toString());
+        menu.setSpecialHolder(getBuildingUUID());
         menu.fill(UsefulItems.BACKGROUND_BLACK);
         menu.setItem(11, new ItemBuilder(Material.WRITABLE_BOOK).setName(language.getTranslation(getBuilding().getNameKey())).setLore(language.getTranslation(getBuilding().getDescriptionKey()).split(";")).craft());
 
@@ -49,6 +50,7 @@ public class RandomWorldBuilding extends GeneralBuilding {
             public void onClick(APIPlayer apiPlayer, ItemStack itemStack, int i) {
                 if (ClashOfClubs.getInstance().getPlayerManager().getPlayer(apiPlayer.getUniqueId()).getResourceAmount(getBuilding().getResourceType()) < getRemoveCost()) {
                     apiPlayer.sendActionbar(new ActionbarMessage(TranslationKeys.COC_PLAYER_NOT_ENOUGH_RESOURCE), "${type}", getBuilding().getResourceType().getColoredName(language));
+                    apiPlayer.playSound(Sound.ENTITY_VILLAGER_NO);
                     return;
                 }
                 BuildingsManager.getInstance().removeBuilding(RandomWorldBuilding.this);

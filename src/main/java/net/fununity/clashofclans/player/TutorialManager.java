@@ -20,16 +20,16 @@ import java.util.UUID;
  */
 public class TutorialManager {
 
-    private static TutorialManager INSTANCE;
+    private static TutorialManager instance;
 
     /**
      * Get the singleton instance.
      * @return TutorialManager - instance of this class.
      */
     public static TutorialManager getInstance() {
-        if(INSTANCE == null)
-            INSTANCE = new TutorialManager();
-        return INSTANCE;
+        if (instance == null)
+            instance = new TutorialManager();
+        return instance;
     }
 
     private final Map<UUID, TutorialState> state;

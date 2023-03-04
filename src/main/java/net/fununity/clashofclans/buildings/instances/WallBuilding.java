@@ -38,11 +38,12 @@ public class WallBuilding extends GeneralBuilding implements IDifferentVersionBu
     /**
      * Called when the version was updated.
      * @param schematic boolean - schematic change
+     * @return boolean - needs to rebuild building
      * @since 0.0.1
      */
     @Override
-    public void updateVersion(boolean schematic) {
-        // nothing to do here
+    public boolean updateVersion(boolean schematic) {
+        return schematic;
     }
 
     /**
