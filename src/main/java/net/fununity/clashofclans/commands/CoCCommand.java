@@ -2,14 +2,10 @@ package net.fununity.clashofclans.commands;
 
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
+import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.main.api.command.handler.APICommand;
 import net.fununity.main.api.player.APIPlayer;
-import net.fununity.main.api.util.LocationUtil;
 import org.bukkit.command.CommandSender;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
 
 public class CoCCommand extends APICommand {
 
@@ -25,7 +21,12 @@ public class CoCCommand extends APICommand {
             if (args[0].equalsIgnoreCase("cheat")) {
                 try {
                     ResourceTypes resourceTypes = ResourceTypes.valueOf(args[1]);
-                    ClashOfClubs.getInstance().getPlayerManager().getPlayer(apiPlayer.getUniqueId()).fillResourceToContainer(resourceTypes, Integer.parseInt(args[2]));
+                    CoCPlayer coCPlayer = ClashOfClubs.getInstance().getPlayerManager().getPlayer(apiPlayer.getUniqueId());
+                    if (resourceTypes == ResourceTypes.GEMS) {
+                        coCPlayer.setGems(Integer.parseInt(args[2]));
+                    } else {
+                        coCPlayer.fillResourceToContainer(resourceTypes, Integer.parseInt(args[2]));
+                    }
                 } catch (IllegalArgumentException exception) {
                     apiPlayer.sendRawMessage("Wrong command execute : /coc cheat <resourceType> <amount>");
                 }

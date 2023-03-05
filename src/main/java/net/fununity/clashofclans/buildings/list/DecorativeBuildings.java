@@ -1,10 +1,10 @@
 package net.fununity.clashofclans.buildings.list;
 
 import net.fununity.clashofclans.ResourceTypes;
-import net.fununity.clashofclans.buildings.instances.destroyables.DecorativeBuilding;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
-import net.fununity.clashofclans.buildings.interfaces.data.BuildingLevelData;
+import net.fununity.clashofclans.buildings.instances.destroyables.DecorativeBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IDestroyableBuilding;
+import net.fununity.clashofclans.buildings.interfaces.data.BuildingLevelData;
 import org.bukkit.Material;
 
 public enum DecorativeBuildings implements IDestroyableBuilding {
@@ -108,6 +108,17 @@ public enum DecorativeBuildings implements IDestroyableBuilding {
     @Override
     public int getGems() {
         return gems;
+    }
+
+    /**
+     * Amount of exp per destroy
+     *
+     * @return int - the amount of exp received.
+     * @since 0.0.1
+     */
+    @Override
+    public int getExp() {
+        return 0;
     }
 
     /**

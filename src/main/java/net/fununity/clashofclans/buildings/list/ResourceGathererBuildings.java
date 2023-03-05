@@ -3,9 +3,9 @@ package net.fununity.clashofclans.buildings.list;
 import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.instances.resource.ResourceGatherBuilding;
-import net.fununity.clashofclans.buildings.interfaces.data.BuildingLevelData;
 import net.fununity.clashofclans.buildings.interfaces.IResourceGatherBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IUpgradeDetails;
+import net.fununity.clashofclans.buildings.interfaces.data.BuildingLevelData;
 import net.fununity.clashofclans.buildings.interfaces.data.ResourceGatherLevelData;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.misc.translationhandler.translations.Language;
@@ -22,7 +22,7 @@ public enum ResourceGathererBuildings implements IResourceGatherBuilding, IUpgra
                                           new ResourceGatherLevelData(400, 2, 50000, 2 * 60 * 60, 50000, 1200)}),
 
     FARM(TranslationKeys.COC_BUILDING_GATHER_FARM_NAME, TranslationKeys.COC_BUILDING_GATHER_FARM_DESCRIPTION, new int[]{19, 15}, ResourceTypes.GOLD, Material.WHEAT_SEEDS, ResourceTypes.FOOD,
-            new ResourceGatherLevelData[]{new ResourceGatherLevelData(250, 1, 75, 30, 1200, 300),
+            new ResourceGatherLevelData[]{new ResourceGatherLevelData(250, 1, 75, 10, 1200, 300),
                                           new ResourceGatherLevelData(300, 1, 750, 3 * 60, 5000, 400),
                                           new ResourceGatherLevelData(350, 2, 10000, 10 * 60, 15000, 600),
                                           new ResourceGatherLevelData(400, 2, 50000, 2 * 60 * 60, 50000, 1200)}),

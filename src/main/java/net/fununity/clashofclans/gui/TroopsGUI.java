@@ -55,8 +55,7 @@ public class TroopsGUI {
 
             menu.addItem(new ItemBuilder(troop.getRepresentativeItem())
                     .setName(troop.getName(lang))
-                    .setDurability((short) Math.max(troop.getRepresentativeItem().getMaxDurability() -
-                            (double) troop.getRepresentativeItem().getMaxDurability() * Math.max(1.0, timeLeft) / troop.getTrainDuration(), 1))
+                    .setDamage((int) (troop.getRepresentativeItem().getMaxDurability() * Math.max(1.0, timeLeft) / troop.getTrainDuration()))
                     .setLore(lore).craft(), new ClickAction() {
                 @Override
                 public void onRightClick(APIPlayer apiPlayer, ItemStack itemStack, int slot) {

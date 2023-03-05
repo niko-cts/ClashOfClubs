@@ -10,6 +10,7 @@ import net.fununity.clashofclans.player.ScoreboardMenu;
 import net.fununity.clashofclans.troops.ITroop;
 import net.fununity.main.api.messages.MessagePrefix;
 import net.fununity.main.api.player.APIPlayer;
+import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 
 import java.util.List;
@@ -107,11 +108,17 @@ public class TroopsBuildingManager {
             return false;
         }
 
+        boolean wasEmpty = building.getTroopsQueue().isEmpty();
+
         if (!building.addTroop(troop)) {
             apiPlayer.sendMessage(MessagePrefix.ERROR, TranslationKeys.COC_GUI_TRAIN_FULL, "${max}", ""+building.getMaxAmountOfTroops());
             apiPlayer.playSound(Sound.ENTITY_VILLAGER_NO);
             return false;
         }
+
+
+        if (wasEmpty)
+            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> Schematics.createBuilding(building));
 
         player.removeResource(ResourceTypes.FOOD, troop.getCostAmount());
         ScoreboardMenu.show(player);

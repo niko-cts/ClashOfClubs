@@ -3,7 +3,8 @@ package net.fununity.clashofclans.buildings.list;
 import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.instances.DefenseBuilding;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
-import net.fununity.clashofclans.buildings.interfaces.*;
+import net.fununity.clashofclans.buildings.interfaces.IDefenseBuilding;
+import net.fununity.clashofclans.buildings.interfaces.IUpgradeDetails;
 import net.fununity.clashofclans.buildings.interfaces.data.BuildingLevelData;
 import net.fununity.clashofclans.buildings.interfaces.data.DefenseLevelData;
 import net.fununity.clashofclans.language.TranslationKeys;
@@ -16,7 +17,7 @@ import java.util.List;
 
 public enum DefenseBuildings implements IDefenseBuilding, IUpgradeDetails {
     CANNON (TranslationKeys.COC_BUILDING_DEFENSE_CANNON_NAME, TranslationKeys.COC_BUILDING_DEFENSE_CANNON_DESCRIPTION, new int[]{7, 7}, ResourceTypes.GOLD, Material.FIRE_CHARGE, false, 25, 20, null,
-                    new DefenseLevelData[]{new DefenseLevelData(300, 1, 50, 30, 7),
+                    new DefenseLevelData[]{new DefenseLevelData(300, 1, 50, 15, 7),
                             new DefenseLevelData(400, 2, 100, 3 * 60, 15),
                             new DefenseLevelData(500, 3, 150, 60 * 60, 22)}),
     ARCHER_TOWER (TranslationKeys.COC_BUILDING_DEFENSE_ARCHERTOWER_NAME, TranslationKeys.COC_BUILDING_DEFENSE_ARCHERTOWER_DESCRIPTION, new int[]{7, 7}, ResourceTypes.GOLD, Material.BOW, true, 30, 15,null,

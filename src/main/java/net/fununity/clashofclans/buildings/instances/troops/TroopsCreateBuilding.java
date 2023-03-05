@@ -1,8 +1,11 @@
 package net.fununity.clashofclans.buildings.instances.troops;
 
 import net.fununity.clashofclans.ClashOfClubs;
+import net.fununity.clashofclans.buildings.Schematics;
 import net.fununity.clashofclans.buildings.TroopsBuildingManager;
+import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
+import net.fununity.clashofclans.buildings.interfaces.IDifferentVersionBuildings;
 import net.fununity.clashofclans.buildings.interfaces.ITroopCreateBuilding;
 import net.fununity.clashofclans.gui.TroopsGUI;
 import net.fununity.clashofclans.language.TranslationKeys;
@@ -32,7 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Niko
  * @since 0.0.1
  */
-public class TroopsCreateBuilding extends TroopsBuilding {
+public class TroopsCreateBuilding extends TroopsBuilding implements IDifferentVersionBuildings {
 
     private final Queue<ITroop> troopsQueue;
     private long queueSecondsLast = Long.MAX_VALUE;
@@ -110,6 +113,8 @@ public class TroopsCreateBuilding extends TroopsBuilding {
             TroopsBuildingManager.getInstance().troopEducated(this, troopsQueue.poll());
             if (!troopsQueue.isEmpty())
                 queueSecondsLast = troopsQueue.peek().getTrainDuration();
+            else
+                queueEmptied();
         }
 
         ClashOfClubs.getInstance().getPlayerManager().forceUpdateInventory(this);
@@ -128,6 +133,8 @@ public class TroopsCreateBuilding extends TroopsBuilding {
                 TroopsBuildingManager.getInstance().troopEducated(this, troopsQueue.poll());
                 if (!troopsQueue.isEmpty())
                     queueSecondsLast = troopsQueue.peek().getTrainDuration();
+                else
+                    queueEmptied();
                 secondsGone -= queueSecondsLast;
             } else {
                 queueSecondsLast -= secondsGone;
@@ -145,8 +152,9 @@ public class TroopsCreateBuilding extends TroopsBuilding {
     public boolean addTroop(ITroop troop) {
         if (getCurrentSizeOfTroops() >= getMaxAmountOfTroops())
             return false;
-        if (this.troopsQueue.isEmpty())
+        if (this.troopsQueue.isEmpty()) {
             this.queueSecondsLast = troop.getTrainDuration();
+        }
         this.troopsQueue.add(troop);
         return true;
     }
@@ -158,9 +166,20 @@ public class TroopsCreateBuilding extends TroopsBuilding {
             this.troopsQueue.poll();
             if (!this.troopsQueue.isEmpty())
                 this.queueSecondsLast = troopsQueue.peek().getTrainDuration();
+            else
+                queueEmptied();
         } else {
             this.troopsQueue.remove(troop);
         }
+    }
+
+    /**
+     * Will call {@link Schematics#createBuilding(GeneralBuilding)} to update the version.
+     * @since 0.0.2
+     */
+    private void queueEmptied() {
+        if (getCurrentBuildingVersion() == 0)
+            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> Schematics.createBuilding(this));
     }
 
 
@@ -186,7 +205,6 @@ public class TroopsCreateBuilding extends TroopsBuilding {
     }
 
 
-
     @Override
     public ITroopCreateBuilding getBuilding() {
         return (ITroopCreateBuilding) super.getBuilding();
@@ -207,20 +225,34 @@ public class TroopsCreateBuilding extends TroopsBuilding {
      * @return String - all troop ordinals split by ','.
      */
     public String getTroopsQueueId() {
-        StringBuilder stringBuilder = new StringBuilder();
+        StringBuilder stringBuilder = new StringBuilder().append("[");
         Iterator<ITroop> iterator = getTroopsQueue().iterator();
         while (iterator.hasNext()) {
             stringBuilder.append(iterator.next().ordinal());
             if (iterator.hasNext())
                 stringBuilder.append(",");
         }
-        return stringBuilder.toString();
+        return stringBuilder.append("]").toString();
     }
     public void insertQueue(String queue) {
+        queue = queue.replace("[", "").replace("]", "");
         if (queue.isBlank()) return;
         for (String troop : queue.split(",")) {
-            addTroop(Troops.values()[Integer.parseInt(troop)]);
+            try {
+                addTroop(Troops.values()[Integer.parseInt(troop)]);
+            } catch (NumberFormatException ignored) {}
         }
     }
 
+    /**
+     * Gets the current version of the building.
+     * E.g. percentage of fill.
+     *
+     * @return int - building version
+     * @since 0.0.1
+     */
+    @Override
+    public int getCurrentBuildingVersion() {
+        return troopsQueue.isEmpty() ? 0 : 1;
+    }
 }

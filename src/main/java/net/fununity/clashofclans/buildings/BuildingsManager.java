@@ -198,7 +198,13 @@ public class BuildingsManager {
                 int gemsToAdd = RandomUtil.getRandomInt(((IDestroyableBuilding) building.getBuilding()).getGems());
                 if (gemsToAdd > 0) {
                     coCPlayer.setGems(coCPlayer.getGems() + gemsToAdd);
-                    coCPlayer.getOwner().playSound(Sound.ENTITY_PLAYER_LEVELUP);
+                    coCPlayer.addExp(((IDestroyableBuilding) building.getBuilding()).getExp());
+                    APIPlayer apiPlayer = coCPlayer.getOwner();
+                    apiPlayer.playSound(Sound.ENTITY_PLAYER_LEVELUP);
+                    apiPlayer.getPlayer().setLevel(0);
+                    apiPlayer.getPlayer().setExp(0);
+                    apiPlayer.getPlayer().giveExp(coCPlayer.getExp());
+                    ScoreboardMenu.show(coCPlayer);
                 }
 
                 coCPlayer.removeResource(building.getBuilding().getResourceType(), ((RandomWorldBuilding) building).getRemoveCost());
@@ -330,7 +336,10 @@ public class BuildingsManager {
      * @return boolean - close inventory
      */
     public boolean emptyGatherer(List<ResourceGatherBuilding> emptyGatherer) {
+        if (emptyGatherer.isEmpty()) return false;
+
         List<GeneralBuilding> rebuildBuildings = new ArrayList<>();
+
         emptyGatherer.forEach(b -> rebuildBuildings.addAll(emptyGatherer(b)));
 
         if (!rebuildBuildings.isEmpty()) {

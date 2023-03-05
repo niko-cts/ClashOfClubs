@@ -3,14 +3,14 @@ package net.fununity.clashofclans.buildings.list;
 import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.instances.destroyables.RandomWorldBuilding;
-import net.fununity.clashofclans.buildings.interfaces.data.BuildingLevelData;
 import net.fununity.clashofclans.buildings.interfaces.IDestroyableBuilding;
+import net.fununity.clashofclans.buildings.interfaces.data.BuildingLevelData;
 import net.fununity.clashofclans.language.TranslationKeys;
 import org.bukkit.Material;
 
 public enum RandomWorldBuildings implements IDestroyableBuilding {
 
-    BUSH(TranslationKeys.COC_BUILDING_RANDOM_BUSH_NAME, TranslationKeys.COC_BUILDING_RANDOM_BUSH_DESCRIPTION, new int[]{3, 3}, 2, new BuildingLevelData[]{new BuildingLevelData(10, 0, 1, 0)});
+    BUSH(TranslationKeys.COC_BUILDING_RANDOM_BUSH_NAME, TranslationKeys.COC_BUILDING_RANDOM_BUSH_DESCRIPTION, new int[]{3, 3}, 2, 10, new BuildingLevelData[]{new BuildingLevelData(10, 0, 1, 0)});
 
     private static final RandomWorldBuildings[] START_BUILDINGS = new RandomWorldBuildings[]{BUSH};
 
@@ -27,12 +27,14 @@ public enum RandomWorldBuildings implements IDestroyableBuilding {
     private final String descriptionKey;
     private final int[] size;
     private final int gems;
+    private final int exp;
     private final BuildingLevelData[] buildingLevelData;
 
-    RandomWorldBuildings(String nameKey, String descriptionKey, int[] size, int gems, BuildingLevelData[] buildingLevelData) {
+    RandomWorldBuildings(String nameKey, String descriptionKey, int[] size, int gems, int exp, BuildingLevelData[] buildingLevelData) {
         this.nameKey = nameKey;
         this.descriptionKey = descriptionKey;
         this.size = size;
+        this.exp  = exp;
         this.gems = gems;
         this.buildingLevelData = buildingLevelData;
     }
@@ -121,6 +123,17 @@ public enum RandomWorldBuildings implements IDestroyableBuilding {
     @Override
     public int getGems() {
         return gems;
+    }
+
+    /**
+     * Amount of exp per destroy
+     *
+     * @return int - the amount of exp received.
+     * @since 0.0.1
+     */
+    @Override
+    public int getExp() {
+        return exp;
     }
 
     /**

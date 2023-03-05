@@ -10,6 +10,13 @@ public interface IDestroyableBuilding extends IBuilding {
     int getGems();
 
     /**
+     * Amount of exp per destroy
+     * @return int - the amount of exp received.
+     * @since 0.0.1
+     */
+    int getExp();
+
+    /**
      * When the building is destroyed the player gets back the full money.
      * @return boolean - receive full money back.
      * @since 0.0.1

@@ -96,7 +96,8 @@ public class ResourceContainerBuilding extends GeneralHologramBuilding implement
         if (!change)
             return false;
         updateHologram(getShowText());
-        return this.updateVersion(oldVersion != getCurrentBuildingVersion());
+        ClashOfClubs.getInstance().getPlayerManager().forceUpdateInventory(this);
+        return oldVersion != getCurrentBuildingVersion();
     }
 
     @Override
@@ -113,17 +114,6 @@ public class ResourceContainerBuilding extends GeneralHologramBuilding implement
      */
     public double getAmount() {
         return currentAmount;
-    }
-
-    /**
-     * Called when the version was updated.
-     * @param schematic boolean - schematic change
-     * @since 0.0.1
-     */
-    @Override
-    public boolean updateVersion(boolean schematic) {
-        ClashOfClubs.getInstance().getPlayerManager().forceUpdateInventory(this);
-        return schematic;
     }
 
     /**

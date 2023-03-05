@@ -8,14 +8,6 @@ package net.fununity.clashofclans.buildings.interfaces;
 public interface IDifferentVersionBuildings {
 
     /**
-     * Called when the version was updated.
-     * @param schematic boolean - schematic change
-     * @return boolean - needs to rebuild building
-     * @since 0.0.1
-     */
-    boolean updateVersion(boolean schematic);
-
-    /**
      * Gets the current version of the building.
      * E.g. percentage of fill.
      * @return int - building version
