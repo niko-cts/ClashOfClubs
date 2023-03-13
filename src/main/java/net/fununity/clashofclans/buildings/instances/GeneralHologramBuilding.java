@@ -8,7 +8,8 @@ import net.fununity.main.api.hologram.APIHologram;
 import net.fununity.main.api.player.APIPlayer;
 import org.bukkit.Location;
 
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
 public abstract class GeneralHologramBuilding extends GeneralBuilding implements IBuildingWithHologram {
 
@@ -24,8 +25,8 @@ public abstract class GeneralHologramBuilding extends GeneralBuilding implements
      * @param level int - the level of the building.
      * @since 0.0.1
      */
-    public GeneralHologramBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, byte rotation, int level) {
-        super(uuid, buildingUUID, building, coordinate, rotation, level);
+    public GeneralHologramBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, int[] baseRelatives, byte rotation, int level) {
+        super(uuid, buildingUUID, building, coordinate, baseRelatives, rotation, level);
 
         setLocation(getCenterCoordinate());
         setY(BuildingLocationUtil.getHighestYCoordinate(hologramLocation) + 2);
@@ -55,8 +56,8 @@ public abstract class GeneralHologramBuilding extends GeneralBuilding implements
     }
 
     @Override
-    public void setCoordinate(Location coordinate) {
-        super.setCoordinate(coordinate);
+    public void setBaseRelative(Location baseLocation, int[] baseRelative) {
+        super.setBaseRelative(baseLocation, baseRelative);
 
         FunUnityAPI.getInstance().getPlayerHandler().getPlayer(getOwnerUUID()).hideHolograms(hologramLocation);
         setLocation(getCenterCoordinate());

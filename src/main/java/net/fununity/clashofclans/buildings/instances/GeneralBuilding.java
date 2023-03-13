@@ -9,9 +9,6 @@ import net.fununity.clashofclans.buildings.interfaces.IUpgradeDetails;
 import net.fununity.clashofclans.buildings.list.Buildings;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.TutorialManager;
-import net.fununity.clashofclans.util.BuildingLocationUtil;
-import net.fununity.main.api.common.util.SpecialChars;
-import net.fununity.main.api.hologram.APIHologram;
 import net.fununity.main.api.inventory.ClickAction;
 import net.fununity.main.api.inventory.CustomInventory;
 import net.fununity.main.api.item.ItemBuilder;
@@ -24,12 +21,12 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
 
-import java.text.DecimalFormat;
 import java.util.*;
 
 /**
  * Class, which represents a general building.
  * Lookup all general buildings here: {@link net.fununity.clashofclans.buildings.list.Buildings}
+ *
  * @author Niko
  * @since 0.0.1
  */
@@ -40,25 +37,28 @@ public class GeneralBuilding {
     private final IBuilding building;
     private byte rotation;
     private Location coordinate;
+    private int[] baseRelative;
     private int level;
     private double currentHP;
-    private APIHologram healthHologram;
 
     /**
      * Instantiates the class.
-     * @param uuid UUID - uuid of owner.
+     *
+     * @param uuid         UUID - uuid of owner.
      * @param buildingUUID UUID - uuid of building.
-     * @param building IBuilding - the building class.
-     * @param coordinate Location - the location of the building.
-     * @param rotation byte - the rotation of the building.
-     * @param level int - the level of the building.
+     * @param building     IBuilding - the building class.
+     * @param baseLocation   Location - the location of the base.
+     * @param baseRelative int[] - the x,z coordinate from the player base.
+     * @param rotation     byte - the rotation of the building.
+     * @param level        int - the level of the building.
      * @since 0.0.1
      */
-    public GeneralBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, byte rotation, int level) {
+    public GeneralBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location baseLocation, int[] baseRelative, byte rotation, int level) {
         this.ownerUUID = uuid;
         this.buildingUUID = buildingUUID;
         this.building = building;
-        this.coordinate = coordinate;
+        this.baseRelative = baseRelative;
+        this.coordinate = baseLocation.clone().add(baseRelative[0], 0, baseRelative[1]);
         this.rotation = rotation;
         this.level = level;
         this.currentHP = getMaxHP();
@@ -66,12 +66,13 @@ public class GeneralBuilding {
 
     /**
      * The standard inventory of the building.
+     *
      * @param language Language - the language of the gui.
      * @return CustomInventory - the gui of the building.
      * @since 0.0.1
      */
     public CustomInventory getInventory(Language language) {
-        CustomInventory menu = new CustomInventory(getBuildingTitle(language), 9*3);
+        CustomInventory menu = new CustomInventory(getBuildingTitle(language), 9 * 3);
         menu.setSpecialHolder(getBuildingUUID());
         menu.fill(UsefulItems.BACKGROUND_BLACK);
 
@@ -139,6 +140,7 @@ public class GeneralBuilding {
 
     /**
      * Get the building interface.
+     *
      * @return {@link IBuilding} - the building class.
      * @since 0.0.1
      */
@@ -148,6 +150,7 @@ public class GeneralBuilding {
 
     /**
      * Get the max hp of the building.
+     *
      * @return int - the hp of the building.
      * @since 0.0.1
      */
@@ -160,15 +163,18 @@ public class GeneralBuilding {
     /**
      * The upgrade cost of the building.
      * (-1 with no further upgrade)
+     *
      * @return int - the upgrade cost.
      * @since 0.0.1
      */
     public int getUpgradeCost() {
         return getBuilding().getBuildingLevelData().length > level ? getBuilding().getBuildingLevelData()[level].getUpgradeCost() : -1;
     }
+
     /**
      * The build time of the building.
      * (-1 with no further build time)
+     *
      * @return int - the upgrade cost.
      * @since 0.0.1
      */
@@ -178,6 +184,7 @@ public class GeneralBuilding {
 
     /**
      * Get the xp the player gets, when achieving this building.
+     *
      * @return int - getting xp.
      * @since 0.0.1
      */
@@ -187,23 +194,17 @@ public class GeneralBuilding {
 
     /**
      * Sets the current hp of the building.
+     *
      * @param currentHP double - the current hp.
      * @since 0.0.1
      */
-    public void setCurrentHP(APIPlayer attacker, double currentHP) {
+    public void setCurrentHP(double currentHP) {
         this.currentHP = currentHP;
-        if (attacker == null) return;
-        if (this.healthHologram != null)
-            attacker.hideHologram(healthHologram);
-        Location centerCoordinate = getCenterCoordinate();
-        centerCoordinate.setY(BuildingLocationUtil.getHighestYCoordinate(centerCoordinate) + 2);
-        DecimalFormat format = new DecimalFormat("0.0");
-        this.healthHologram = new APIHologram(centerCoordinate, Collections.singletonList("§e" + format.format(currentHP) + "§7/§e" + getMaxHP() + " §c" + SpecialChars.HEART));
-        attacker.showHologram(this.healthHologram);
     }
 
     /**
      * Get the current hp of the building.
+     *
      * @return int - the current hp.
      * @since 0.0.1
      */
@@ -213,6 +214,7 @@ public class GeneralBuilding {
 
     /**
      * Get the location of the coordinate. (Min location)
+     *
      * @return Location - the coordinate of the building.
      * @since 0.0.1
      */
@@ -221,18 +223,44 @@ public class GeneralBuilding {
     }
 
     /**
+     * Get the base relative from the player base.
+     * @return int[] - the x,z point from the player base.
+     * @since 1.0.1
+     */
+    public int[] getBaseRelative() {
+        return baseRelative;
+    }
+
+
+    /**
+     * Set the location and base relative of the building. (Min location)
+     *
+     * @param baseLocation Location - the coordinate of the player base.
+     * @param baseRelative int[] - the base relative position (x, z)
+     * @since 0.0.1
+     */
+    public void setBaseRelative(Location baseLocation, int[] baseRelative) {
+        this.baseRelative = baseRelative;
+        this.coordinate = baseLocation.clone().add(baseRelative[0], 0, baseRelative[1]);
+    }
+
+    /**
      * Get center coordinate of the building.
+     *
      * @return Location - center location.
      * @since 0.0.1
      */
     public Location getCenterCoordinate() {
-        Location max = getMaxCoordinate();
-        return new Location(coordinate.getWorld(), (coordinate.getBlockX() + max.getBlockX()) * 0.5, coordinate.getBlockY(), (coordinate.getBlockZ() + max.getBlockZ()) * 0.5);
+        return new Location(coordinate.getWorld(),
+                coordinate.getX() + getBuilding().getSize()[rotation == 1 || rotation == 3 ? 1 : 0] * 0.5,
+                ClashOfClubs.getBaseYCoordinate() + 15,
+                coordinate.getZ() + getBuilding().getSize()[rotation == 1 || rotation == 3 ? 0 : 1] * 0.5);
     }
 
     /**
      * Get the maximum location of the building. (Max location)
      * Note: Y is still on minimum level.
+     *
      * @return Location - the maximum coordinate of the building.
      * @since 0.0.1
      */
@@ -242,16 +270,8 @@ public class GeneralBuilding {
     }
 
     /**
-     * Set the location of the building. (Min location)
-     * @param coordinate Location - the coordinate of the building.
-     * @since 0.0.1
-     */
-    public void setCoordinate(Location coordinate) {
-        this.coordinate = coordinate;
-    }
-
-    /**
      * Get the rotation of the building (0 - 3)
+     *
      * @return int - rotation of the building.
      * @since 0.0.1
      */
@@ -261,6 +281,7 @@ public class GeneralBuilding {
 
     /**
      * Sets the rotation of the building.
+     *
      * @param rotation byte - the rotation of the building.
      * @since 0.0.1
      */
@@ -270,6 +291,7 @@ public class GeneralBuilding {
 
     /**
      * The level of the building.
+     *
      * @param level int - the new building level.
      * @since 0.0.1
      */
@@ -279,6 +301,7 @@ public class GeneralBuilding {
 
     /**
      * The level of the building.
+     *
      * @return int - building level.
      * @since 0.0.1
      */
@@ -292,14 +315,17 @@ public class GeneralBuilding {
 
     /**
      * Get the owner of this building.
+     *
      * @return UUID - uuid of player.
      * @since 0.0.1
      */
     public UUID getOwnerUUID() {
         return ownerUUID;
     }
+
     /**
      * Get the uuid of this building.
+     *
      * @return UUID - uuid of building.
      * @since 0.0.1
      */
@@ -309,6 +335,7 @@ public class GeneralBuilding {
 
     /**
      * Get the id of the building. name-level(-version)
+     *
      * @return String - the building id.
      * @since 0.0.1
      */
@@ -322,7 +349,7 @@ public class GeneralBuilding {
         if (o == null || getClass() != o.getClass()) return false;
         GeneralBuilding that = (GeneralBuilding) o;
         return level == that.level && building == that.building &&
-                coordinate.getBlockX() == that.coordinate.getBlockX() && coordinate.getBlockY() == that.coordinate.getBlockY() &&coordinate.getBlockZ() == that.coordinate.getBlockZ();
+                coordinate.getBlockX() == that.coordinate.getBlockX() && coordinate.getBlockY() == that.coordinate.getBlockY() && coordinate.getBlockZ() == that.coordinate.getBlockZ();
     }
 
     @Override

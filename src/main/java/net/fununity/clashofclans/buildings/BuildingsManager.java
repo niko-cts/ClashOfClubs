@@ -93,11 +93,11 @@ public class BuildingsManager {
         player.getTitleSender().sendTitle(TranslationKeys.COC_PLAYER_LOADING_NEW_BASE_TITLE, 40 * 20);
         player.getTitleSender().sendSubtitle(TranslationKeys.COC_PLAYER_LOADING_NEW_BASE_SUBTITLE, 40 * 20);
         List<GeneralBuilding> startBuildings = new ArrayList<>(Arrays.asList(
-                new GeneralBuilding(uuid, UUID.randomUUID(), Buildings.TOWN_HALL, baseLoc.clone().add(82, 0, 90), (byte) 0, 0),
-                new GeneralBuilding(uuid, UUID.randomUUID(), Buildings.BUILDER, baseLoc.clone().add(113, 0, 117), (byte) 0, 1),
-                new ResourceGatherBuilding(uuid, UUID.randomUUID(), ResourceGathererBuildings.GOLD_MINER, baseLoc.clone().add(65, 0, 75), (byte) 0, 1, 650),
-                new ResourceContainerBuilding(uuid, UUID.randomUUID(), ResourceContainerBuildings.GOLD_STOCK, baseLoc.clone().add(117, 0, 104), (byte) 0, 1, 0),
-                new DefenseBuilding(uuid, UUID.randomUUID(), DefenseBuildings.CANNON, BuildingLocationUtil.getRealMinimum(DefenseBuildings.CANNON.getSize(), (byte) 2, baseLoc.clone().add(116, 0, 83)), (byte) 2, 1)));
+                new GeneralBuilding(uuid, UUID.randomUUID(), Buildings.TOWN_HALL, baseLoc, new int[]{82, 90}, (byte) 0, 0),
+                new GeneralBuilding(uuid, UUID.randomUUID(), Buildings.BUILDER, baseLoc, new int[]{113, 117}, (byte) 0, 1),
+                new ResourceGatherBuilding(uuid, UUID.randomUUID(), ResourceGathererBuildings.GOLD_MINER, baseLoc, new int[]{65, 75}, (byte) 0, 1, 650),
+                new ResourceContainerBuilding(uuid, UUID.randomUUID(), ResourceContainerBuildings.GOLD_STOCK, baseLoc, new int[]{117, 104}, (byte) 0, 1, 0),
+                new DefenseBuilding(uuid, UUID.randomUUID(), DefenseBuildings.CANNON, baseLoc, new int[]{116, 83}, (byte) 0, 1)));
 
         List<RandomWorldBuilding> rdmBuildings = new ArrayList<>();
         for (int i = 0; i < RandomUtil.getRandomInt(10) + 7; i++) {
@@ -105,7 +105,7 @@ public class BuildingsManager {
             Location randomBuildingLocation = BuildingLocationUtil.getRandomBuildingLocation(baseLoc, startBuildings, building.getSize());
             byte rotation = (byte) RandomUtil.getRandomInt(4);
             if (randomBuildingLocation != null)
-                rdmBuildings.add(new RandomWorldBuilding(uuid, UUID.randomUUID(), building, BuildingLocationUtil.getRealMinimum(building.getSize(), rotation, randomBuildingLocation), rotation, 1));
+                rdmBuildings.add(new RandomWorldBuilding(uuid, UUID.randomUUID(), building, baseLoc, BuildingLocationUtil.transferInRelatives(baseLoc, building.getSize(), rotation, randomBuildingLocation), rotation, 1));
         }
 
         startBuildings.addAll(rdmBuildings);
@@ -153,7 +153,9 @@ public class BuildingsManager {
             byte rotation = buildingToConstruct.getRotation();
 
             allBuildings.add(getBuildingInstance(player.getUniqueId(), UUID.randomUUID(), building,
-                    BuildingLocationUtil.getRealMinimum(building.getSize(), rotation, newLocation), rotation, 0));
+                    player.getBaseStartLocation(),
+                    BuildingLocationUtil.transferInRelatives(player.getBaseStartLocation(),
+                    BuildingLocationUtil.getRealMinimum(building.getSize(), rotation, newLocation)), rotation, 0));
         }
 
         player.removeResource(building.getResourceType(), building.getBuildingLevelData()[0].getUpgradeCost() * constructionMode.getBuildings().size());
@@ -231,11 +233,11 @@ public class BuildingsManager {
      * @return {@link GeneralBuilding} - the building instance.
      * @since 0.0.1
      */
-    public GeneralBuilding getBuildingInstance(UUID uuid, UUID buildingUUID, IBuilding building, Location location, byte rotation, int level) {
+    public GeneralBuilding getBuildingInstance(UUID uuid, UUID buildingUUID, IBuilding building, Location location, int[] baseRelatives, byte rotation, int level) {
         try {
             return building.getBuildingClass()
-                    .getConstructor(UUID.class, UUID.class, IBuilding.class, Location.class, byte.class, int.class)
-                    .newInstance(uuid, buildingUUID, building, location, rotation, level);
+                    .getConstructor(UUID.class, UUID.class, IBuilding.class, Location.class, int[].class, byte.class, int.class)
+                    .newInstance(uuid, buildingUUID, building, location, baseRelatives, rotation, level);
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             ClashOfClubs.getInstance().getLogger().warning(e.getMessage());
             return null;
@@ -253,11 +255,11 @@ public class BuildingsManager {
      * @return {@link GeneralBuilding} - the building instance.
      * @since 0.0.1
      */
-    public GeneralBuilding getBuildingInstance(UUID uuid, UUID buildingUUID, IBuilding building, Location location, byte rotation, int level, double amount) {
+    public GeneralBuilding getBuildingInstance(UUID uuid, UUID buildingUUID, IBuilding building, Location location, int[] baseRelatives, byte rotation, int level, double amount) {
         try {
             return building.getBuildingClass()
-                    .getConstructor(UUID.class, UUID.class, IBuilding.class, Location.class, byte.class, int.class, double.class)
-                    .newInstance(uuid, buildingUUID, building, location, rotation, level, amount);
+                    .getConstructor(UUID.class, UUID.class, IBuilding.class, Location.class, int[].class, byte.class, int.class, double.class)
+                    .newInstance(uuid, buildingUUID, building, location, baseRelatives, rotation, level, amount);
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             ClashOfClubs.getInstance().getLogger().warning(e.getMessage());
             return null;
@@ -275,11 +277,11 @@ public class BuildingsManager {
      * @return {@link GeneralBuilding} - the building instance.
      * @since 0.0.1
      */
-    public GeneralBuilding getBuildingInstance(UUID uuid, UUID buildingUUID, IBuilding building, Location location, byte rotation, int level, ConcurrentHashMap<ITroop, Integer> troops) {
+    public GeneralBuilding getBuildingInstance(UUID uuid, UUID buildingUUID, IBuilding building, Location location, int[] baseRelatives,  byte rotation, int level, ConcurrentHashMap<ITroop, Integer> troops) {
         try {
             return building.getBuildingClass()
-                    .getConstructor(UUID.class, UUID.class, IBuilding.class, Location.class, byte.class, int.class, ConcurrentHashMap.class)
-                    .newInstance(uuid, buildingUUID, building, location, rotation, level, troops);
+                    .getConstructor(UUID.class, UUID.class, IBuilding.class, Location.class, int[].class, byte.class, int.class, ConcurrentHashMap.class)
+                    .newInstance(uuid, buildingUUID, building, location, baseRelatives, rotation, level, troops);
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             ClashOfClubs.getInstance().getLogger().warning(e.getMessage());
             return null;

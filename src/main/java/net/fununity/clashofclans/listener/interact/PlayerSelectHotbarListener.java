@@ -122,7 +122,7 @@ public class PlayerSelectHotbarListener implements Listener {
             BuildingLocationUtil.removeBuildingModeDecorations(event.getPlayer(), player.getBuildingMode());
 
             if (player.getBuildingMode() instanceof MovingMode) {
-                BuildingModeManager.getInstance().moveBuilding((MovingMode) player.getBuildingMode());
+                BuildingModeManager.getInstance().moveBuilding(player);
                 apiPlayer.sendMessage(MessagePrefix.SUCCESS, TranslationKeys.COC_CONSTRUCTION_MOVED);
             } else {
                 BuildingsManager.getInstance().build(player);

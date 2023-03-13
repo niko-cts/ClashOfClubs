@@ -39,8 +39,8 @@ public class TroopsBuilding extends GeneralBuilding {
      * @param level      int - the level of the building.
      * @since 0.0.1
      */
-    public TroopsBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, byte rotation, int level) {
-        this(uuid, buildingUUID, building, coordinate, rotation, level, new ConcurrentHashMap<>());
+    public TroopsBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, int[] baseRelatives, byte rotation, int level) {
+        this(uuid, buildingUUID, building, coordinate,baseRelatives, rotation, level, new ConcurrentHashMap<>());
     }
 
     /**
@@ -53,8 +53,8 @@ public class TroopsBuilding extends GeneralBuilding {
      * @param troopAmount ConcurrentHashMap - the troops and amount
      * @since 0.0.1
      */
-    public TroopsBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, byte rotation, int level, ConcurrentHashMap<ITroop, Integer> troopAmount) {
-        super(uuid, buildingUUID, building, coordinate, rotation, level);
+    public TroopsBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, int[] baseRelatives, byte rotation, int level, ConcurrentHashMap<ITroop, Integer> troopAmount) {
+        super(uuid, buildingUUID, building, coordinate, baseRelatives, rotation, level);
         this.troopAmount = troopAmount;
     }
 

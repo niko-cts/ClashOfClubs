@@ -1,7 +1,7 @@
 package net.fununity.clashofclans.buildings.interfaces;
 
 import net.fununity.clashofclans.buildings.interfaces.data.DefenseLevelData;
-import net.fununity.clashofclans.troops.TroopType;
+import net.fununity.clashofclans.troops.ITroop;
 
 /**
  * Interface class for defense buildings.
@@ -12,11 +12,11 @@ import net.fununity.clashofclans.troops.TroopType;
 public interface IDefenseBuilding extends IBuilding {
 
     /**
-     * Get the type the defense building priorities.
-     * @return {@link TroopType} - the prioritised troop type.
+     * Get the troop the defense building priorities.
+     * @return {@link ITroop} - the prioritised troop.
      * @since 0.0.1
      */
-    TroopType getPrioritizeType();
+    ITroop getPrioritizeTroop();
 
     /**
      * If flying enemies can be attacked.

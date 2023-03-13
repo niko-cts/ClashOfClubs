@@ -37,8 +37,8 @@ public class ResourceGatherBuilding extends ResourceContainerBuilding {
      * @param level      int - the level of the building.
      * @since 0.0.1
      */
-    public ResourceGatherBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, byte rotation, int level) {
-        super(uuid, buildingUUID, building, coordinate, rotation, level);
+    public ResourceGatherBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, int[] baseRelatives, byte rotation, int level) {
+        super(uuid, buildingUUID, building, coordinate, baseRelatives, rotation, level);
     }
 
     /**
@@ -51,8 +51,8 @@ public class ResourceGatherBuilding extends ResourceContainerBuilding {
      * @param amount     double - amount of building
      * @since 0.0.1
      */
-    public ResourceGatherBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, byte rotation, int level, double amount) {
-        super(uuid, buildingUUID, building, coordinate, rotation, level, amount);
+    public ResourceGatherBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, int[] baseRelatives, byte rotation, int level, double amount) {
+        super(uuid, buildingUUID, building, coordinate, baseRelatives, rotation, level, amount);
     }
 
     @Override
@@ -110,12 +110,14 @@ public class ResourceGatherBuilding extends ResourceContainerBuilding {
     /**
      * Adds the amount to the building the player was gone (gatheringPerSecond * secondsGone)
      * @param secondsGone long - the amount the player was gone.
+     * @return boolean - needs a rebuild
      * @since 0.0.2
      */
-    public void addAmountPlayerWasGone(double secondsGone) {
+    public boolean addAmountPlayerWasGone(double secondsGone) {
         ResourceGatherLevelData levelData = getBuilding().getBuildingLevelData()[getLevel() - 1];
         if (getAmount() < levelData.getMaximumResource())
-            setAmount(getAmount() + levelData.getResourceGatheringPerHour() / 3600.0 * secondsGone); // each s
+            return setAmount(getAmount() + levelData.getResourceGatheringPerHour() / 3600.0 * secondsGone); // each s
+        return false;
     }
 
     /**

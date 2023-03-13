@@ -6,7 +6,7 @@
 
     <groupId>net.fununity.games.coc</groupId>
     <artifactId>ClashOfClubs</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>MASTER</version>
 
     <repositories>
         <repository>

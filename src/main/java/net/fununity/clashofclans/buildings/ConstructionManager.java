@@ -51,7 +51,7 @@ public class ConstructionManager {
             }
 
             List<ConstructionBuilding> constructions = new ArrayList<>();
-            buildings.forEach(building -> constructions.add(new ConstructionBuilding(building,
+            buildings.forEach(building -> constructions.add(new ConstructionBuilding(building, player.getBaseStartLocation(),
                     System.currentTimeMillis() + (building.getBuildingDuration() * 1000L))));
 
             DatabaseBuildings.getInstance().constructBuilding(constructions);
@@ -85,7 +85,7 @@ public class ConstructionManager {
                 GeneralBuilding building = construction.getConstructedBuilding();
 
                 building.setLevel(building.getLevel() + 1);
-                building.setCurrentHP(null, building.getMaxHP());
+                building.setCurrentHP(building.getMaxHP());
 
                 if (owner != null) {
                     construction.hideHologram(owner);

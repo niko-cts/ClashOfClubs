@@ -53,7 +53,7 @@ public class DatabaseBuildings {
     private DatabaseBuildings() {
         this.databaseHandler = DatabaseHandler.getInstance();
         if (!this.databaseHandler.doesTableExist(TABLE))
-            this.databaseHandler.createTable(TABLE, Arrays.asList("building_uuid", "owner_uuid", "buildingID", "level", "x", "z", "rotation"),
+            this.databaseHandler.createTable(TABLE, Arrays.asList("building_uuid", "owner_uuid", "building_id", "level", "x", "z", "rotation"),
                     Arrays.asList("VARCHAR(36) NOT NULL PRIMARY KEY", "VARCHAR(36) NOT NULL", "VARCHAR(36) NOT NULL", COL_INT + " default 1", COL_INT, COL_INT, "TINY" + COL_INT + " default 0"));
         if (!this.databaseHandler.doesTableExist(TABLE_CONTAINER))
             this.databaseHandler.createTable(TABLE_CONTAINER,
@@ -96,7 +96,7 @@ public class DatabaseBuildings {
         List<String> dataTypes = new ArrayList<>();
         while (normalBuildings.hasNext()) {
             GeneralBuilding building = normalBuildings.next();
-            values.addAll(Arrays.asList(building.getBuildingUUID().toString(), building.getOwnerUUID().toString(), building.getBuilding().name() + "", building.getLevel() + "", building.getCoordinate().getBlockX() + "", building.getCoordinate().getBlockZ() + "", building.getRotation() + ""));
+            values.addAll(Arrays.asList(building.getBuildingUUID().toString(), building.getOwnerUUID().toString(), building.getBuilding().name() + "", building.getLevel() + "", building.getBaseRelative()[0] + "", building.getBaseRelative()[1]+ "", building.getRotation() + ""));
             dataTypes.addAll(Arrays.asList("string", "string", "string", "", "", "", ""));
             if (normalBuildings.hasNext()) {
                 values.add(null);
@@ -243,7 +243,7 @@ public class DatabaseBuildings {
      */
     public void moveBuilding(GeneralBuilding generalBuilding) {
         this.databaseHandler.update(TABLE, Arrays.asList("x", "z", "rotation"),
-                Arrays.asList(generalBuilding.getCoordinate().getBlockX() + "", generalBuilding.getCoordinate().getBlockZ() + "", generalBuilding.getRotation() + ""),
+                Arrays.asList(generalBuilding.getBaseRelative()[0] + "", generalBuilding.getBaseRelative()[1] + "", generalBuilding.getRotation() + ""),
                 Arrays.asList("", "", ""),
                 "WHERE building_uuid='" + generalBuilding.getBuildingUUID() + "' LIMIT 1");
     }

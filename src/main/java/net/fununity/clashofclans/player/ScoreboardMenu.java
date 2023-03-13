@@ -28,7 +28,7 @@ public class ScoreboardMenu {
      */
     public static void show(CoCPlayer coCPlayer) {
         APIPlayer player = coCPlayer.getOwner();
-        if (player == null) return;
+        if (ClashOfClubs.getInstance().isAttackingServer() || player == null) return;
         Language lang = player.getLanguage();
 
         Scoreboard board = player.getPlayer().getScoreboard();

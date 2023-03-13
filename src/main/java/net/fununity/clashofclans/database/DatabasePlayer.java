@@ -125,12 +125,12 @@ public class DatabasePlayer {
         try (ResultSet set = this.databaseHandler.select(TABLE_DATA, Arrays.asList("x", "z"), "WHERE 1=1 ORDER BY x DESC, z DESC LIMIT 1")) {
             if (set != null && set.next()) {
                 Location location = new Location(ClashOfClubs.getInstance().getWorld(), set.getInt("x"), ClashOfClubs.getBaseYCoordinate(), set.getInt("z"));
-                return location.getBlockX() >= 20000000 ? location.add(-40000000, 0, ClashOfClubs.getBaseSize() * 3) : location.add(ClashOfClubs.getBaseSize() * 3, 0, 0);
+                return location.getBlockX() >= 10000000 ? location.add(-10000000, 0, ClashOfClubs.getBaseSize() * 3) : location.add(ClashOfClubs.getBaseSize() * 3, 0, 0);
             }
         } catch (SQLException exception) {
             ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
         }
 
-        return new Location(ClashOfClubs.getInstance().getWorld(), -20000000, ClashOfClubs.getBaseYCoordinate(), -20000000);
+        return new Location(ClashOfClubs.getInstance().getWorld(), 0, ClashOfClubs.getBaseYCoordinate(), 0);
     }
 }

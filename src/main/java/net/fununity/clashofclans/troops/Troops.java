@@ -1,9 +1,9 @@
 package net.fununity.clashofclans.troops;
 
 import net.fununity.clashofclans.ResourceTypes;
-import net.fununity.clashofclans.buildings.interfaces.data.BuildingLevelData;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IUpgradeDetails;
+import net.fununity.clashofclans.buildings.interfaces.data.BuildingLevelData;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.misc.translationhandler.translations.Language;
 import net.minecraft.server.v1_16_R3.EntityCreature;

@@ -9,6 +9,7 @@ import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.item.UsefulItems;
 import net.fununity.misc.translationhandler.translations.Language;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,8 +26,8 @@ public class ConstructionBuilding extends GeneralHologramBuilding {
      * @param buildingFinishTime long - the milliseconds time the building is finished.
      * @since 0.0.1
      */
-    public ConstructionBuilding(GeneralBuilding generalBuilding, long buildingFinishTime) {
-        super(generalBuilding.getOwnerUUID(), generalBuilding.getBuildingUUID(), generalBuilding.getBuilding(), generalBuilding.getCoordinate(), generalBuilding.getRotation(), generalBuilding.getLevel());
+    public ConstructionBuilding(GeneralBuilding generalBuilding, Location playerBase, long buildingFinishTime) {
+        super(generalBuilding.getOwnerUUID(), generalBuilding.getBuildingUUID(), generalBuilding.getBuilding(), playerBase, generalBuilding.getBaseRelative(), generalBuilding.getRotation(), generalBuilding.getLevel());
         this.generalBuilding = generalBuilding;
         this.buildingFinishTime = buildingFinishTime;
     }

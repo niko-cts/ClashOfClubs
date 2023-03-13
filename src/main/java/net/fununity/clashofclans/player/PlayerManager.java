@@ -3,6 +3,7 @@ package net.fununity.clashofclans.player;
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.BuildingsManager;
+import net.fununity.clashofclans.buildings.Schematics;
 import net.fununity.clashofclans.buildings.instances.ConstructionBuilding;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.instances.troops.TroopsCreateBuilding;
@@ -70,8 +71,10 @@ public class PlayerManager {
             player.getTitleSender().sendTitle(TranslationKeys.COC_PLAYER_LOADING_RESOURCES_TITLE, 5 * 20);
             player.getTitleSender().sendSubtitle(TranslationKeys.COC_PLAYER_LOADING_RESOURCES_SUBTITLE, 5 * 20);
             double secondsGone = (System.currentTimeMillis() - coCPlayer.getLastJoinMillis()) / 1000.0;
+
+            List<GeneralBuilding> rebuildBuildings = new ArrayList<>();
             for (ResourceTypes types : ResourceTypes.values())
-                coCPlayer.getResourceGatherBuildings(types).forEach(b -> b.addAmountPlayerWasGone(secondsGone));
+                rebuildBuildings.addAll(coCPlayer.getResourceGatherBuildings(types).stream().filter(b -> b.addAmountPlayerWasGone(secondsGone)).toList());
 
             player.getTitleSender().sendTitle(TranslationKeys.COC_PLAYER_LOADING_TROOPS_TITLE, 5 * 20);
             player.getTitleSender().sendSubtitle(TranslationKeys.COC_PLAYER_LOADING_TROOPS_SUBTITLE, 5 * 20);
@@ -80,6 +83,8 @@ public class PlayerManager {
             player.clearActionbar();
             player.getTitleSender().sendTitle(TranslationKeys.COC_PLAYER_LOADING_FINISHED_TITLE, 20);
             player.getTitleSender().sendSubtitle(TranslationKeys.COC_PLAYER_LOADING_FINISHED_SUBTITLE, 20);
+
+            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> Schematics.createBuildings(rebuildBuildings));
 
             Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> {
                 coCPlayer.visit(player, true);
@@ -181,35 +186,37 @@ public class PlayerManager {
                 try (ResultSet set = DatabaseBuildings.getInstance().getBuildings(uuid)) {
                     List<GeneralBuilding> buildings = new ArrayList<>();
 
+                    Location playerBase = new Location(ClashOfClubs.getInstance().getWorld(), playerX, ClashOfClubs.getBaseYCoordinate(), playerZ);
+
                     while (set != null && set.next()) {
                         UUID buildingUUID = UUID.fromString(set.getString(DatabaseBuildings.TABLE + ".building_uuid"));
                         IBuilding buildingID = BuildingsManager.getInstance().getBuildingById(set.getString("buildingID"));
                         byte rotation = set.getByte("rotation");
                         int level = set.getInt("level");
-                        Location location = new Location(ClashOfClubs.getInstance().getWorld(), set.getInt("x"), ClashOfClubs.getBaseYCoordinate(), set.getInt("z"));
+                        int[] baseRelatives = new int[]{set.getInt("x"), set.getInt("z")};
 
                         GeneralBuilding building;
 
                         if (buildingID instanceof IResourceContainerBuilding)
-                            building = BuildingsManager.getInstance().getBuildingInstance(uuid, buildingUUID, buildingID, location, rotation, level, set.getDouble("amount"));
+                            building = BuildingsManager.getInstance().getBuildingInstance(uuid, buildingUUID, buildingID, playerBase, baseRelatives, rotation, level, set.getDouble("amount"));
                         else if (buildingID instanceof ITroopBuilding) {
                             ConcurrentHashMap<ITroop, Integer> troops = new ConcurrentHashMap<>();
                             for (Troops troop : Troops.values())
                                 troops.put(troop, set.getInt(troop.name().toLowerCase()));
-                            building = BuildingsManager.getInstance().getBuildingInstance(uuid, buildingUUID, buildingID, location, rotation, level, troops);
+                            building = BuildingsManager.getInstance().getBuildingInstance(uuid, buildingUUID, buildingID, playerBase, baseRelatives,rotation, level, troops);
 
                             if (building instanceof TroopsCreateBuilding)
                                 ((TroopsCreateBuilding) building).insertQueue(set.getString("queue"));
                         } else
-                            building = BuildingsManager.getInstance().getBuildingInstance(uuid, buildingUUID, buildingID, location, rotation, level);
+                            building = BuildingsManager.getInstance().getBuildingInstance(uuid, buildingUUID, buildingID, playerBase, baseRelatives,rotation, level);
 
                         if (set.getLong("finish_time") != 0)
-                            building = new ConstructionBuilding(building, set.getLong("finish_time"));
+                            building = new ConstructionBuilding(building, playerBase, set.getLong("finish_time"));
 
                         buildings.add(building);
                     }
 
-                    return new CoCPlayer(uuid, new Location(ClashOfClubs.getInstance().getWorld(), playerX, ClashOfClubs.getBaseYCoordinate(), playerZ), xp, elo, gems, lastServer, lastJoin, buildings);
+                    return new CoCPlayer(uuid, playerBase, xp, elo, gems, lastServer, lastJoin, buildings);
 
                 } catch (SQLException exception) {
                     ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());

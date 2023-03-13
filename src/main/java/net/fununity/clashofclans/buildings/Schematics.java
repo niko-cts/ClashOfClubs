@@ -19,6 +19,11 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+/**
+ * This class is used for loading building schematics from the file folder.
+ * @author Niko
+ * @since 0.0.1
+ */
 public class Schematics {
 
     private Schematics() {
@@ -208,21 +213,18 @@ public class Schematics {
     }
 
     private static void load(String id) {
-        List<String> list = getStringListFromBuilding(id);
-        if (list.isEmpty()) return;
-        SCHEMATICS.put(id, list);
-    }
-
-    private static List<String> getStringListFromBuilding(String id) {
         File file = new File(ClashOfClubs.getInstance().getDataFolder().getAbsolutePath() + "/building-schematics", id + ".schematic");
-        List<String> list = new ArrayList<>();
-        if (!file.exists()) return list;
+        if (!file.exists())
+            return;
 
+        List<String> list = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             br.lines().forEach(list::add);
         } catch (IOException e) {
             ClashOfClubs.getInstance().getLogger().warning(e.getMessage());
         }
-        return list;
+
+        if (!list.isEmpty())
+            SCHEMATICS.put(id, list);
     }
 }

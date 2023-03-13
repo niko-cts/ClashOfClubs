@@ -7,7 +7,7 @@ package net.fununity.clashofclans.buildings.interfaces.data;
  */
 public class DefenseLevelData extends BuildingLevelData {
 
-    private final double damage;
+    private final float damage;
 
     /**
      * Instantiates the class.
@@ -15,19 +15,20 @@ public class DefenseLevelData extends BuildingLevelData {
      * @param minTownHall  int - the minimum town hall level.
      * @param upgradeCost  int - the upgrade cost.
      * @param buildSeconds int - the seconds to build the building.
+     * @param damage     float - the amount of damage per hit.
      * @since 0.0.1
      */
-    public DefenseLevelData(int maxHP, int minTownHall, int upgradeCost, int buildSeconds, double damage) {
+    public DefenseLevelData(int maxHP, int minTownHall, int upgradeCost, int buildSeconds, float damage) {
         super(maxHP, minTownHall, upgradeCost, buildSeconds);
         this.damage = damage;
     }
 
     /**
      * Get the damage the building does.
-     * @return double - damage of defense.
+     * @return double - damage to defense.
      * @since 0.0.1
      */
-    public double getDamage() {
+    public float getDamage() {
         return damage;
     }
 }

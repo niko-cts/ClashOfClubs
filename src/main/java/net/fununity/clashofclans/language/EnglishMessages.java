@@ -302,17 +302,6 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_CONSTRUCTION_BUILD, "&aBuilding will be constructed!");
 
         // ATTACKING
-        add(TranslationKeys.COC_ATTACKING_BOARD_STARS, "&6Stars");
-        add(TranslationKeys.COC_ATTACK_FINISHED,
-                "&8------{ ${name} }--------\n" +
-                        "      ${stars}  \n" +
-                        "&6Attack finished!\n" +
-                        "&cElo points &7received: &c${elo}\n" +
-                        "&6Gold &7gathered: &e${gold}\n" +
-                        "&dFood &7gathered: &d${food}\n" +
-                        "&8------{ ${name} }--------\n" +
-                        "\n" +
-                        "&7You will be send back in 5 seconds...");
         add(TranslationKeys.COC_ATTACK_START_ATTACKING, "&aThe attacking scenery was prepared! You will be send to the base.");
         add(TranslationKeys.COC_ATTACK_REQUEST_SEND, "&aAttacking base set! You will be send to it in a few moments.");
         add(TranslationKeys.COC_ATTACK_NO_BASES_FOUND, "&cThere was no base found.");

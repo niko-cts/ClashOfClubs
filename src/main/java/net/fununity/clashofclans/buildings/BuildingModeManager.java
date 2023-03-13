@@ -71,10 +71,11 @@ public class BuildingModeManager {
 
     /**
      * Building will be moved
-     * @param movingMode {@link MovingMode} - the moving mode with the data
+     * @param coCPlayer CoCPlayer - the player.
      * @since 0.0.1
      */
-    public void moveBuilding(MovingMode movingMode) {
+    public void moveBuilding(CoCPlayer coCPlayer) {
+        MovingMode movingMode = (MovingMode) coCPlayer.getBuildingMode();
         GeneralBuilding building = movingMode.getMovingBuilding();
         Location oldLocation = building.getCoordinate();
         byte oldRotation = building.getRotation();
@@ -83,7 +84,8 @@ public class BuildingModeManager {
         Location newLocation = movingMode.getLocation();
         newLocation.setY(ClashOfClubs.getBaseYCoordinate());
 
-        building.setCoordinate(BuildingLocationUtil.getRealMinimum(building.getBuilding().getSize(), building.getRotation(), newLocation));
+        building.setBaseRelative(coCPlayer.getBaseStartLocation(),
+                BuildingLocationUtil.transferInRelatives(coCPlayer.getBaseStartLocation(), building.getBuilding().getSize(), building.getRotation(), newLocation));
         Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
             DatabaseBuildings.getInstance().moveBuilding(building);
             Schematics.removeBuilding(oldLocation, building.getBuilding().getSize(), oldRotation);

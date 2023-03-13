@@ -40,8 +40,8 @@ public class ResourceContainerBuilding extends GeneralHologramBuilding implement
      * @param level      int - the level of the building.
      * @since 0.0.1
      */
-    public ResourceContainerBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, byte rotation, int level) {
-        this(uuid, buildingUUID, building, coordinate, rotation, level, 0);
+    public ResourceContainerBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, int[] baseRelatives, byte rotation, int level) {
+        this(uuid, buildingUUID, building, coordinate, baseRelatives, rotation, level, 0);
     }
 
     /**
@@ -54,8 +54,8 @@ public class ResourceContainerBuilding extends GeneralHologramBuilding implement
      * @param amount     double - amount of building
      * @since 0.0.1
      */
-    public ResourceContainerBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, byte rotation, int level, double amount) {
-        super(uuid, buildingUUID, building, coordinate, rotation, level);
+    public ResourceContainerBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, int[] baseRelatives, byte rotation, int level, double amount) {
+        super(uuid, buildingUUID, building, coordinate, baseRelatives, rotation, level);
         this.currentAmount = amount;
     }
 

@@ -16,18 +16,21 @@ import java.util.UUID;
  */
 public class WallBuilding extends GeneralBuilding implements IDifferentVersionBuildings {
 
+
     /**
      * Instantiates the class.
-     * @param uuid UUID - uuid of owner.
+     *
+     * @param uuid         UUID - uuid of owner.
      * @param buildingUUID UUID - uuid of building.
-     * @param building IBuilding - the building class.
-     * @param coordinate Location - the location of the building.
-     * @param rotation byte - the rotation of the building.
-     * @param level int - the level of the building.
+     * @param building     IBuilding - the building class.
+     * @param baseLocation Location - the location of the base.
+     * @param baseRelative int[] - the x,z coordinate from the player base.
+     * @param rotation     byte - the rotation of the building.
+     * @param level        int - the level of the building.
      * @since 0.0.1
      */
-    public WallBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, byte rotation, int level) {
-        super(uuid, buildingUUID, building, coordinate, rotation, level);
+    public WallBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location baseLocation, int[] baseRelative, byte rotation, int level) {
+        super(uuid, buildingUUID, building, baseLocation, baseRelative, rotation, level);
     }
 
     @Override

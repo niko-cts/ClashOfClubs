@@ -27,8 +27,8 @@ public class DecorativeBuilding extends GeneralBuilding {
      * @param level      int - the level of the building.
      * @since 0.0.1
      */
-    public DecorativeBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, byte rotation, int level) {
-        super(uuid, buildingUUID, building, coordinate, rotation, level);
+    public DecorativeBuilding(UUID uuid, UUID buildingUUID, IBuilding building, Location coordinate, int[] baseRelatives, byte rotation, int level) {
+        super(uuid, buildingUUID, building, coordinate, baseRelatives, rotation, level);
     }
 
     @Override

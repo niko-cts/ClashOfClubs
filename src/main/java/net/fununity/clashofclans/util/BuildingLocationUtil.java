@@ -170,6 +170,33 @@ public class BuildingLocationUtil {
     }
 
     /**
+     * Subtracts the coordinate to the new minimum coordinate.
+     * Uses the rotation, the size(x,y) to calculate the new minimum location based on the given coordinate.
+     * Returns the x,z values of the coordinate respected from the base.
+     * @param baseCoordinate Location - the player base location.
+     * @param size       int[] - x,z size of the building.
+     * @param rotation   byte - the rotation 0-3
+     * @param current Location - the old location.
+     * @return int[] - the x,z coordinates from the base location.
+     * @since 1.0.1
+     */
+    public static int[] transferInRelatives(Location baseCoordinate, int[] size, byte rotation, Location current) {
+        Location coordinate = getRealMinimum(size, rotation, current);
+        return new int[]{coordinate.getBlockX() - baseCoordinate.getBlockX(), coordinate.getBlockZ() - baseCoordinate.getBlockZ()};
+    }
+
+    /**
+     * Returns the x,z values of the coordinate respected from the base.
+     * @param baseCoordinate Location - the player base location.
+     * @param coordinate Location - the minimum building location.
+     * @return int[] - the x,z coordinates from the base location.
+     * @since 1.0.1
+     */
+    public static int[] transferInRelatives(Location baseCoordinate, Location coordinate) {
+        return new int[]{coordinate.getBlockX() - baseCoordinate.getBlockX(), coordinate.getBlockZ() - baseCoordinate.getBlockZ()};
+    }
+
+    /**
      * Reverses the location back to the original minimum location the building was saved.
      *
      * @param building {@link GeneralBuilding} - the building.

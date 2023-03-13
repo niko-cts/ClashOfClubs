@@ -10,10 +10,7 @@ import net.fununity.clashofclans.database.DatabaseBuildings;
 import net.fununity.clashofclans.database.DatabasePlayer;
 import net.fununity.clashofclans.language.EnglishMessages;
 import net.fununity.clashofclans.language.GermanMessages;
-import net.fununity.clashofclans.listener.InventoryClickListener;
-import net.fununity.clashofclans.listener.JoinListener;
-import net.fununity.clashofclans.listener.PlayerMoveListener;
-import net.fununity.clashofclans.listener.QuitListener;
+import net.fununity.clashofclans.listener.*;
 import net.fununity.clashofclans.listener.interact.PlayerInteractListener;
 import net.fununity.clashofclans.listener.interact.PlayerSelectHotbarListener;
 import net.fununity.clashofclans.player.CoCPlayer;
@@ -77,7 +74,7 @@ public class ClashOfClubs extends JavaPlugin {
             FunUnityAPI.getInstance().getCloudClient().getCloudEventManager().addCloudListener(new CloudNormalListener());
 
             RegisterUtil registerUtil = new RegisterUtil(this);
-            registerUtil.addListeners(new JoinListener(), new QuitListener(), new PlayerInteractListener(), new PlayerSelectHotbarListener(), new PlayerMoveListener(), new InventoryClickListener());
+            registerUtil.addListeners(new JoinListener(), new QuitListener(), new PlayerInteractListener(), new PlayerSelectHotbarListener(), new PlayerMoveListener(), new InventoryClickListener(), new ServerShutdownListener());
             registerUtil.addCommands(new CoCCommand(), new HomeCommand(), new VisitCommand(), new ResetCommand());
 
             new TickTimerManager();
@@ -103,9 +100,11 @@ public class ClashOfClubs extends JavaPlugin {
     public void onDisable() {
         if (attackingServer) return;
         Collection<CoCPlayer> players = getPlayerManager().getPlayers().values();
-        getLogger().log(Level.INFO, "Saving data of {0} players", players.size());
-        DatabasePlayer.getInstance().updatePlayer(players);
-        DatabaseBuildings.getInstance().updateBuildings(players);
+        if (!players.isEmpty()) {
+            getLogger().log(Level.INFO, "Saving data of {0} players", players.size());
+            DatabasePlayer.getInstance().updatePlayer(players);
+            DatabaseBuildings.getInstance().updateBuildings(players);
+        }
     }
 
     /**

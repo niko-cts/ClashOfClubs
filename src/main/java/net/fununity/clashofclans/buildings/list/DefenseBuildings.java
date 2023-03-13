@@ -8,7 +8,7 @@ import net.fununity.clashofclans.buildings.interfaces.IUpgradeDetails;
 import net.fununity.clashofclans.buildings.interfaces.data.BuildingLevelData;
 import net.fununity.clashofclans.buildings.interfaces.data.DefenseLevelData;
 import net.fununity.clashofclans.language.TranslationKeys;
-import net.fununity.clashofclans.troops.TroopType;
+import net.fununity.clashofclans.troops.ITroop;
 import net.fununity.misc.translationhandler.translations.Language;
 import org.bukkit.Material;
 
@@ -33,10 +33,10 @@ public enum DefenseBuildings implements IDefenseBuilding, IUpgradeDetails {
     private final boolean attackFlying;
     private final double radius;
     private final long speed;
-    private final TroopType prioritizedType;
+    private final ITroop prioritizedTroop;
     private final DefenseLevelData[] buildingLevelData;
 
-    DefenseBuildings(String nameKey, String descriptionKey, int[] size, ResourceTypes resourceType, Material material, boolean attackFlying, double radius, long speed, TroopType prioritizedType, DefenseLevelData[] buildingLevelData) {
+    DefenseBuildings(String nameKey, String descriptionKey, int[] size, ResourceTypes resourceType, Material material, boolean attackFlying, double radius, long speed, ITroop prioritizedTroop, DefenseLevelData[] buildingLevelData) {
         this.nameKey = nameKey;
         this.descriptionKey = descriptionKey;
         this.size = size;
@@ -45,7 +45,7 @@ public enum DefenseBuildings implements IDefenseBuilding, IUpgradeDetails {
         this.attackFlying = attackFlying;
         this.radius = radius;
         this.speed = speed;
-        this.prioritizedType = prioritizedType;
+        this.prioritizedTroop = prioritizedTroop;
         this.buildingLevelData = buildingLevelData;
     }
 
@@ -91,13 +91,13 @@ public enum DefenseBuildings implements IDefenseBuilding, IUpgradeDetails {
     }
 
     /**
-     * Get the type the defense building priorities.
-     * @return {@link TroopType} - the prioritised troop type.
+     * Get the troop the defense building priorities.
+     * @return {@link ITroop} - the prioritised troop.
      * @since 0.0.1
      */
     @Override
-    public TroopType getPrioritizeType() {
-        return prioritizedType;
+    public ITroop getPrioritizeTroop() {
+        return prioritizedTroop;
     }
 
     /**
@@ -171,6 +171,6 @@ public enum DefenseBuildings implements IDefenseBuilding, IUpgradeDetails {
     @Override
     public List<String> getLoreDetails(BuildingLevelData buildingLevelData, Language language) {
         return Arrays.asList(language.getTranslation(TranslationKeys.COC_BUILDING_DEFENSE_LOREDETAILS, Arrays.asList("${hp}", "${damage}", "${flying}", "${prioritize}", "${radius}"),
-                Arrays.asList(buildingLevelData.getMaxHP()+"", ((DefenseLevelData)buildingLevelData).getDamage()+"", attackFlying+"", getPrioritizeType() == null ? "None" : getPrioritizeType().getName(language), getRadius()+"")).split(";"));
+                Arrays.asList(buildingLevelData.getMaxHP()+"", ((DefenseLevelData)buildingLevelData).getDamage()+"", attackFlying+"", getPrioritizeTroop() == null ? "None" : getPrioritizeTroop().getName(language), getRadius()+"")).split(";"));
     }
 }
