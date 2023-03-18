@@ -179,8 +179,8 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_CONSTRUCTION_TIMELEFT, "&7Time left:");
 
         // INV ITEMS
-        add(TranslationKeys.COC_GUI_ATTACK_NAME, "&6Start matchmaking search...");
-        add(TranslationKeys.COC_GUI_ATTACK_LORE, "&7Click to start matchmaking.;&7You will be send to a;&7preview of the base you can attack.");
+        add(TranslationKeys.COC_INV_ATTACK_NAME, "&6Start matchmaking search...");
+        add(TranslationKeys.COC_INV_ATTACK_LORE, "&7Click to start matchmaking.;&7You will be send to a;&7preview of the base you can attack.");
         add(TranslationKeys.COC_INV_ATTACKHISTORY_NAME, "&eView attack history");
         add(TranslationKeys.COC_INV_ATTACKHISTORY_LORE, "&7Open the attack history menu.");
 
@@ -263,6 +263,22 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_GUI_TRAIN_LORE, "&7Barracks minimum level: &e${minlevel};&7Train duration: &e${duration} seconds");
         add(TranslationKeys.COC_GUI_TRAIN_FULL, "&7You've reached the &cmaximum amount of troops &7in this building!");
 
+        // ATTACK GUI
+        add(TranslationKeys.COC_ATTACK_NO_TROOPS, "&7You need to &ctrain &7some troops first.");
+        add(TranslationKeys.COC_FEATURE_NOT_IMPLEMENTED, "&7This feature is &cnot &7implemented yet.");
+        add(TranslationKeys.COC_GUI_ATTACK_TITLE, "&6Attack menu");
+        add(TranslationKeys.COC_GUI_ATTACK_SINGLEPLAYER_NAME, "&eSingleplayer &cattack");
+        add(TranslationKeys.COC_GUI_ATTACK_SINGLEPLAYER_LORE, "&7Attack &eNPC's &7and work trough the &ecampaign&7!;&7Higher NPC obtain more &bresources&7.");
+        add(TranslationKeys.COC_GUI_ATTACK_MULTIPLAYER_NAME, "&eMultiplayer &cattack");
+        add(TranslationKeys.COC_GUI_ATTACK_MULTIPLAYER_LORE, "&7Attack &eother players &7in your current league");
+        add(TranslationKeys.COC_GUI_ATTACK_SINGLEPLAYER_TITLE, "&eSingleplayer");
+        add(TranslationKeys.COC_GUI_ATTACK_BOT_NAME, "&cBot &6${id}");
+        add(TranslationKeys.COC_GUI_ATTACK_BOT_LORE, "&7Click to attack this bot!;&6Gold &7left: &6${gold};&dFood &7left: &d${food}");
+        add(TranslationKeys.COC_GUI_ATTACK_SINGLEPLAYER_ALREADYPLAYED, "&7You &cnot attack &7this bot.");
+        add(TranslationKeys.COC_GUI_ATTACK_SINGLEPLAYER_ACCEPT_TITLE, "&2Accept attack");
+        add(TranslationKeys.COC_GUI_ATTACK_SINGLEPLAYER_ACCEPT_NAME, "&aAccept");
+        add(TranslationKeys.COC_GUI_ATTACK_SINGLEPLAYER_ACCEPT_LORE, "&7This will cost you: &d${food} Food");
+
         // ATTACK HISTORY GUI
         add(TranslationKeys.COC_GUI_ATTACKHISTORY_TITLE, "&6Attack history");
         add(TranslationKeys.COC_GUI_ATTACKHISTORY_NEW_NAME, "&6New &cAttacks&6!");
@@ -302,7 +318,9 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_CONSTRUCTION_BUILD, "&aBuilding will be constructed!");
 
         // ATTACKING
-        add(TranslationKeys.COC_ATTACK_START_ATTACKING, "&aThe attacking scenery was prepared! You will be send to the base.");
+        add(TranslationKeys.COC_ATTACK_START_REQUEST, "&aWe are looking for an attack server!");
+        add(TranslationKeys.COC_ATTACK_START_SERVER_CREATE, "&7We are starting a new attack server for you! &7Please wait a moment...");
+        add(TranslationKeys.COC_ATTACK_START_FOUND, "&aServer found! You will be send over... Good luck!");
         add(TranslationKeys.COC_ATTACK_REQUEST_SEND, "&aAttacking base set! You will be send to it in a few moments.");
         add(TranslationKeys.COC_ATTACK_NO_BASES_FOUND, "&cThere was no base found.");
         add(TranslationKeys.COC_ATTACK_BASE_FOUND, "&aA new base was found...");

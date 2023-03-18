@@ -37,7 +37,7 @@ public class PlayerInteractListener implements Listener {
             Block targetBlock = event.getClickedBlock();
             if (targetBlock != null) {
                 CoCPlayer player = ClashOfClubs.getInstance().getPlayerManager().getPlayer(uuid);
-                if (player != null && player.getBuildingMode() != null)
+                if (player != null && player.getBuildingMode() == null)
                     ClashOfClubs.getInstance().getPlayerManager().clickBlock(player, targetBlock);
             }
         }

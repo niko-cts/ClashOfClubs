@@ -29,6 +29,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -190,7 +191,7 @@ public class PlayerManager {
 
                     while (set != null && set.next()) {
                         UUID buildingUUID = UUID.fromString(set.getString(DatabaseBuildings.TABLE + ".building_uuid"));
-                        IBuilding buildingID = BuildingsManager.getInstance().getBuildingById(set.getString("buildingID"));
+                        IBuilding buildingID = BuildingsManager.getInstance().getBuildingById(set.getString("building_id"));
                         byte rotation = set.getByte("rotation");
                         int level = set.getInt("level");
                         int[] baseRelatives = new int[]{set.getInt("x"), set.getInt("z")};
@@ -252,15 +253,14 @@ public class PlayerManager {
 
         int townHallLevel = coCPlayer.getTownHallLevel();
         if (townHallLevel > 0) {
-            for (ResourceTypes resourceTypes : ResourceTypes.canReachWithTownHall(townHallLevel)) {
-                if (resourceTypes != ResourceTypes.GEMS)
-                    player.getInventory().addItem(new ItemBuilder(resourceTypes.getRepresentativeMaterial())
-                            .setName(lang.getTranslation(TranslationKeys.COC_INV_RESOURCE_NAME, Arrays.asList("${color}", "${type}"), Arrays.asList(resourceTypes.getChatColor() + "", resourceTypes.getColoredName(lang)))).setLore(lang.getTranslation(TranslationKeys.COC_INV_RESOURCE_LORE).split(";")).craft());
+            for (ResourceTypes resourceTypes : ResourceTypes.canReachWithTownHallWithoutGems(townHallLevel)) {
+                player.getInventory().addItem(new ItemBuilder(resourceTypes.getRepresentativeMaterial())
+                        .setName(lang.getTranslation(TranslationKeys.COC_INV_RESOURCE_NAME, Arrays.asList("${color}", "${type}"), Arrays.asList(resourceTypes.getChatColor() + "", resourceTypes.getColoredName(lang)))).setLore(lang.getTranslation(TranslationKeys.COC_INV_RESOURCE_LORE).split(";")).craft());
             }
 
             if (!coCPlayer.getTroopsCampBuildings().isEmpty() && !coCPlayer.getTroopsCreateBuildings().isEmpty()) {
-                //player.getInventory().setItem(5, new ItemBuilder(HotbarItems.ATTACK_HISTORY).setName(lang.getTranslation(TranslationKeys.COC_INV_ATTACKHISTORY_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_INV_ATTACKHISTORY_LORE).split(";")).craft());
-                //player.getInventory().setItem(6, new ItemBuilder(Material.IRON_SWORD).addItemFlags(ItemFlag.HIDE_ATTRIBUTES).setName(lang.getTranslation(TranslationKeys.COC_GUI_ATTACK_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_GUI_ATTACK_LORE).split(";")).craft());
+                player.getInventory().setItem(5, new ItemBuilder(HotbarItems.ATTACK_HISTORY).setName(lang.getTranslation(TranslationKeys.COC_INV_ATTACKHISTORY_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_INV_ATTACKHISTORY_LORE).split(";")).craft());
+                player.getInventory().setItem(6, new ItemBuilder(HotbarItems.START_ATTACK).addItemFlags(ItemFlag.HIDE_ATTRIBUTES).setName(lang.getTranslation(TranslationKeys.COC_INV_ATTACK_NAME)).setLore(lang.getTranslation(TranslationKeys.COC_INV_ATTACK_LORE).split(";")).craft());
             }
 
             player.getInventory().setItem(8, new ItemBuilder(HotbarItems.SHOP)

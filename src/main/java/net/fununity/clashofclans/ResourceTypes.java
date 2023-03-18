@@ -15,12 +15,20 @@ public enum ResourceTypes {
     GOLD(TranslationKeys.COC_RESOURCE_GOLD, ChatColor.YELLOW, UsefulItems.BACKGROUND_YELLOW, Material.GOLD_INGOT),
     ELECTRIC(TranslationKeys.COC_RESOURCE_ELECTRIC, ChatColor.GOLD, UsefulItems.BACKGROUND_ORANGE, Material.END_ROD);
 
-    private static final ResourceTypes[] EARLY = new ResourceTypes[]{GEMS, FOOD, GOLD};
+    public static ResourceTypes[] allWithoutGems() {
+        return new ResourceTypes[]{FOOD, GOLD, ELECTRIC};
+    }
 
     public static ResourceTypes[] canReachWithTownHall(int townHallLevel) {
         if (townHallLevel < ResourceContainerBuildings.GENERATOR.getBuildingLevelData()[0].getMinTownHall())
-            return EARLY;
+            return new ResourceTypes[]{GEMS, FOOD, GOLD};
         return values();
+    }
+
+    public static ResourceTypes[] canReachWithTownHallWithoutGems(int townHallLevel) {
+        if (townHallLevel < ResourceContainerBuildings.GENERATOR.getBuildingLevelData()[0].getMinTownHall())
+            return new ResourceTypes[]{FOOD, GOLD};
+        return allWithoutGems();
     }
 
     private final String nameKey;

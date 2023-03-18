@@ -14,13 +14,23 @@ import java.util.UUID;
 public class CloudNormalListener implements CloudEventListener {
     @Override
     public void newCloudEvent(CloudEvent cloudEvent) {
-        if (cloudEvent.getId() == CloudEvent.COC_ATTACK_REQUEST_FINISHED) {
-            UUID attacker = (UUID) cloudEvent.getData().get(0);
-            UUID defender = (UUID) cloudEvent.getData().get(1);
-            MatchmakingSystem.getInstance().requestFinished(attacker, defender);
-        } else if(cloudEvent.getId() == CloudEvent.COC_ATTACK_FINISHED) {
-            UUID defender = (UUID) cloudEvent.getData().get(0);
-            MatchmakingSystem.getInstance().attackFinished(defender);
+        switch (cloudEvent.getId()) {
+            case CloudEvent.COC_RESPONSE_SPACE_AVAILABLE -> {
+                UUID attacker = (UUID) cloudEvent.getData().get(0);
+                MatchmakingSystem.getInstance().serverFound(attacker, (String) cloudEvent.getData().get(1));
+            }
+            case CloudEvent.COC_RESPONSE_NO_SPACE -> {
+                UUID attacker = (UUID) cloudEvent.getData().get(0);
+                MatchmakingSystem.getInstance().serverDeny(attacker);
+            }
+            case CloudEvent.COC_RESPONSE_ATTACK_SERVER_STARTED -> {
+                String serverId = (String) cloudEvent.getData().get(0);
+                MatchmakingSystem.getInstance().serverStarted(serverId);
+            }
+            case CloudEvent.COC_RESPONSE_SERVERSTOP -> {
+                String serverId = (String) cloudEvent.getData().get(0);
+                MatchmakingSystem.getInstance().serverStopped(serverId);
+            }
         }
     }
 }

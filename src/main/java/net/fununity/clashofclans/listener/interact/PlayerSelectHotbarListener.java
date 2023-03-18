@@ -2,10 +2,11 @@ package net.fununity.clashofclans.listener.interact;
 
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
-import net.fununity.clashofclans.attacking.MatchmakingSystem;
+import net.fununity.clashofclans.attacking.spying.SpyingManager;
 import net.fununity.clashofclans.buildings.BuildingModeManager;
 import net.fununity.clashofclans.buildings.BuildingsManager;
 import net.fununity.clashofclans.gui.AttackHistoryGUI;
+import net.fununity.clashofclans.gui.AttackLookingGUI;
 import net.fununity.clashofclans.gui.BuildingBuyGUI;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.CoCPlayer;
@@ -49,13 +50,13 @@ public class PlayerSelectHotbarListener implements Listener {
 
         UUID uuid = event.getPlayer().getUniqueId();
 
-        if (MatchmakingSystem.getInstance().isSpying(uuid)) {
+        if (SpyingManager.getInstance().isSpying(uuid)) {
             if (handMaterial == HotbarItems.CANCEL) {
-                MatchmakingSystem.getInstance().cancelWatching(FunUnityAPI.getInstance().getPlayerHandler().getPlayer(event.getPlayer()));
+                SpyingManager.getInstance().cancelWatching(FunUnityAPI.getInstance().getPlayerHandler().getPlayer(event.getPlayer()));
             } else if (event.getPlayer().getInventory().getHeldItemSlot() == 0) {
-                MatchmakingSystem.getInstance().startAttack(uuid);
+                SpyingManager.getInstance().startAttack(FunUnityAPI.getInstance().getPlayerHandler().getPlayer(event.getPlayer()));
             } else if (event.getPlayer().getInventory().getHeldItemSlot() == 1) {
-                MatchmakingSystem.getInstance().nextSpy(uuid);
+                SpyingManager.getInstance().nextSpy(uuid);
             }
             return;
         }
@@ -138,7 +139,7 @@ public class PlayerSelectHotbarListener implements Listener {
         } else if (handMaterial == HotbarItems.TUTORIAL_BOOK) {
             TutorialManager.getInstance().openHelpBook(FunUnityAPI.getInstance().getPlayerHandler().getPlayer(event.getPlayer()));
         } else if (handMaterial == HotbarItems.START_ATTACK) {
-            MatchmakingSystem.getInstance().startMatchmakingLooking(FunUnityAPI.getInstance().getPlayerHandler().getPlayer(event.getPlayer()));
+            AttackLookingGUI.open(FunUnityAPI.getInstance().getPlayerHandler().getPlayer(event.getPlayer()));
         } else if (handMaterial == HotbarItems.ATTACK_HISTORY) {
             AttackHistoryGUI.openHistory(FunUnityAPI.getInstance().getPlayerHandler().getPlayer(event.getPlayer()));
         }

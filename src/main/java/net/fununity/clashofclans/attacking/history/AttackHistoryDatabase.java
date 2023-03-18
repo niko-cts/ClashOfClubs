@@ -6,7 +6,6 @@ import net.fununity.misc.databasehandler.DatabaseHandler;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.DecimalFormat;
 import java.time.OffsetDateTime;
 import java.util.*;
 
@@ -25,13 +24,12 @@ public class AttackHistoryDatabase {
      * @since 0.0.1
      */
     public static AttackHistoryDatabase getInstance() {
-        if(instance == null)
+        if (instance == null)
             instance = new AttackHistoryDatabase();
         return instance;
     }
 
     private static final String TABLE = "game_coc_attack_history";
-    private static final DecimalFormat FORMAT = new DecimalFormat("0");
 
     private final DatabaseHandler databaseHandler;
 
@@ -41,9 +39,21 @@ public class AttackHistoryDatabase {
      */
     private AttackHistoryDatabase() {
         this.databaseHandler = DatabaseHandler.getInstance();
-        if (!this.databaseHandler.doesTableExist(TABLE))
-            this.databaseHandler.createTable(TABLE, Arrays.asList("attacker", "defender", "date", "gold", "food", "stars", "elo", "seen"),
-                    Arrays.asList("VARCHAR(36) NOT NULL", "VARCHAR(36) NOT NULL", "VARCHAR(36) NOT NULL", "INT NOT NULL", "INT NOT NULL", "INT NOT NULL", "INT NOT NULL", "TINYINT default 0"));
+        if (!this.databaseHandler.doesTableExist(TABLE)) {
+
+            List<String> col = new ArrayList<>(Arrays.asList("attacker", "defender", "date", "stars", "elo", "seen"));
+            List<String> data = new ArrayList<>(Arrays.asList("VARCHAR(36) NOT NULL", "VARCHAR(36) NOT NULL", "VARCHAR(36) NOT NULL", "INT NOT NULL", "INT NOT NULL", "TINYINT default 0"));
+
+            for (ResourceTypes resourceTypes : ResourceTypes.allWithoutGems()) {
+                col.add(resourceTypes.name().toLowerCase());
+                data.add("DOUBLE NOT NULL DEFAULT 0.0");
+            }
+
+            col.add("");
+            data.add("PRIMARY KEY (attacker, defender, date)");
+
+            this.databaseHandler.createTable(TABLE, col, data);
+        }
     }
 
     /**
@@ -57,15 +67,18 @@ public class AttackHistoryDatabase {
      * @since 0.0.1
      */
     public void addNewAttack(UUID attacker, UUID defender, OffsetDateTime date, int stars, int elo, Map<ResourceTypes, Double> resourcesGathered) {
-        this.databaseHandler.insertIntoTable(TABLE,
-                Arrays.asList(attacker.toString(), defender.toString(), date.toString(),
-                        FORMAT.format(resourcesGathered.get(ResourceTypes.GOLD)), FORMAT.format(resourcesGathered.get(ResourceTypes.FOOD)),
-                        stars+"", elo+"", "0"),
-                Arrays.asList("string", "string", "string", "", "", "", "", ""));
+        List<String> col = new ArrayList<>(Arrays.asList(attacker.toString(), defender.toString(), date.toString(), stars + "", elo + "", "0"));
+        List<String> types = new ArrayList<>(Arrays.asList("string", "string", "string", "", "", ""));
+        for (ResourceTypes resourceTypes : ResourceTypes.allWithoutGems()) {
+            col.add(resourcesGathered.getOrDefault(resourceTypes, 0.0) + "");
+            types.add("");
+        }
+
+        this.databaseHandler.insertIntoTable(TABLE, col, types);
     }
 
     /**
-     * Update all histories to seen.
+     * Update all histories to see.
      * @param histories List<AttackHistory> - all seen histories.
      * @since 0.0.1
      */
@@ -74,8 +87,8 @@ public class AttackHistoryDatabase {
         Iterator<AttackHistory> iterator = histories.iterator();
         while (iterator.hasNext()) {
             AttackHistory history = iterator.next();
-            builder.append("attacker='").append(history.getAttacker()).append("' AND defender='").append(history.getDefender())
-                    .append("' AND date='").append(history.getDate()).append("'");
+            builder.append("(attacker='").append(history.getAttacker()).append("' AND defender='").append(history.getDefender())
+                    .append("' AND date='").append(history.getDate()).append("')");
             if (iterator.hasNext())
                 builder.append(" OR ");
         }
@@ -127,6 +140,5 @@ public class AttackHistoryDatabase {
         }
         return list;
     }
-
 
 }

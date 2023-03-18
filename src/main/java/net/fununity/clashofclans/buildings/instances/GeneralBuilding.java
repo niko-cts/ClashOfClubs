@@ -65,8 +65,7 @@ public class GeneralBuilding {
     }
 
     /**
-     * The standard inventory of the building.
-     *
+     * Returns the standard inventory of the building.
      * @param language Language - the language of the gui.
      * @return CustomInventory - the gui of the building.
      * @since 0.0.1

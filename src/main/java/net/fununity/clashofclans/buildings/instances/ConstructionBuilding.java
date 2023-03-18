@@ -34,12 +34,7 @@ public class ConstructionBuilding extends GeneralHologramBuilding {
 
     @Override
     public CustomInventory getInventory(Language language) {
-        CustomInventory inventory = super.getInventory(language);
-        CustomInventory menu = new CustomInventory(getBuildingTitle(language), 9 * 4);
-        menu.setSpecialHolder(inventory.getSpecialHolder());
-
-        for (int i = 0; i < inventory.getInventory().getSize() && i < 15; i++)
-            menu.addItem(inventory.getInventory().getItem(i), inventory.getClickAction(i));
+        CustomInventory menu = new CustomInventory(super.getInventory(language), 9 * 4);
 
         menu.setItem(14, UsefulItems.BACKGROUND_GRAY);
 

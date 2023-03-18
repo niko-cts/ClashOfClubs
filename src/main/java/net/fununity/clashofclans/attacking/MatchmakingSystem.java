@@ -1,8 +1,10 @@
 package net.fununity.clashofclans.attacking;
 
-import net.fununity.clashofclans.ClashOfClubs;
+import net.fununity.clashofclans.database.DatabaseBotAttacks;
 import net.fununity.clashofclans.language.TranslationKeys;
+import net.fununity.cloud.client.CloudClient;
 import net.fununity.cloud.common.events.cloud.CloudEvent;
+import net.fununity.cloud.common.server.ServerType;
 import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.cloud.CloudManager;
 import net.fununity.main.api.messages.MessagePrefix;
@@ -30,55 +32,192 @@ public class MatchmakingSystem {
         return instance;
     }
 
-    public static final String ATTACKER_SERVER = "cocattack01";
-    private final Map<UUID, SpyingPlayer> attackerMap;
-    private final List<UUID> currentlyDefending;
+    private Set<DatabaseBotAttacks.BotData> defenderBots;
 
+    private final Map<UUID, Integer> waitingForAttackServer;
+    private final Map<UUID, UUID> attackerDefender;
+    private final Map<UUID, String> defendingServer; // defenderUUID, Serverid
+
+    private final Set<String> attackingServers;
+    private boolean newServerStarting;
+
+    /**
+     * Instantiates this class.
+     * @since 1.0.1
+     */
     private MatchmakingSystem() {
-        this.currentlyDefending = new ArrayList<>();
-        this.attackerMap = new HashMap<>();
+        this.attackerDefender = new HashMap<>();
+        this.waitingForAttackServer = new HashMap<>();
+        this.defendingServer = new HashMap<>();
+        this.attackingServers = new HashSet<>();
+        this.newServerStarting = false;
     }
 
-    private SpyingPlayer getAttackingBase(UUID attacker, List<SpyingPlayer> blacklist) {
-        return null;
+    /**
+     * Starts to request an attack server if space is available.
+     * @param player APIPlayer - the attacker player.
+     * @param defender UUID - the defender uuid.
+     * @since 1.0.1
+     */
+    public void startRequest(APIPlayer player, UUID defender) {
+        UUID attacker = player.getUniqueId();
+        this.waitingForAttackServer.put(attacker, 0);
+        this.attackerDefender.put(attacker, defender);
+
+        player.sendMessage(MessagePrefix.INFO, TranslationKeys.COC_ATTACK_START_REQUEST);
+
+        if (attackingServers.isEmpty()) {
+            startNewAttackServer();
+            player.sendMessage(MessagePrefix.INFO, TranslationKeys.COC_ATTACK_START_SERVER_CREATE);
+        } else
+            CloudClient.getInstance().forwardToServerType(ServerType.COCATTACK, new CloudEvent(CloudEvent.COC_REQUEST_SPACE).addData(attacker).addData(CloudClient.getInstance().getClientId()));
+
     }
 
-    public void cancelWatching(APIPlayer player) {
-        this.attackerMap.remove(player.getUniqueId());
-        ClashOfClubs.getInstance().getPlayerManager().getPlayer(player.getUniqueId()).visit(player, true);
-    }
 
-    public void requestFinished(UUID attacker, UUID defender) {
+    /**
+     * Attack server send COC_RESPONSE_SPACE_AVAILABLE
+     * @param attacker UUID - the attacker uuid.
+     * @param serverId String - the server id that has space available.
+     * @since 1.0.1
+     */
+    public void serverFound(UUID attacker, String serverId) {
+        this.waitingForAttackServer.remove(attacker);
+
         APIPlayer player = FunUnityAPI.getInstance().getPlayerHandler().getPlayer(attacker);
-        if (player == null) {
-            FunUnityAPI.getInstance().getCloudClient().forwardToServer(ATTACKER_SERVER, new CloudEvent(CloudEvent.COC_ATTACK_DELETE).addData(attacker));
+        if (player == null || !this.attackerDefender.containsKey(attacker)) {
+            cancelAttackRequest(attacker, serverId);
             return;
         }
-        this.currentlyDefending.add(defender);
-        player.sendMessage(MessagePrefix.SUCCESS, TranslationKeys.COC_ATTACK_START_ATTACKING);
-        CloudManager.getInstance().sendPlayerToServer(ATTACKER_SERVER, attacker);
+
+        player.sendMessage(MessagePrefix.INFO, TranslationKeys.COC_ATTACK_START_FOUND);
+
+        CloudClient.getInstance().forwardToServer(serverId, new CloudEvent(CloudEvent.COC_REQUEST_LOAD).addData(attacker).addData(attackerDefender.get(attacker)).addData(CloudClient.getInstance().getClientId()),
+                answer -> serverLoadedBase(attacker, serverId));
     }
 
-    public void attackFinished(UUID defender) {
-        this.currentlyDefending.remove(defender);
+    /**
+     * The attack server loaded the base and the player can transfer.
+     * @param attacker UUID - the attacker uuid.
+     * @param serverId String - the server id of the attack server.
+     * @since 1.0.1
+     */
+    private void serverLoadedBase(UUID attacker, String serverId) {
+        APIPlayer player = FunUnityAPI.getInstance().getPlayerHandler().getPlayer(attacker);
+        if (player == null || !this.attackerDefender.containsKey(attacker)) {
+            cancelAttackRequest(attacker, serverId);
+            return;
+        }
+
+        defendingServer.put(attackerDefender.get(attacker), serverId);
+        CloudManager.getInstance().sendPlayerToServer(serverId, attacker);
     }
 
-    public boolean isCurrentlyDefending(UUID uuid) {
-        return this.currentlyDefending.contains(uuid);
+    /**
+     * An attack server sent a COC_RESPONSE_NO_SPACE event.
+     * @param uuid UUID - the attacker uuid.
+     * @since 1.0.1
+     */
+    public void serverDeny(UUID uuid) {
+        if (!waitingForAttackServer.containsKey(uuid)) return;
+
+        APIPlayer player = FunUnityAPI.getInstance().getPlayerHandler().getPlayer(uuid);
+        if (player == null) {
+            removePlayer(uuid);
+            return;
+        }
+
+        int denies = waitingForAttackServer.get(uuid) + 1;
+        this.waitingForAttackServer.put(uuid, denies);
+        if (denies == attackingServers.size()) {
+            startNewAttackServer();
+            player.sendMessage(MessagePrefix.INFO, TranslationKeys.COC_ATTACK_START_SERVER_CREATE);
+        }
     }
 
-    public void startMatchmakingLooking(APIPlayer player) {
+    /**
+     * Will create a new attack server.
+     * @since 1.0.1
+     */
+    private void startNewAttackServer() {
+        if (newServerStarting) return;
+        this.newServerStarting = true;
+        CloudClient.getInstance().sendEvent(new CloudEvent(CloudEvent.SERVER_CREATE_BY_TYPE).addData(ServerType.COCATTACK));
     }
 
-    public boolean isSpying(UUID uuid) {
-        return false;
+    /**
+     * Attack server notified its activation.
+     * @param serverId String - the id of the server.
+     * @since 1.0.1
+     */
+    public void serverStarted(String serverId) {
+        this.newServerStarting = false;
+        for (Map.Entry<UUID, Integer> entry : waitingForAttackServer.entrySet()) {
+            if (entry.getValue() == attackingServers.size())
+                CloudClient.getInstance().forwardToServer(serverId, new CloudEvent(CloudEvent.COC_REQUEST_SPACE).addData(entry.getKey()).addData(CloudClient.getInstance().getClientId()));
+        }
+        this.attackingServers.add(serverId);
     }
 
-    public void startAttack(UUID uuid) {
-
+    /**
+     * Sends the attack server an CANCELATTACK event to make space again for the player.
+     * @param uuid UUID - the uuid of the player.
+     * @param serverId String - the server id to send the event.
+     * @since 1.0.1
+     */
+    private void cancelAttackRequest(UUID uuid, String serverId) {
+        CloudClient.getInstance().forwardToServer(serverId, new CloudEvent(CloudEvent.COC_RESPONSE_CANCELATTACK).addData(uuid));
     }
 
-    public void nextSpy(UUID uniqueId) {
+    /**
+     * Removes the player from the lists.
+     * @param uuid UUID - the uuid of the player.
+     * @since 1.0.1
+     */
+    public void removePlayer(UUID uuid) {
+        if (this.attackerDefender.containsKey(uuid)) {
+            this.defendingServer.remove(this.attackerDefender.get(uuid));
+            this.attackerDefender.remove(uuid);
+        }
+        this.waitingForAttackServer.remove(uuid);
+    }
 
+    /**
+     * An attack was finished.
+     * @param attacker UUID - the uuid of the attacker.
+     * @since 1.0.1
+     */
+    public void attackFinished(UUID attacker) {
+        if (this.attackerDefender.containsKey(attacker)) {
+            this.defendingServer.remove(this.attackerDefender.get(attacker));
+            this.attackerDefender.remove(attacker);
+        }
+        this.waitingForAttackServer.remove(attacker);
+    }
+
+    /**
+     * Check if the player defends currently its base.
+     * @param uuid UUID - the uuid of the player.
+     * @return boolean - player is defending its base.
+     * @since 0.0.1
+     */
+    public String defendingServer(UUID uuid) {
+        return this.defendingServer.getOrDefault(uuid, null);
+    }
+
+    public Set<DatabaseBotAttacks.BotData> getDefenderBots() {
+        if (defenderBots == null) {
+            defenderBots = DatabaseBotAttacks.getInstance().getNormalBotData();
+        }
+        return defenderBots;
+    }
+
+    /**
+     * Attack server stopped.
+     * @param serverId String - the server id which stopped.
+     * @since 1.0.0
+     */
+    public void serverStopped(String serverId) {
+        this.attackingServers.remove(serverId);
     }
 }

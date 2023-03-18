@@ -57,15 +57,7 @@ public class ResourceGatherBuilding extends ResourceContainerBuilding {
 
     @Override
     public CustomInventory getInventory(Language language) {
-        CustomInventory inventory = super.getInventory(language);
-        CustomInventory menu = new CustomInventory(getBuildingTitle(language), 9*5);
-        menu.setSpecialHolder(inventory.getSpecialHolder());
-
-        for (int i = 0; i < inventory.getInventory().getContents().length; i++) {
-            ItemStack content = inventory.getInventory().getContents()[i];
-            menu.setItem(i >= 9 * 3 ? i + 9 : i, content, inventory.getClickAction(i));
-        }
-        menu.fill(UsefulItems.BACKGROUND_GRAY);
+        CustomInventory menu = new CustomInventory(super.getInventory(language), 9 * 5);
 
         String resourceName = getContainingResourceType().getColoredName(language);
         menu.setItem(20, new ItemBuilder(Material.CLOCK)
@@ -90,6 +82,12 @@ public class ResourceGatherBuilding extends ResourceContainerBuilding {
                 setCloseInventory(BuildingsManager.getInstance().emptyGatherer(player.getResourceGatherBuildings(getContainingResourceType())));
             }
         });
+
+
+        for(int i=menu.getInventory().getSize()-9;i<menu.getInventory().getSize();i++) {
+            menu.setItem(i, menu.getInventory().getItem(i - 9));
+            menu.setItem(i - 9, UsefulItems.BACKGROUND_BLACK);
+        }
 
         return menu;
     }

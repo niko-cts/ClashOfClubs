@@ -33,8 +33,8 @@ public class DecorativeBuilding extends GeneralBuilding {
 
     @Override
     public CustomInventory getInventory(Language language) {
-        CustomInventory inventory = super.getInventory(language);
-        inventory.setItem(13, new ItemBuilder(Material.BARRIER)
+        CustomInventory menu = super.getInventory(language);
+        menu.setItem(13, new ItemBuilder(Material.BARRIER)
                 .setName(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_DESTROY_NAME))
                 .setLore(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_DESTROY_LORE).split(";")).craft(), new ClickAction(true) {
             @Override
@@ -42,7 +42,8 @@ public class DecorativeBuilding extends GeneralBuilding {
                 BuildingsManager.getInstance().removeBuilding(DecorativeBuilding.this);
             }
         });
-        return inventory;
+
+        return menu;
     }
 
 }

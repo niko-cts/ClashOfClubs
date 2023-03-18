@@ -71,12 +71,7 @@ public class TroopsCreateBuilding extends TroopsBuilding implements IDifferentVe
 
     @Override
     public CustomInventory getInventory(Language language) {
-        CustomInventory inventory = super.getInventory(language);
-        CustomInventory menu = new CustomInventory(getBuildingTitle(language), 9 * (getCurrentSizeOfTroops() > 0 ? 5 : 4));
-        menu.setSpecialHolder(inventory.getSpecialHolder());
-
-        for (int i = 0; i < menu.getInventory().getSize(); i++)
-            menu.setItem(i, inventory.getInventory().getItem(i), inventory.getClickAction(i));
+        CustomInventory menu = new CustomInventory(super.getInventory(language), 9 * (getCurrentSizeOfTroops() > 0 ? 5 : 4));
 
         if (getCurrentSizeOfTroops() == 0)
             menu.setItem(22, UsefulItems.BACKGROUND_BLACK);

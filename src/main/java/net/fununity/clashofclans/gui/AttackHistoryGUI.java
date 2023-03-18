@@ -68,7 +68,7 @@ public class AttackHistoryGUI {
                                     history.getStars() + "")));
                 }
 
-                menu.setItem(9 + 4, new ItemBuilder(Material.PAPER)
+                menu.setItem(9 + 2, new ItemBuilder(Material.PAPER)
                         .setName(lang.getTranslation(TranslationKeys.COC_GUI_ATTACKHISTORY_NEW_NAME))
                         .setLore(lore).craft());
 

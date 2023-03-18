@@ -2,7 +2,7 @@ package net.fununity.clashofclans.player;
 
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.ResourceTypes;
-import net.fununity.clashofclans.attacking.SpyingPlayer;
+import net.fununity.clashofclans.attacking.spying.SpyingPlayer;
 import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.common.util.SpecialChars;
 import net.fununity.main.api.player.APIPlayer;

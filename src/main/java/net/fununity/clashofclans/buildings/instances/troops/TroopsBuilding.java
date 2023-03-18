@@ -60,12 +60,7 @@ public class TroopsBuilding extends GeneralBuilding {
 
     @Override
     public CustomInventory getInventory(Language language) {
-        CustomInventory inventory = super.getInventory(language);
-        CustomInventory menu = new CustomInventory(getBuildingTitle(language), 9 * 5);
-        menu.setSpecialHolder(inventory.getSpecialHolder());
-
-        for (int i = 0; i < inventory.getInventory().getContents().length; i++)
-            menu.setItem(i, inventory.getInventory().getItem(i), inventory.getClickAction(i));
+        CustomInventory menu = new CustomInventory(super.getInventory(language), 9 * 5);
 
         menu.setItem(22, new ItemBuilder(Material.CHEST)
                         .addEnchantment(getCurrentSizeOfTroops() >= getMaxAmountOfTroops() ? Enchantment.ARROW_FIRE : null, 1, true, false)

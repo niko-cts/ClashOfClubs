@@ -103,8 +103,8 @@ public class TranslationKeys {
     public static final String COC_GUI_CONSTRUCTION_BUILDING_LORE = "coc.gui.construction.building.lore";
     public static final String COC_CONSTRUCTION_TIMELEFT = "coc.gui.construction.timeleft";
 
-    public static final String COC_GUI_ATTACK_NAME = "coc.inv.attack.name";
-    public static final String COC_GUI_ATTACK_LORE = "coc.inv.attack.lore";
+    public static final String COC_INV_ATTACK_NAME = "coc.inv.attack.name";
+    public static final String COC_INV_ATTACK_LORE = "coc.inv.attack.lore";
     public static final String COC_INV_ATTACKHISTORY_NAME = "coc.inv.attackhistory.name";
     public static final String COC_INV_ATTACKHISTORY_LORE = "coc.inv.attackhistory.lore";
     public static final String COC_INV_POINTER_NAME = "coc.inv.pointer.name";
@@ -121,6 +121,24 @@ public class TranslationKeys {
     public static final String COC_GUI_TROOPS_CONTAINER_LORE = "coc.building.troops.container.lore";
     public static final String COC_GUI_TROOPS_TRAIN_NAME = "coc.building.troops.train.name";
     public static final String COC_GUI_TROOPS_TRAIN_LORE = "coc.building.troops.train.lore";
+
+    // ATTACK GUI
+    public static final String COC_ATTACK_NO_TROOPS = "coc.player.illegal.notroopstrained";
+    public static final String COC_FEATURE_NOT_IMPLEMENTED = "coc.player.illegal.featurenotimplemented";
+    public static final String COC_GUI_ATTACK_TITLE = "coc.gui.attack.title";
+    public static final String COC_GUI_ATTACK_SINGLEPLAYER_NAME = "coc.gui.attack.singleplayer.name";
+    public static final String COC_GUI_ATTACK_SINGLEPLAYER_LORE = "coc.gui.attack.singleplayer.lore";
+    public static final String COC_GUI_ATTACK_MULTIPLAYER_NAME = "coc.gui.attack.multiplayer.name";
+    public static final String COC_GUI_ATTACK_MULTIPLAYER_LORE = "coc.gui.attack.multiplayer.lore";
+    public static final String COC_GUI_ATTACK_SINGLEPLAYER_TITLE = "coc.gui.attack.singleplayer.title";
+    public static final String COC_GUI_ATTACK_BOT_NAME = "coc.gui.attack.singleplayer.bot.name";
+    public static final String COC_GUI_ATTACK_BOT_LORE = "coc.gui.attack.singleplayer.bot.lore";
+    public static final String COC_GUI_ATTACK_SINGLEPLAYER_ALREADYPLAYED = "coc.gui.attack.singleplayer.bot.alreadyplayed";
+    public static final String COC_GUI_ATTACK_SINGLEPLAYER_ACCEPT_TITLE = "coc.gui.attack.singleplayer.accept.title";
+    public static final String COC_GUI_ATTACK_SINGLEPLAYER_ACCEPT_NAME = "coc.gui.attack.singleplayer.accept.name";
+    public static final String COC_GUI_ATTACK_SINGLEPLAYER_ACCEPT_LORE = "coc.gui.attack.singleplayer.accept.lore";
+
+
 
     // ATTACK HISTORY GUI
     public static final String COC_GUI_ATTACKHISTORY_TITLE = "coc.gui.attackhistory.title";

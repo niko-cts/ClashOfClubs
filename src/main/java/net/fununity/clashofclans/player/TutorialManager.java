@@ -57,7 +57,7 @@ public class TutorialManager {
                 else if (coCPlayer.getTroopsCreateBuildings().isEmpty() || coCPlayer.getTroopsCampBuildings().isEmpty())
                     startTutorialState(coCPlayer, TutorialState.TROOPS);
             }
-            default -> {}
+            default -> ClashOfClubs.getInstance().getPlayerManager().giveDefaultItems(coCPlayer);
         }
     }
 

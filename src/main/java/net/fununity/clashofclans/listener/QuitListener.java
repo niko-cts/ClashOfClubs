@@ -1,6 +1,7 @@
 package net.fununity.clashofclans.listener;
 
 import net.fununity.clashofclans.ClashOfClubs;
+import net.fununity.clashofclans.attacking.MatchmakingSystem;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -19,6 +20,7 @@ public class QuitListener implements Listener {
      */
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
+        MatchmakingSystem.getInstance().removePlayer(event.getPlayer().getUniqueId());
         ClashOfClubs.getInstance().getPlayerManager().playerLeft(event.getPlayer().getUniqueId());
     }
 

@@ -27,8 +27,6 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 /**
@@ -405,11 +403,11 @@ public class CoCPlayer {
 
     /**
      * Get the amount of all troops the player has.
-     * @return ConcurrentMap<ITroop, Integer> - Map with troops and amounts.
+     * @return Map<ITroop, Integer> - Map with troops and amounts.
      * @since 0.0.1
      */
-    public ConcurrentMap<ITroop, Integer> getTroops() {
-        ConcurrentMap<ITroop, Integer> troopsAmount = new ConcurrentHashMap<>();
+    public Map<ITroop, Integer> getTroops() {
+        Map<ITroop, Integer> troopsAmount = new HashMap<>();
         for (TroopsBuilding troopBuilding : getTroopsCampBuildings()) {
             for (Map.Entry<ITroop, Integer> entry : troopBuilding.getTroopAmount().entrySet()) {
                 troopsAmount.put(entry.getKey(), troopsAmount.getOrDefault(entry.getKey(), 0) + entry.getValue());
@@ -533,6 +531,11 @@ public class CoCPlayer {
         return lastServer;
     }
 
+    /**
+     * Returns a list of all buildings the player can still build with their current town hall.
+     * @return List<IBuilding> - all buildings the player can build.
+     * @since 1.0.0
+     */
     public List<IBuilding> buildableBuildings() {
         List<IBuilding> buildings = new ArrayList<>();
         int townHallLevel = getTownHallLevel();
@@ -556,4 +559,11 @@ public class CoCPlayer {
         return buildings;
     }
 
+    /**
+     * Check if the player has troops in his inventory.
+     * @return boolean - player has troops.
+     */
+    public boolean hasTroops() {
+        return getTroops().values().stream().anyMatch(t -> t > 0);
+    }
 }

@@ -14,7 +14,6 @@ import net.fununity.main.api.item.UsefulItems;
 import net.fununity.misc.translationhandler.translations.Language;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -62,14 +61,7 @@ public class ResourceContainerBuilding extends GeneralHologramBuilding implement
 
     @Override
     public CustomInventory getInventory(Language language) {
-        CustomInventory inventory = super.getInventory(language);
-        CustomInventory menu = new CustomInventory(getBuildingTitle(language), 9 * 4);
-        menu.setSpecialHolder(inventory.getSpecialHolder());
-
-        for (int i = 0; i < inventory.getInventory().getContents().length; i++) {
-            ItemStack content = inventory.getInventory().getContents()[i];
-            menu.addItem(content, inventory.getClickAction(i));
-        }
+        CustomInventory menu = new CustomInventory(super.getInventory(language), 9 * 4);
 
         menu.fill(UsefulItems.BACKGROUND_BLACK);
 
