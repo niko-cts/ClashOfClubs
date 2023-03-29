@@ -30,6 +30,21 @@ public class GermanMessages extends MessageList {
         add(TranslationKeys.COC_COMMAND_RESET_DESCRIPTION, "&7Setzt deine Basis zurück");
         add(TranslationKeys.COC_COMMAND_RESET_SUCCESS, "&aZurücksetzung Erfolgreich.");
 
+        // COC
+        add(TranslationKeys.COC_COMMAND_COC_USAGE, "coc");
+        add(TranslationKeys.COC_COMMAND_COC_DESCRIPTION, "&7Sends the help message and commands.");
+
+        // CHEAT
+        add(TranslationKeys.COC_COMMAND_CHEAT_USAGE, "coc cheat <type> <amount>");
+        add(TranslationKeys.COC_COMMAND_CHEAT_DESCRIPTION, "&7Gives you an amount of the given type.");
+
+
+        // REBUILD
+        add(TranslationKeys.COC_COMMAND_REBUILD_USAGE, "coc rebuild (<User>)");
+        add(TranslationKeys.COC_COMMAND_REBUILD_DESCRIPTION, "&7Rebuilds a player base.");
+        add(TranslationKeys.COC_COMMAND_REBUILD_NO_BASE, "&cThere is no base stored for this player.");
+        add(TranslationKeys.COC_COMMAND_REBUILD_SUCCESS, "&aRebuild started...");
+
         // PLAYER
         add(TranslationKeys.COC_PLAYER_LOADING_PLAYER_DATA_TITLE, "&7Loading player data...");
         add(TranslationKeys.COC_PLAYER_LOADING_PLAYER_DATA_SUBTITLE, "&a" + SpecialChars.LINE_EXTRA_BOLD + "&7" + SpecialChars.LINE_EXTRA_BOLD + SpecialChars.LINE_EXTRA_BOLD + SpecialChars.LINE_EXTRA_BOLD);
@@ -64,7 +79,9 @@ public class GermanMessages extends MessageList {
         add(TranslationKeys.COC_RESOURCE_FOOD, "&dNahrung");
         add(TranslationKeys.COC_RESOURCE_GOLD, "&6Gold");
         add(TranslationKeys.COC_RESOURCE_ELECTRIC, "&eElektrizität");
-        add(TranslationKeys.COC_RESOURCE_GEMS, "&2Edelsteine");
+        add(TranslationKeys.COC_VALUES_GEMS, "&2Edelsteine");
+        add(TranslationKeys.COC_VALUES_ELO, "&eElo");
+        add(TranslationKeys.COC_VALUES_XP, "&aEXP");
 
         // BUILDINGS
         add(TranslationKeys.COC_BUILDING_GENERAL_TOWN_HALL_NAME, "&6Rathaus");
@@ -194,56 +211,54 @@ public class GermanMessages extends MessageList {
         add(TranslationKeys.COC_CONSTRUCTION_BUILD, "&aBuilding will be constructed!");
 
 
-        add(TranslationKeys.COC_INV_BOOK_CONTENT + "collect_resource", "Welcome, ${player}&0!\n" +
-                "I'm Theodore, your trusty builder. Let's get started, shall we?\n" +
-                "\n" +
-                "We need to repair the town hall to start your settlement!\n" +
-                "But the repairment requires &6gold&0.;" +
-                "Gold and other resources are collected by gatherer buildings\n" +
-                "\n" +
-                "&0Go to the &6&lGold miner&0 and click on it. \n" +
-                "You can also use the pointer to click through the air.\n" +
-                "Click \"Collect\" to fill all mined gold in your gold stock.;" +
-                "Each building has it's own GUI\n" +
-                "\n" +
-                "You can see your gold filled up in the gold stock for example!");
+        add(TranslationKeys.COC_INV_BOOK_CONTENT + "collect_resource", """
+                Welcome, ${player}&0!
+                I'm Theodore, your trusty builder. Let's get started, shall we?
 
-        add(TranslationKeys.COC_INV_BOOK_CONTENT + "repair_townhall", "Perfect, ${player}&0!\n" +
-                "\n" +
-                "Let's repair the townhall now.\n" +
-                "\n" +
-                "Most buildings can be upgraded through their GUI.\n" +
-                "If you upgrade buildings their attributes improve.\n" +
-                "\n" +
-                "E.g. The &6gold miner&0's storage and mining speed improves");
+                We need to repair the town hall to start your settlement!
+                But the repairment requires &6gold&0.;Gold and other resources are collected by gatherer buildings
 
-        add(TranslationKeys.COC_INV_BOOK_CONTENT + "build_farm", "Great work, friend!\n" +
-                "\n" +
-                "Now, it's time to dive into the exciting part of the game.\n" +
-                "\n" +
-                "Open up your inventory and locate the \"Construction menu.\";Here, you can begin constructing new buildings! Keep in mind that any construction requires resources, so plan accordingly.\n" +
-                "To get started, we recommend building a 'Farm' and a 'Barn' to collect food. Navigate to the Construction Menu and select the 'Farm' option.;Once you have selected the 'Farm', you can choose where to place the building by looking at the ground. If you are happy with the placement and no other buildings occupy the area, you can begin construction. " +
-                "So keep building and have fun!;Don't worry if you're not completely satisfied with the placement of your other buildings!\n" +
-                "\n" +
-                "You have the ability to move and rotate them to a new spot.\n" +
-                "Simply select the building you want to adjust, and choose the \"Move\" option.");
-        add(TranslationKeys.COC_INV_BOOK_CONTENT + "troops", "Awesome!\n" +
-                "The cannon shoots at attacking enemies.\n\n" +
-                "Let's train some own troops so we can attack bases, shall we?" +
-                ";" +
-                "Build an &6Army camp &0and a &6Barrack&0.\n" +
-                "You can train some troops in the &6Barrack&0.\n" +
-                "Trained troops will move to the &6Army camp&0.");
-        add(TranslationKeys.COC_INV_BOOK_CONTENT + "finished", "Great job, my friend!\n" +
-                "When you attack other bases you can:\n" +
-                "- Loot resources\n" +
-                "- Receive elo\n" +
-                "But watch out: The enemy has also defenses!\n" +
-                "You can start attacking players at the right corner of your inventory.;" +
-                "&2Attacking system is not yet implemented." +
-                ";" +
-                "The tutorial ends here, but I'll give you my book.\n" +
-                "If you have any questions just read through it!");
+                &0Go to the &6&lGold miner&0 and click on it.\s
+                You can also use the pointer to click through the air.
+                Click "Collect" to fill all mined gold in your gold stock.;Each building has it's own GUI
+
+                You can see your gold filled up in the gold stock for example!""");
+
+        add(TranslationKeys.COC_INV_BOOK_CONTENT + "repair_townhall", """
+                Perfect, ${player}&0!
+
+                Let's repair the townhall now.
+
+                Most buildings can be upgraded through their GUI.
+                If you upgrade buildings their attributes improve.
+
+                E.g. The &6gold miner&0's storage and mining speed improves""");
+
+        add(TranslationKeys.COC_INV_BOOK_CONTENT + "build_farm", """
+                Great work, friend!
+
+                Now, it's time to dive into the exciting part of the game.
+
+                Open up your inventory and locate the "Construction menu.";Here, you can begin constructing new buildings! Keep in mind that any construction requires resources, so plan accordingly.
+                To get started, we recommend building a 'Farm' and a 'Barn' to collect food. Navigate to the Construction Menu and select the 'Farm' option.;Once you have selected the 'Farm', you can choose where to place the building by looking at the ground. If you are happy with the placement and no other buildings occupy the area, you can begin construction. So keep building and have fun!;Don't worry if you're not completely satisfied with the placement of your other buildings!
+
+                You have the ability to move and rotate them to a new spot.
+                Simply select the building you want to adjust, and choose the "Move" option.""");
+        add(TranslationKeys.COC_INV_BOOK_CONTENT + "troops", """
+                Awesome!
+                The cannon shoots at attacking enemies.
+
+                Let's train some own troops so we can attack bases, shall we?;Build an &6Army camp &0and a &6Barrack&0.
+                You can train some troops in the &6Barrack&0.
+                Trained troops will move to the &6Army camp&0.""");
+        add(TranslationKeys.COC_INV_BOOK_CONTENT + "finished", """
+                Great job, my friend!
+                When you attack other bases you can:
+                - Loot resources
+                - Receive elo
+                But watch out: The enemy has also defenses!
+                You can start attacking players at the right corner of your inventory.;&2Attacking system is not yet implemented.;The tutorial ends here, but I'll give you my book.
+                If you have any questions just read through it!""");
         add(TranslationKeys.COC_INV_BOOK_CONTENT + "general", "TODO add normal help book");
 
         insertIntoLanguage();

@@ -1,7 +1,6 @@
 package net.fununity.clashofclans.listener.interact;
 
 import net.fununity.clashofclans.ClashOfClubs;
-import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.attacking.spying.SpyingManager;
 import net.fununity.clashofclans.buildings.BuildingModeManager;
 import net.fununity.clashofclans.buildings.BuildingsManager;
@@ -17,6 +16,7 @@ import net.fununity.clashofclans.player.buildingmode.IBuildingMode;
 import net.fununity.clashofclans.player.buildingmode.MovingMode;
 import net.fununity.clashofclans.util.BuildingLocationUtil;
 import net.fununity.clashofclans.util.HotbarItems;
+import net.fununity.clashofclans.values.ResourceTypes;
 import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.messages.MessagePrefix;
 import net.fununity.main.api.player.APIPlayer;

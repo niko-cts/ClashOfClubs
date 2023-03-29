@@ -83,7 +83,7 @@ public class GeneralBuilding {
                 .setLore(lore).craft());
 
         if (getUpgradeCost() != -1) {
-            List<String> upgradeLore = new ArrayList<>(Arrays.asList(language.getTranslation(getLevel() == 0 ? TranslationKeys.COC_GUI_BUILDING_REPAIR_LORE : TranslationKeys.COC_GUI_BUILDING_UPGRADE_LORE, "${cost}", "" + getBuilding().getResourceType().getChatColor() + getUpgradeCost() + " " + language.getTranslation(getBuilding().getResourceType().getNameKey())).split(";")));
+            List<String> upgradeLore = new ArrayList<>(Arrays.asList(language.getTranslation(getLevel() == 0 ? TranslationKeys.COC_GUI_BUILDING_REPAIR_LORE : TranslationKeys.COC_GUI_BUILDING_UPGRADE_LORE, "${cost}", "" + getBuilding().getBuildingCostType().getChatColor() + getUpgradeCost() + " " + language.getTranslation(getBuilding().getBuildingCostType().getNameKey())).split(";")));
             if (building instanceof IUpgradeDetails)
                 upgradeLore.addAll(((IUpgradeDetails) building).getLoreDetails(building.getBuildingLevelData()[getLevel()], language));
 

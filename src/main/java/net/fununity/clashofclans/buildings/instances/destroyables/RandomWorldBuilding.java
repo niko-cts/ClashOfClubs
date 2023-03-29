@@ -46,11 +46,11 @@ public class RandomWorldBuilding extends GeneralBuilding {
 
         menu.setItem(15, new ItemBuilder(Material.BARRIER)
                 .setName(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_DESTROY_NAME))
-                .setLore(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_DESTROY_LORE, "${cost}", getRemoveCost() + " " + getBuilding().getResourceType().getColoredName(language)).split(";")).craft(), new ClickAction(true) {
+                .setLore(language.getTranslation(TranslationKeys.COC_GUI_BUILDING_DESTROY_LORE, "${cost}", getRemoveCost() + " " + getBuilding().getBuildingCostType().getColoredName(language)).split(";")).craft(), new ClickAction(true) {
             @Override
             public void onClick(APIPlayer apiPlayer, ItemStack itemStack, int i) {
-                if (ClashOfClubs.getInstance().getPlayerManager().getPlayer(apiPlayer.getUniqueId()).getResourceAmount(getBuilding().getResourceType()) < getRemoveCost()) {
-                    apiPlayer.sendActionbar(new ActionbarMessage(TranslationKeys.COC_PLAYER_NOT_ENOUGH_RESOURCE), "${type}", getBuilding().getResourceType().getColoredName(language));
+                if (ClashOfClubs.getInstance().getPlayerManager().getPlayer(apiPlayer.getUniqueId()).getResourceAmount(getBuilding().getBuildingCostType()) < getRemoveCost()) {
+                    apiPlayer.sendActionbar(new ActionbarMessage(TranslationKeys.COC_PLAYER_NOT_ENOUGH_RESOURCE), "${type}", getBuilding().getBuildingCostType().getColoredName(language));
                     apiPlayer.playSound(Sound.ENTITY_VILLAGER_NO);
                     return;
                 }

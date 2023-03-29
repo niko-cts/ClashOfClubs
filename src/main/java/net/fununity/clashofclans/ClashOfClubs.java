@@ -19,7 +19,7 @@ import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.server.ServerSetting;
 import net.fununity.main.api.util.RegisterUtil;
 import net.minecraft.server.v1_16_R3.WorldServer;
-import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
@@ -36,7 +36,7 @@ import java.util.logging.Level;
 public class ClashOfClubs extends JavaPlugin {
 
     private static ClashOfClubs instance;
-    private static final String TITLE = "§6Clash§7Of§bClubs";
+    private static final String TITLE = ChatColor.GOLD + "Clash" + ChatColor.GRAY + "Of" + ChatColor.AQUA + "Clubs";
     private static final int BASE_Y_COORDINATE = 50;
     private static final int BASE_SIZE = 200;
     private static final int BASE_BACKGROUND = 13;
@@ -80,16 +80,14 @@ public class ClashOfClubs extends JavaPlugin {
             new TickTimerManager();
 
             registerUtil.register();
-
-            Bukkit.getScheduler().runTaskTimer(this, () -> {
-                // Ticks = (Hours * 1000) - 6000
-                Calendar cal = Calendar.getInstance();
-                long time = (1000 * cal.get(Calendar.HOUR_OF_DAY)) + (16 * cal.get(Calendar.MINUTE)) - 6000;
-                this.playWorld.setTime(time);
-            }, 20L, 20L * 30);
         }
 
-        Schematics.cacheAllSchematics();
+        getServer().getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), Schematics::cacheAllSchematics);
+        getServer().getScheduler().runTaskTimer(this, () -> {
+            // Ticks = (Hours * 1000) - 6000
+            Calendar cal = Calendar.getInstance();
+            this.playWorld.setTime(1000 * cal.get(Calendar.HOUR_OF_DAY) + 16 * cal.get(Calendar.MINUTE) - 6000);
+        }, 20L, 20L * 30);
     }
 
     /**

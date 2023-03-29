@@ -1,11 +1,11 @@
 package net.fununity.clashofclans.buildings.list;
 
-import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.instances.WallBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IWall;
 import net.fununity.clashofclans.buildings.interfaces.data.BuildingLevelData;
 import net.fununity.clashofclans.language.TranslationKeys;
+import net.fununity.clashofclans.values.ResourceTypes;
 import org.bukkit.Material;
 
 public enum WallBuildings implements IWall {
@@ -92,7 +92,7 @@ public enum WallBuildings implements IWall {
      * @since 0.0.1
      */
     @Override
-    public ResourceTypes getResourceType() {
+    public ResourceTypes getBuildingCostType() {
         return resourceType;
     }
 

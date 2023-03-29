@@ -21,7 +21,7 @@ public class QuitListener implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         MatchmakingSystem.getInstance().removePlayer(event.getPlayer().getUniqueId());
-        ClashOfClubs.getInstance().getPlayerManager().playerLeft(event.getPlayer().getUniqueId());
+        ClashOfClubs.getInstance().getPlayerManager().playerLeft(event.getPlayer());
     }
 
 }

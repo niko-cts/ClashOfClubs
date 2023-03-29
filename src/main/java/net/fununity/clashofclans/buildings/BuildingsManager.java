@@ -1,7 +1,6 @@
 package net.fununity.clashofclans.buildings;
 
 import net.fununity.clashofclans.ClashOfClubs;
-import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.instances.DefenseBuilding;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.instances.destroyables.RandomWorldBuilding;
@@ -21,6 +20,8 @@ import net.fununity.clashofclans.player.buildingmode.ConstructionMode;
 import net.fununity.clashofclans.troops.ITroop;
 import net.fununity.clashofclans.util.BuildingLocationUtil;
 import net.fununity.clashofclans.util.BuildingsAmountUtil;
+import net.fununity.clashofclans.values.PlayerValues;
+import net.fununity.clashofclans.values.ResourceTypes;
 import net.fununity.cloud.client.CloudClient;
 import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.actionbar.ActionbarMessage;
@@ -31,10 +32,7 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class BuildingsManager {
@@ -112,8 +110,11 @@ public class BuildingsManager {
 
         DatabaseBuildings.getInstance().buildBuilding(startBuildings.toArray(new GeneralBuilding[0]));
 
+        EnumMap<PlayerValues, Integer> map = new EnumMap<>(PlayerValues.class);
+        for (PlayerValues value : PlayerValues.values())
+            map.put(value, value.getDefaultValue());
 
-        CoCPlayer coCPlayer = new CoCPlayer(uuid, baseLoc, 0, 0, 200, CloudClient.getInstance().getClientId(), System.currentTimeMillis(), startBuildings);
+        CoCPlayer coCPlayer = new CoCPlayer(uuid, baseLoc, map, CloudClient.getInstance().getClientId(), System.currentTimeMillis(), startBuildings);
         DatabasePlayer.getInstance().createUser(coCPlayer);
 
         long takingTicks = Schematics.createPlayerBase(baseLoc, startBuildings) + 5;
@@ -158,7 +159,7 @@ public class BuildingsManager {
                     BuildingLocationUtil.getRealMinimum(building.getSize(), rotation, newLocation)), rotation, 0));
         }
 
-        player.removeResource(building.getResourceType(), building.getBuildingLevelData()[0].getUpgradeCost() * constructionMode.getBuildings().size());
+        player.removeResourceWithUpdate(building.getBuildingCostType(), building.getBuildingLevelData()[0].getUpgradeCost() * constructionMode.getBuildings().size());
         ConstructionManager.getInstance().startConstruction(player, allBuildings);
     }
 
@@ -171,8 +172,8 @@ public class BuildingsManager {
     public boolean upgrade(GeneralBuilding building) {
         int cost = building.getUpgradeCost();
         CoCPlayer player = ClashOfClubs.getInstance().getPlayerManager().getPlayer(building.getOwnerUUID());
-        if (cost == -1 || player.getResourceAmount(building.getBuilding().getResourceType()) < cost) {
-            FunUnityAPI.getInstance().getActionbarManager().addActionbar(building.getOwnerUUID(), new ActionbarMessage(TranslationKeys.COC_PLAYER_NOT_ENOUGH_RESOURCE), "${type}", building.getBuilding().getResourceType().getColoredName(player.getOwner().getLanguage()));
+        if (cost == -1 || player.getResourceAmount(building.getBuilding().getBuildingCostType()) < cost) {
+            FunUnityAPI.getInstance().getActionbarManager().addActionbar(building.getOwnerUUID(), new ActionbarMessage(TranslationKeys.COC_PLAYER_NOT_ENOUGH_RESOURCE), "${type}", building.getBuilding().getBuildingCostType().getColoredName(player.getOwner().getLanguage()));
             return false;
         }
 
@@ -181,7 +182,7 @@ public class BuildingsManager {
             return false;
         }
 
-        player.removeResource(building.getBuilding().getResourceType(), cost);
+        player.removeResourceWithUpdate(building.getBuilding().getBuildingCostType(), cost);
         ConstructionManager.getInstance().startConstruction(player, List.of(building));
         return true;
     }
@@ -194,8 +195,8 @@ public class BuildingsManager {
     public void removeBuilding(GeneralBuilding building) {
         CoCPlayer coCPlayer = ClashOfClubs.getInstance().getPlayerManager().getPlayer(building.getOwnerUUID());
         coCPlayer.removeBuilding(building);
-        if (building.getBuilding() instanceof IDestroyableBuilding) {
 
+        if (building.getBuilding() instanceof IDestroyableBuilding) {
             if (building instanceof RandomWorldBuilding) {
                 int gemsToAdd = RandomUtil.getRandomInt(((IDestroyableBuilding) building.getBuilding()).getGems());
                 if (gemsToAdd > 0) {
@@ -206,14 +207,14 @@ public class BuildingsManager {
                     apiPlayer.getPlayer().setLevel(0);
                     apiPlayer.getPlayer().setExp(0);
                     apiPlayer.getPlayer().giveExp(coCPlayer.getExp());
-                    ScoreboardMenu.show(coCPlayer);
                 }
 
-                coCPlayer.removeResource(building.getBuilding().getResourceType(), ((RandomWorldBuilding) building).getRemoveCost());
+                coCPlayer.removeResourceWithUpdate(building.getBuilding().getBuildingCostType(), ((RandomWorldBuilding) building).getRemoveCost());
             }
 
-            if (((IDestroyableBuilding) building.getBuilding()).receiveFullPayPrice())
-                coCPlayer.fillResourceToContainer(building.getBuilding().getResourceType(), building.getUpgradeCost());
+            if (((IDestroyableBuilding) building.getBuilding()).receiveFullPayPrice()) {
+                coCPlayer.addResourceWithUpdate(building.getBuilding().getBuildingCostType(), building.getUpgradeCost());
+            }
         }
 
         Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
@@ -316,8 +317,8 @@ public class BuildingsManager {
             return false;
         }
 
-        if (building.getBuildingLevelData()[0].getUpgradeCost() * amountOfCreation > coCPlayer.getResourceAmount(building.getResourceType())) {
-            apiPlayer.sendActionbar(new ActionbarMessage(TranslationKeys.COC_PLAYER_NOT_ENOUGH_RESOURCE).setDuration(5), "${type}", building.getResourceType().getColoredName(apiPlayer.getLanguage()));
+        if (building.getBuildingLevelData()[0].getUpgradeCost() * amountOfCreation > coCPlayer.getResourceAmount(building.getBuildingCostType())) {
+            apiPlayer.sendActionbar(new ActionbarMessage(TranslationKeys.COC_PLAYER_NOT_ENOUGH_RESOURCE).setDuration(5), "${type}", building.getBuildingCostType().getColoredName(apiPlayer.getLanguage()));
             apiPlayer.playSound(Sound.ENTITY_VILLAGER_NO);
             return false;
         }
@@ -332,26 +333,34 @@ public class BuildingsManager {
     }
 
     /**
-     * Empties all given resource gatherer buildings and calls {@link BuildingsManager#emptyGatherer(ResourceGatherBuilding)}
+     * Empties all given resource gatherer buildings and calls {@link BuildingsManager#emptyGatherer(ResourceGatherBuilding, CoCPlayer)}
      * Rebuilds all necessary builder.
      * @param emptyGatherer List<ResourceGathererBuilding> - the buildings
      * @return boolean - close inventory
      */
     public boolean emptyGatherer(List<ResourceGatherBuilding> emptyGatherer) {
+        emptyGatherer.removeIf(g -> g.getAmount() < 1);
         if (emptyGatherer.isEmpty()) return false;
 
-        List<GeneralBuilding> rebuildBuildings = new ArrayList<>();
-
-        emptyGatherer.forEach(b -> rebuildBuildings.addAll(emptyGatherer(b)));
-
-        if (!rebuildBuildings.isEmpty()) {
-            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> Schematics.createBuildings(rebuildBuildings));
-        }
-
         UUID uuid = emptyGatherer.get(0).getOwnerUUID();
+        CoCPlayer player = ClashOfClubs.getInstance().getPlayerManager().getPlayer(uuid);
+        if (player == null)
+            return false;
+
+        List<GeneralBuilding> rebuildBuildings = new ArrayList<>();
+        emptyGatherer.forEach(b -> rebuildBuildings.addAll(emptyGatherer(b, player)));
+
+        if (!rebuildBuildings.isEmpty())
+            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> Schematics.createBuildings(rebuildBuildings));
+
+        ScoreboardMenu.show(player);
+
         if (TutorialManager.getInstance().getState(uuid) == TutorialManager.TutorialState.COLLECT_RESOURCE) {
-            Bukkit.getScheduler().runTaskLater(ClashOfClubs.getInstance(), ()->
-                    TutorialManager.getInstance().finished(ClashOfClubs.getInstance().getPlayerManager().getPlayer(uuid)), 1L);
+            Bukkit.getScheduler().runTaskLater(ClashOfClubs.getInstance(), () -> {
+                CoCPlayer coCPlayer = ClashOfClubs.getInstance().getPlayerManager().getPlayer(uuid);
+                if (coCPlayer != null)
+                    TutorialManager.getInstance().finished(coCPlayer);
+            }, 1L);
             return true;
         }
         return false;
@@ -359,15 +368,11 @@ public class BuildingsManager {
 
     /**
      * Drains the gatherer and calls {@link CoCPlayer#fillResourceToContainer(ResourceTypes, double)}.
-     * @return List<ResourceContainerBuilding> - buildings that need a rebuild
+     * @return List<GeneralBuilding> - buildings that need a rebuild
      * @since 0.0.2
      */
-    private List<ResourceContainerBuilding> emptyGatherer(ResourceGatherBuilding building) {
-        if (building.getAmount() <= 0) {
-            return new ArrayList<>();
-        }
-
-        CoCPlayer cocPlayer = ClashOfClubs.getInstance().getPlayerManager().getPlayer(building.getOwnerUUID());
+    private List<GeneralBuilding> emptyGatherer(ResourceGatherBuilding building, CoCPlayer cocPlayer) {
+        if (building.getAmount() <= 0) return new ArrayList<>();
 
         double toAdd = Math.min(cocPlayer.getMaxResourceContainable(building.getContainingResourceType())
                 - cocPlayer.getResourceAmount(building.getContainingResourceType()), building.getAmount());
@@ -378,7 +383,7 @@ public class BuildingsManager {
             return new ArrayList<>();
         }
 
-        List<ResourceContainerBuilding> needRebuild = new ArrayList<>();
+        List<GeneralBuilding> needRebuild = new ArrayList<>();
         if (building.setAmount(building.getAmount() - toAdd))
             needRebuild.add(building);
 

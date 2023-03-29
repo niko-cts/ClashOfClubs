@@ -1,13 +1,13 @@
 package net.fununity.clashofclans.buildings.instances.resource;
 
 import net.fununity.clashofclans.ClashOfClubs;
-import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.instances.GeneralHologramBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IDifferentVersionBuildings;
 import net.fununity.clashofclans.buildings.interfaces.IResourceContainerBuilding;
 import net.fununity.clashofclans.language.TranslationKeys;
+import net.fununity.clashofclans.values.ResourceTypes;
 import net.fununity.main.api.inventory.CustomInventory;
 import net.fununity.main.api.item.ItemBuilder;
 import net.fununity.main.api.item.UsefulItems;

@@ -1,8 +1,8 @@
 package net.fununity.clashofclans.buildings.interfaces;
 
-import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.interfaces.data.BuildingLevelData;
+import net.fununity.clashofclans.values.ICoCValue;
 import org.bukkit.Material;
 
 /**
@@ -44,10 +44,10 @@ public interface IBuilding {
     /**
      * The resource type of the building.
      * Building cost type.
-     * @return {@link ResourceTypes} - the type of resource for the building.
+     * @return {@link ICoCValue} - the type of resource for the building.
      * @since 0.0.1
      */
-    ResourceTypes getResourceType();
+    ICoCValue getBuildingCostType();
 
     /**
      * A list of the building level steps.

@@ -1,11 +1,11 @@
 package net.fununity.clashofclans.gui;
 
 import net.fununity.clashofclans.ClashOfClubs;
-import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.attacking.MatchmakingSystem;
-import net.fununity.clashofclans.database.DatabaseBotAttacks;
+import net.fununity.clashofclans.database.DatabaseAttackBots;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.CoCPlayer;
+import net.fununity.clashofclans.values.ResourceTypes;
 import net.fununity.main.api.inventory.ClickAction;
 import net.fununity.main.api.inventory.CustomInventory;
 import net.fununity.main.api.item.ItemBuilder;
@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class AttackLookingGUI {
 
-    private static final Map<UUID, List<DatabaseBotAttacks.BotData>> LAST_BOT = new ConcurrentHashMap<>(); // player, bot
+    private static final Map<UUID, List<DatabaseAttackBots.BotData>> LAST_BOT = new ConcurrentHashMap<>(); // player, bot
     private static final int BOT_ATTACK_COST = 100;
 
     /**
@@ -64,13 +64,17 @@ public class AttackLookingGUI {
         menu.open(player);
     }
 
-
+    /**
+     * Opens the singleplayer menu for the given Player.
+     * @param apiPlayer APIPlayer - the player to open.
+     * @since 1.0.1
+     */
     private static void openSingleplayer(APIPlayer apiPlayer) {
         UUID uuid = apiPlayer.getUniqueId();
         if (!LAST_BOT.containsKey(uuid)) {
             Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
                 MatchmakingSystem.getInstance().getDefenderBots();
-                LAST_BOT.put(uuid, DatabaseBotAttacks.getInstance().getAllDoneBots(uuid));
+                LAST_BOT.put(uuid, DatabaseAttackBots.getInstance().getAllDoneBots(uuid));
                 Bukkit.getScheduler().runTaskLaterAsynchronously(ClashOfClubs.getInstance(), () -> LAST_BOT.remove(uuid), 20 * 60);
                 Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> openSingleplayer(apiPlayer));
             });
@@ -85,17 +89,18 @@ public class AttackLookingGUI {
 
         boolean canFight = true;
         int i = 0;
-        List<DatabaseBotAttacks.BotData> botData = LAST_BOT.get(uuid);
-        for (DatabaseBotAttacks.BotData defenderBot : MatchmakingSystem.getInstance().getDefenderBots()) {
+        List<DatabaseAttackBots.BotData> botData = LAST_BOT.get(uuid);
+        for (DatabaseAttackBots.BotData defenderBot : MatchmakingSystem.getInstance().getDefenderBots()) {
             i++;
-            DatabaseBotAttacks.BotData bot = botData.stream().filter(b -> b.botUUID().equals(defenderBot.botUUID())).findFirst().orElse(null);
+            DatabaseAttackBots.BotData bot = botData.stream().filter(b -> b.botUUID().equals(defenderBot.botUUID())).findFirst().orElse(null);
             final boolean canFightThis = canFight;
             if (canFight && (bot == null || bot.won()))
                 canFight = false;
 
             Map<ResourceTypes, Integer> obtainableResource = new EnumMap<>(ResourceTypes.class);
-            for (Map.Entry<ResourceTypes, Double> entry : defenderBot.resources().entrySet()) {
-                obtainableResource.put(entry.getKey(), (int) Math.round(entry.getValue() - (bot != null ? bot.resources().getOrDefault(entry.getKey(), 0.0) : 0.0)));
+            for (Map.Entry<ResourceTypes, Integer> entry : defenderBot.resources().entrySet()) {
+                int amount = entry.getValue() - (bot != null ? bot.resources().getOrDefault(entry.getKey(), 0) : 0);
+                obtainableResource.put(entry.getKey(), Math.round(MatchmakingSystem.RESOURCE_MULTIPLER * amount));
             }
 
             String[] botLore = canFightThis ? language.getTranslation(TranslationKeys.COC_GUI_ATTACK_BOT_LORE,
@@ -124,6 +129,12 @@ public class AttackLookingGUI {
         menu.open(apiPlayer);
     }
 
+    /**
+     * Accepts the attack for the given Player with the given bot.
+     * @param apiPlayer APIPlayer - the player to start the attack.
+     * @param botUUID UUID - the uuid of the bot.
+     * @since 1.0.1
+     */
     private static void acceptSingleplayer(APIPlayer apiPlayer, UUID botUUID) {
         Language language = apiPlayer.getLanguage();
         CustomInventory menu = new CustomInventory(language.getTranslation(TranslationKeys.COC_GUI_ATTACK_SINGLEPLAYER_ACCEPT_TITLE), 27);
@@ -141,9 +152,15 @@ public class AttackLookingGUI {
                     @Override
                     public void onClick(APIPlayer apiPlayer, ItemStack itemStack, int i) {
                         CoCPlayer coCPlayer = ClashOfClubs.getInstance().getPlayerManager().getPlayer(apiPlayer.getUniqueId());
-                        if (coCPlayer.getResourceAmount(ResourceTypes.FOOD) >= BOT_ATTACK_COST) {
-                            coCPlayer.removeResource(ResourceTypes.FOOD, BOT_ATTACK_COST);
+                        if (coCPlayer == null) {
                             setCloseInventory(true);
+                            return;
+                        }
+                        if (coCPlayer.getResourceAmount(ResourceTypes.FOOD) >= BOT_ATTACK_COST) {
+                            setCloseInventory(true);
+                            System.out.println(coCPlayer.getResourceAmount(ResourceTypes.FOOD));
+                            coCPlayer.removeResourceWithUpdate(ResourceTypes.FOOD, BOT_ATTACK_COST);
+                            System.out.println("Removed resource " + coCPlayer.getResourceAmount(ResourceTypes.FOOD));
                             MatchmakingSystem.getInstance().startRequest(apiPlayer, botUUID);
                         } else {
                             apiPlayer.sendMessage(MessagePrefix.ERROR, TranslationKeys.COC_PLAYER_NOT_ENOUGH_RESOURCE, "${type}", ResourceTypes.FOOD.getColoredName(language));

@@ -27,9 +27,9 @@ public class CloudNormalListener implements CloudEventListener {
                 String serverId = (String) cloudEvent.getData().get(0);
                 MatchmakingSystem.getInstance().serverStarted(serverId);
             }
-            case CloudEvent.COC_RESPONSE_SERVERSTOP -> {
-                String serverId = (String) cloudEvent.getData().get(0);
-                MatchmakingSystem.getInstance().serverStopped(serverId);
+            case CloudEvent.COC_RESPONSE_ATTACK_SERVER_AMOUNT -> {
+                int amount = (int) cloudEvent.getData().get(0);
+                MatchmakingSystem.getInstance().serverAmount(amount);
             }
         }
     }

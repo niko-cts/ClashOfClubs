@@ -24,6 +24,15 @@ public class TranslationKeys {
     public static final String COC_COMMAND_RESET_DESCRIPTION = "coc.command.reset.description";
     public static final String COC_COMMAND_RESET_SUCCESS = "coc.command.reset.success";
 
+    // COC
+    public static final String COC_COMMAND_COC_USAGE = "coc.command.coc.usage";
+    public static final String COC_COMMAND_COC_DESCRIPTION = "coc.command.coc.description";
+
+    // CHEAT
+    public static final String COC_COMMAND_CHEAT_USAGE = "coc.command.coc.cheat.usage";
+    public static final String COC_COMMAND_CHEAT_DESCRIPTION = "coc.command.coc.cheat.description";
+
+
     // REBUILD
     public static final String COC_COMMAND_REBUILD_USAGE = "coc.command.rebuild.usage";
     public static final String COC_COMMAND_REBUILD_DESCRIPTION = "coc.command.rebuild.description";
@@ -64,7 +73,10 @@ public class TranslationKeys {
     public static final String COC_RESOURCE_FOOD = "coc.resource.food";
     public static final String COC_RESOURCE_GOLD = "coc.resource.gold";
     public static final String COC_RESOURCE_ELECTRIC = "coc.resource.electric";
-    public static final String COC_RESOURCE_GEMS = "coc.resource.gems";
+    public static final String COC_VALUES_GEMS = "coc.resource.gems";
+    public static final String COC_VALUES_ELO = "coc.resource.elo";
+    public static final String COC_VALUES_XP = "coc.resource.xp";
+
 
     //GUI
     public static final String COC_GUI_BUILDING_NAME = "coc.gui.building.name";

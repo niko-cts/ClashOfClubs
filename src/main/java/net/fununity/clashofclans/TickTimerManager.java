@@ -7,6 +7,7 @@ import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.instances.resource.ResourceGatherBuilding;
 import net.fununity.clashofclans.buildings.instances.troops.TroopsCreateBuilding;
 import net.fununity.clashofclans.player.CoCPlayer;
+import net.fununity.clashofclans.values.ResourceTypes;
 import org.bukkit.Bukkit;
 
 import java.util.*;

@@ -1,11 +1,11 @@
 package net.fununity.clashofclans.buildings.list;
 
-import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.instances.troops.TroopsBuilding;
 import net.fununity.clashofclans.buildings.interfaces.ITroopBuilding;
 import net.fununity.clashofclans.buildings.interfaces.data.TroopsLevelData;
 import net.fununity.clashofclans.language.TranslationKeys;
+import net.fununity.clashofclans.values.ResourceTypes;
 import org.bukkit.Material;
 
 public enum TroopBuildings implements ITroopBuilding {
@@ -66,7 +66,7 @@ public enum TroopBuildings implements ITroopBuilding {
      * @since 0.0.1
      */
     @Override
-    public ResourceTypes getResourceType() {
+    public ResourceTypes getBuildingCostType() {
         return resourceType;
     }
     /**

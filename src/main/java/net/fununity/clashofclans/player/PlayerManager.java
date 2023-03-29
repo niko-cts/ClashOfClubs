@@ -1,7 +1,6 @@
 package net.fununity.clashofclans.player;
 
 import net.fununity.clashofclans.ClashOfClubs;
-import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.BuildingsManager;
 import net.fununity.clashofclans.buildings.Schematics;
 import net.fununity.clashofclans.buildings.instances.ConstructionBuilding;
@@ -10,6 +9,7 @@ import net.fununity.clashofclans.buildings.instances.troops.TroopsCreateBuilding
 import net.fununity.clashofclans.buildings.interfaces.IBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IResourceContainerBuilding;
 import net.fununity.clashofclans.buildings.interfaces.ITroopBuilding;
+import net.fununity.clashofclans.database.DatabaseAttackResources;
 import net.fununity.clashofclans.database.DatabaseBuildings;
 import net.fununity.clashofclans.database.DatabasePlayer;
 import net.fununity.clashofclans.gui.TroopsGUI;
@@ -17,6 +17,9 @@ import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.troops.ITroop;
 import net.fununity.clashofclans.troops.Troops;
 import net.fununity.clashofclans.util.HotbarItems;
+import net.fununity.clashofclans.values.ICoCValue;
+import net.fununity.clashofclans.values.PlayerValues;
+import net.fununity.clashofclans.values.ResourceTypes;
 import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.inventory.CustomInventory;
 import net.fununity.main.api.item.ItemBuilder;
@@ -31,15 +34,15 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 
+import javax.annotation.Nullable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 public class PlayerManager {
 
-    private final ConcurrentMap<UUID, CoCPlayer> playersMap;
+    private final Map<UUID, CoCPlayer> playersMap;
 
     /**
      * Instantiates the class.
@@ -63,7 +66,7 @@ public class PlayerManager {
             CoCPlayer coCPlayer = loadPlayer(player.getUniqueId());
 
             if (coCPlayer == null) {
-                player.sendRawMessage(ChatColor.RED + "CoCPlayer could not have been loaded. Please speak with an administrator.");
+                player.sendRawMessage(ChatColor.RED + "Player data could not have been loaded. Please speak with an administrator.");
                 throw new IllegalStateException("CoCPlayer could not have been loaded.");
             }
 
@@ -77,6 +80,13 @@ public class PlayerManager {
             for (ResourceTypes types : ResourceTypes.values())
                 rebuildBuildings.addAll(coCPlayer.getResourceGatherBuildings(types).stream().filter(b -> b.addAmountPlayerWasGone(secondsGone)).toList());
 
+            for (Map.Entry<ICoCValue, Integer> entry : DatabaseAttackResources.getInstance().retrieveAllAndDelete(player.getUniqueId()).entrySet()) {
+                if (entry.getValue() > 0)
+                    rebuildBuildings.addAll(coCPlayer.addResourceWithoutUpdate(entry.getKey(), entry.getValue()));
+                else
+                    rebuildBuildings.addAll(coCPlayer.removeResourceWithoutUpdate(entry.getKey(), -entry.getValue())); // *-1 because value is subtracted from inv.
+            }
+
             player.getTitleSender().sendTitle(TranslationKeys.COC_PLAYER_LOADING_TROOPS_TITLE, 5 * 20);
             player.getTitleSender().sendSubtitle(TranslationKeys.COC_PLAYER_LOADING_TROOPS_SUBTITLE, 5 * 20);
             coCPlayer.getTroopsCreateBuildings().forEach(b -> b.checkQueuePlayerWasGone((int) secondsGone));
@@ -85,10 +95,13 @@ public class PlayerManager {
             player.getTitleSender().sendTitle(TranslationKeys.COC_PLAYER_LOADING_FINISHED_TITLE, 20);
             player.getTitleSender().sendSubtitle(TranslationKeys.COC_PLAYER_LOADING_FINISHED_SUBTITLE, 20);
 
-            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> Schematics.createBuildings(rebuildBuildings));
+            if (!rebuildBuildings.isEmpty())
+                Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> Schematics.createBuildings(rebuildBuildings));
 
             Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> {
-                coCPlayer.visit(player, true);
+                coCPlayer.visit(player, false);
+                if (!player.getPlayer().isFlying())
+                    player.getPlayer().setFlying(true);
                 ScoreboardMenu.show(coCPlayer);
                 TutorialManager.getInstance().checkIfTutorialNeeded(coCPlayer);
             });
@@ -99,15 +112,19 @@ public class PlayerManager {
     }
 
     /**
-     * Will be called when a player left.
+     * Will be called when a player leaves.
      * Removes the player and caches the tick buildings.
      *
-     * @param uuid UUID - uuid of player
+     * @param player Player - the player
      * @since 0.0.1
      */
-    public void playerLeft(UUID uuid) {
+    public void playerLeft(Player player) {
+        UUID uuid = player.getUniqueId();
         if (!this.playersMap.containsKey(uuid)) return;
         CoCPlayer coCPlayer = this.playersMap.get(uuid);
+        if (!coCPlayer.getVisitors().contains(uuid)) {
+            player.teleport(coCPlayer.getVisitorLocation());
+        }
         playersMap.remove(uuid);
         Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
             DatabasePlayer.getInstance().updatePlayer(Collections.singletonList(coCPlayer));
@@ -155,6 +172,7 @@ public class PlayerManager {
         return getPlayer(player.getUniqueId());
     }
 
+
     /**
      * Get the coc player instance.
      *
@@ -162,6 +180,7 @@ public class PlayerManager {
      * @return {@link CoCPlayer} - the coc player instance.
      * @since 0.0.1
      */
+    @Nullable
     public CoCPlayer getPlayer(UUID uuid) {
         return this.playersMap.getOrDefault(uuid, null);
     }
@@ -178,9 +197,11 @@ public class PlayerManager {
 
                 int playerX = data.getInt("x");
                 int playerZ = data.getInt("z");
-                int xp = data.getInt("xp");
-                int elo = data.getInt("elo");
-                int gems = data.getInt("gems");
+
+                EnumMap<PlayerValues, Integer> playerValues = new EnumMap<>(PlayerValues.class);
+                for (PlayerValues value : PlayerValues.values())
+                    playerValues.put(value, data.getInt(value.name().toLowerCase()));
+
                 long lastJoin = data.getLong("last_login");
                 String lastServer = data.getString("last_server");
 
@@ -217,7 +238,7 @@ public class PlayerManager {
                         buildings.add(building);
                     }
 
-                    return new CoCPlayer(uuid, playerBase, xp, elo, gems, lastServer, lastJoin, buildings);
+                    return new CoCPlayer(uuid, playerBase, playerValues, lastServer, lastJoin, buildings);
 
                 } catch (SQLException exception) {
                     ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
@@ -253,7 +274,7 @@ public class PlayerManager {
 
         int townHallLevel = coCPlayer.getTownHallLevel();
         if (townHallLevel > 0) {
-            for (ResourceTypes resourceTypes : ResourceTypes.canReachWithTownHallWithoutGems(townHallLevel)) {
+            for (ResourceTypes resourceTypes : ResourceTypes.canReachWithTownHall(townHallLevel)) {
                 player.getInventory().addItem(new ItemBuilder(resourceTypes.getRepresentativeMaterial())
                         .setName(lang.getTranslation(TranslationKeys.COC_INV_RESOURCE_NAME, Arrays.asList("${color}", "${type}"), Arrays.asList(resourceTypes.getChatColor() + "", resourceTypes.getColoredName(lang)))).setLore(lang.getTranslation(TranslationKeys.COC_INV_RESOURCE_LORE).split(";")).craft());
             }
@@ -282,6 +303,13 @@ public class PlayerManager {
         return new HashMap<>(playersMap);
     }
 
+    /**
+     * Will be called, when the player clicked a blocked.
+     * Checks if player looking at a building.
+     * @param player CoCPlayer - the player data.
+     * @param targetBlock Block - the targeted block.
+     * @since 1.0.1
+     */
     public void clickBlock(CoCPlayer player, Block targetBlock) {
         Location location = targetBlock.getLocation();
         player.getAllBuildings().stream().filter(b -> LocationUtil.isBetween(b.getCoordinate(), location, b.getMaxCoordinate())).findFirst().ifPresent(b -> {
@@ -289,5 +317,14 @@ public class PlayerManager {
             if (apiPlayer != null)
                 b.getInventory(apiPlayer.getLanguage()).open(apiPlayer);
         });
+    }
+
+    /**
+     * Removes the visitor from the list.
+     * @param apiPlayer APIPlayer - the player.
+     * @since 1.0.1
+     */
+    public void leaveVisit(APIPlayer apiPlayer) {
+        getPlayers().values().forEach(v -> v.leave(apiPlayer));
     }
 }

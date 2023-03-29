@@ -1,6 +1,5 @@
 package net.fununity.clashofclans.buildings.list;
 
-import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.instances.resource.ResourceGatherBuilding;
 import net.fununity.clashofclans.buildings.interfaces.IResourceGatherBuilding;
@@ -8,6 +7,7 @@ import net.fununity.clashofclans.buildings.interfaces.IUpgradeDetails;
 import net.fununity.clashofclans.buildings.interfaces.data.BuildingLevelData;
 import net.fununity.clashofclans.buildings.interfaces.data.ResourceGatherLevelData;
 import net.fununity.clashofclans.language.TranslationKeys;
+import net.fununity.clashofclans.values.ResourceTypes;
 import net.fununity.misc.translationhandler.translations.Language;
 import org.bukkit.Material;
 
@@ -89,7 +89,7 @@ public enum ResourceGathererBuildings implements IResourceGatherBuilding, IUpgra
      * @since 0.0.1
      */
     @Override
-    public ResourceTypes getResourceType() {
+    public ResourceTypes getBuildingCostType() {
         return resourceType;
     }
 

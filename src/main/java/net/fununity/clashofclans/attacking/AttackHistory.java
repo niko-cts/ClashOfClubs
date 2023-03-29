@@ -1,6 +1,6 @@
-package net.fununity.clashofclans.attacking.history;
+package net.fununity.clashofclans.attacking;
 
-import net.fununity.clashofclans.ResourceTypes;
+import net.fununity.clashofclans.values.ICoCValue;
 
 import java.time.OffsetDateTime;
 import java.util.Map;
@@ -12,16 +12,14 @@ public class AttackHistory {
     private final UUID defender;
     private final OffsetDateTime date;
     private final int stars;
-    private final int elo;
-    private final Map<ResourceTypes, Double> resourcesGathered;
+    private final Map<ICoCValue, Integer> resourcesGathered;
     private final boolean seen;
 
-    public AttackHistory(UUID attacker, UUID defender, OffsetDateTime date, int stars, int elo, Map<ResourceTypes, Double> resourcesGathered, boolean seen) {
+    public AttackHistory(UUID attacker, UUID defender, OffsetDateTime date, int stars, Map<ICoCValue, Integer> resourcesGathered, boolean seen) {
         this.attacker = attacker;
         this.defender = defender;
         this.date = date;
         this.stars = stars;
-        this.elo = elo;
         this.resourcesGathered = resourcesGathered;
         this.seen = seen;
     }
@@ -42,12 +40,8 @@ public class AttackHistory {
         return stars;
     }
 
-    public int getElo() {
-        return elo;
-    }
-
-    public int getResourcesGathered(ResourceTypes type) {
-        return (int) Math.round(resourcesGathered.getOrDefault(type, 0.0)-0.4);
+    public int getResource(ICoCValue type) {
+        return resourcesGathered.get(type);
     }
 
     public boolean isSeen() {

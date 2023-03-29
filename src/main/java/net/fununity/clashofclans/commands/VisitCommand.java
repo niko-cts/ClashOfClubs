@@ -1,12 +1,12 @@
 package net.fununity.clashofclans.commands;
 
 import net.fununity.clashofclans.ClashOfClubs;
-import net.fununity.clashofclans.database.DatabasePlayer;
 import net.fununity.clashofclans.language.TranslationKeys;
+import net.fununity.clashofclans.player.CoCPlayer;
+import net.fununity.clashofclans.util.CommandUtil;
 import net.fununity.main.api.command.handler.APICommand;
 import net.fununity.main.api.messages.MessagePrefix;
 import net.fununity.main.api.player.APIPlayer;
-import net.fununity.main.api.util.PlayerDataUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
@@ -26,24 +26,25 @@ public class VisitCommand extends APICommand {
             return;
         }
         Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
-            UUID uuid = PlayerDataUtil.getPlayerUUID(args[0]);
-            if (uuid == null) {
-                apiPlayer.sendMessage(MessagePrefix.ERROR, net.fununity.main.api.messages.TranslationKeys.API_PLAYER_NOT_FOUND);
-                return;
-            }
-            if (!DatabasePlayer.getInstance().contains(uuid)) {
-                apiPlayer.sendMessage(MessagePrefix.ERROR, TranslationKeys.COC_COMMAND_VISIT_ILLEGAL_HASNOBUILDING);
-                return;
-            }
+            UUID uuid = CommandUtil.getOrSendErrorMethod(apiPlayer, args[0]);
+
+            if (uuid == null) return;
+
             if (!apiPlayer.hasPermission("command.visit.offline") && !ClashOfClubs.getInstance().getPlayerManager().isCached(uuid)) {
                 apiPlayer.sendMessage(MessagePrefix.ERROR, TranslationKeys.COC_COMMAND_VISIT_ILLEGAL_NOTONLINE);
                 return;
             }
 
             apiPlayer.sendMessage(MessagePrefix.SUCCESS, TranslationKeys.COC_COMMAND_VISIT_SUCCESS);
-            ClashOfClubs.getInstance().getPlayerManager().getPlayer(apiPlayer.getUniqueId()).leave(apiPlayer);
-            Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () ->
-                    ClashOfClubs.getInstance().getPlayerManager().getPlayer(uuid).visit(apiPlayer, true));
+            ClashOfClubs.getInstance().getPlayerManager().leaveVisit(apiPlayer);
+
+            CoCPlayer visitPlayer;
+            if (ClashOfClubs.getInstance().getPlayerManager().isCached(uuid))
+                visitPlayer = ClashOfClubs.getInstance().getPlayerManager().getPlayer(uuid);
+            else
+                visitPlayer = ClashOfClubs.getInstance().getPlayerManager().loadPlayer(uuid);
+
+            Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> visitPlayer.visit(apiPlayer, true));
         });
     }
 

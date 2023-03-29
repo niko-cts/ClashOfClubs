@@ -1,6 +1,6 @@
 package net.fununity.clashofclans.attacking;
 
-import net.fununity.clashofclans.database.DatabaseBotAttacks;
+import net.fununity.clashofclans.database.DatabaseAttackBots;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.cloud.client.CloudClient;
 import net.fununity.cloud.common.events.cloud.CloudEvent;
@@ -10,7 +10,10 @@ import net.fununity.main.api.cloud.CloudManager;
 import net.fununity.main.api.messages.MessagePrefix;
 import net.fununity.main.api.player.APIPlayer;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * The matchmaking system.
@@ -32,13 +35,14 @@ public class MatchmakingSystem {
         return instance;
     }
 
-    private Set<DatabaseBotAttacks.BotData> defenderBots;
+    public static final float RESOURCE_MULTIPLER = 0.4f; // the multiplier a building amount contains when attacking
+    private Set<DatabaseAttackBots.BotData> defenderBots;
 
     private final Map<UUID, Integer> waitingForAttackServer;
     private final Map<UUID, UUID> attackerDefender;
     private final Map<UUID, String> defendingServer; // defenderUUID, Serverid
 
-    private final Set<String> attackingServers;
+    private int attackingServer;
     private boolean newServerStarting;
 
     /**
@@ -49,7 +53,7 @@ public class MatchmakingSystem {
         this.attackerDefender = new HashMap<>();
         this.waitingForAttackServer = new HashMap<>();
         this.defendingServer = new HashMap<>();
-        this.attackingServers = new HashSet<>();
+        this.attackingServer = 0;
         this.newServerStarting = false;
     }
 
@@ -66,12 +70,11 @@ public class MatchmakingSystem {
 
         player.sendMessage(MessagePrefix.INFO, TranslationKeys.COC_ATTACK_START_REQUEST);
 
-        if (attackingServers.isEmpty()) {
+        if (attackingServer == 0) {
             startNewAttackServer();
             player.sendMessage(MessagePrefix.INFO, TranslationKeys.COC_ATTACK_START_SERVER_CREATE);
         } else
             CloudClient.getInstance().forwardToServerType(ServerType.COCATTACK, new CloudEvent(CloudEvent.COC_REQUEST_SPACE).addData(attacker).addData(CloudClient.getInstance().getClientId()));
-
     }
 
 
@@ -129,7 +132,7 @@ public class MatchmakingSystem {
 
         int denies = waitingForAttackServer.get(uuid) + 1;
         this.waitingForAttackServer.put(uuid, denies);
-        if (denies == attackingServers.size()) {
+        if (denies >= attackingServer) {
             startNewAttackServer();
             player.sendMessage(MessagePrefix.INFO, TranslationKeys.COC_ATTACK_START_SERVER_CREATE);
         }
@@ -152,11 +155,10 @@ public class MatchmakingSystem {
      */
     public void serverStarted(String serverId) {
         this.newServerStarting = false;
-        for (Map.Entry<UUID, Integer> entry : waitingForAttackServer.entrySet()) {
-            if (entry.getValue() == attackingServers.size())
-                CloudClient.getInstance().forwardToServer(serverId, new CloudEvent(CloudEvent.COC_REQUEST_SPACE).addData(entry.getKey()).addData(CloudClient.getInstance().getClientId()));
-        }
-        this.attackingServers.add(serverId);
+
+        this.waitingForAttackServer.keySet().forEach(u ->
+                CloudClient.getInstance().forwardToServer(serverId,
+                        new CloudEvent(CloudEvent.COC_REQUEST_SPACE).addData(u).addData(CloudClient.getInstance().getClientId())));
     }
 
     /**
@@ -205,19 +207,14 @@ public class MatchmakingSystem {
         return this.defendingServer.getOrDefault(uuid, null);
     }
 
-    public Set<DatabaseBotAttacks.BotData> getDefenderBots() {
+    public Set<DatabaseAttackBots.BotData> getDefenderBots() {
         if (defenderBots == null) {
-            defenderBots = DatabaseBotAttacks.getInstance().getNormalBotData();
+            defenderBots = DatabaseAttackBots.getInstance().getNormalBotData();
         }
         return defenderBots;
     }
 
-    /**
-     * Attack server stopped.
-     * @param serverId String - the server id which stopped.
-     * @since 1.0.0
-     */
-    public void serverStopped(String serverId) {
-        this.attackingServers.remove(serverId);
+    public void serverAmount(int amount) {
+        this.attackingServer = amount;
     }
 }

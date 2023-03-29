@@ -1,6 +1,5 @@
 package net.fununity.clashofclans.database;
 
-import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.instances.ConstructionBuilding;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.instances.resource.ResourceContainerBuilding;
@@ -9,6 +8,7 @@ import net.fununity.clashofclans.buildings.instances.troops.TroopsCreateBuilding
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.troops.ITroop;
 import net.fununity.clashofclans.troops.Troops;
+import net.fununity.clashofclans.values.ResourceTypes;
 import net.fununity.misc.databasehandler.DatabaseHandler;
 
 import java.sql.ResultSet;
@@ -40,7 +40,7 @@ public class DatabaseBuildings {
     private static final String COL_INT = "INT NOT NULL";
     public static final String TABLE = "game_coc_building";
     public static final String TABLE_CONTAINER = "game_coc_building_container";
-    private static final String TABLE_TROOPS = "game_coc_building_troops";
+    static final String TABLE_TROOPS = "game_coc_building_troops";
     private static final String TABLE_TROOPS_QUEUE = "game_coc_building_troops_queue";
     private static final String TABLE_CONSTRUCTION = "game_coc_building_constructions";
     private final DatabaseHandler databaseHandler;

@@ -249,7 +249,7 @@ public class BuildingLocationUtil {
      */
     public static boolean otherBuildingInWay(CoCPlayer player, List<Location> allBlocksOnGround) {
         Location minBuildable = player.getBaseStartLocation().add(ClashOfClubs.getBaseBackground(), 0, ClashOfClubs.getBaseBackground());
-        Location maxBuildable = player.getBaseEndLocation().subtract(ClashOfClubs.getBaseBackground(), 0, ClashOfClubs.getBaseBackground());
+        Location maxBuildable = player.getBaseEndLocation();
 
         // list has duplicates
         if (new HashSet<>(allBlocksOnGround).size() < allBlocksOnGround.size())

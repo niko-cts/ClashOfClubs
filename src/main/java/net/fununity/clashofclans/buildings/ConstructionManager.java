@@ -1,7 +1,6 @@
 package net.fununity.clashofclans.buildings;
 
 import net.fununity.clashofclans.ClashOfClubs;
-import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.instances.ConstructionBuilding;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
 import net.fununity.clashofclans.buildings.instances.GeneralHologramBuilding;
@@ -14,6 +13,7 @@ import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.player.ScoreboardMenu;
 import net.fununity.clashofclans.player.TutorialManager;
 import net.fununity.clashofclans.util.BuildingLocationUtil;
+import net.fununity.clashofclans.values.ResourceTypes;
 import net.fununity.main.api.player.APIPlayer;
 import org.bukkit.Bukkit;
 

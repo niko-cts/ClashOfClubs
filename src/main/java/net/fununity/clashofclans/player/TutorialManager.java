@@ -1,8 +1,8 @@
 package net.fununity.clashofclans.player;
 
 import net.fununity.clashofclans.ClashOfClubs;
-import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.language.TranslationKeys;
+import net.fununity.clashofclans.values.ResourceTypes;
 import net.fununity.main.api.actionbar.ActionbarMessage;
 import net.fununity.main.api.actionbar.ActionbarMessageType;
 import net.fununity.main.api.item.ItemBuilder;

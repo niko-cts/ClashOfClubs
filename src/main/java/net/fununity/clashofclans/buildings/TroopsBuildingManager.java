@@ -1,13 +1,13 @@
 package net.fununity.clashofclans.buildings;
 
 import net.fununity.clashofclans.ClashOfClubs;
-import net.fununity.clashofclans.ResourceTypes;
 import net.fununity.clashofclans.buildings.instances.troops.TroopsBuilding;
 import net.fununity.clashofclans.buildings.instances.troops.TroopsCreateBuilding;
 import net.fununity.clashofclans.language.TranslationKeys;
 import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.clashofclans.player.ScoreboardMenu;
 import net.fununity.clashofclans.troops.ITroop;
+import net.fununity.clashofclans.values.ResourceTypes;
 import net.fununity.main.api.messages.MessagePrefix;
 import net.fununity.main.api.player.APIPlayer;
 import org.bukkit.Bukkit;
@@ -120,7 +120,7 @@ public class TroopsBuildingManager {
         if (wasEmpty)
             Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> Schematics.createBuilding(building));
 
-        player.removeResource(ResourceTypes.FOOD, troop.getCostAmount());
+        player.removeResourceWithUpdate(ResourceTypes.FOOD, troop.getCostAmount());
         ScoreboardMenu.show(player);
         return true;
     }

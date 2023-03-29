@@ -1,7 +1,9 @@
-package net.fununity.clashofclans.attacking.history;
+package net.fununity.clashofclans.database;
 
 import net.fununity.clashofclans.ClashOfClubs;
-import net.fununity.clashofclans.ResourceTypes;
+import net.fununity.clashofclans.attacking.AttackHistory;
+import net.fununity.clashofclans.values.CoCValues;
+import net.fununity.clashofclans.values.ICoCValue;
 import net.fununity.misc.databasehandler.DatabaseHandler;
 
 import java.sql.ResultSet;
@@ -14,18 +16,18 @@ import java.util.*;
  * @author Niko
  * @since 0.0.1
  */
-public class AttackHistoryDatabase {
+public class DatabaseAttackHistory {
 
-    private static AttackHistoryDatabase instance;
+    private static DatabaseAttackHistory instance;
 
     /**
      * Get the singleton instance of this class.
-     * @return {@link AttackHistoryDatabase} - the singleton instance class.
+     * @return {@link DatabaseAttackHistory} - the singleton instance class.
      * @since 0.0.1
      */
-    public static AttackHistoryDatabase getInstance() {
+    public static DatabaseAttackHistory getInstance() {
         if (instance == null)
-            instance = new AttackHistoryDatabase();
+            instance = new DatabaseAttackHistory();
         return instance;
     }
 
@@ -37,16 +39,16 @@ public class AttackHistoryDatabase {
      * Instantiates the class.
      * @since 0.0.1
      */
-    private AttackHistoryDatabase() {
+    private DatabaseAttackHistory() {
         this.databaseHandler = DatabaseHandler.getInstance();
         if (!this.databaseHandler.doesTableExist(TABLE)) {
 
-            List<String> col = new ArrayList<>(Arrays.asList("attacker", "defender", "date", "stars", "elo", "seen"));
-            List<String> data = new ArrayList<>(Arrays.asList("VARCHAR(36) NOT NULL", "VARCHAR(36) NOT NULL", "VARCHAR(36) NOT NULL", "INT NOT NULL", "INT NOT NULL", "TINYINT default 0"));
+            List<String> col = new ArrayList<>(Arrays.asList("attacker", "defender", "date", "stars", "seen"));
+            List<String> data = new ArrayList<>(Arrays.asList("VARCHAR(36) NOT NULL", "VARCHAR(36) NOT NULL", "VARCHAR(36) NOT NULL", "INT NOT NULL", "TINYINT default 0"));
 
-            for (ResourceTypes resourceTypes : ResourceTypes.allWithoutGems()) {
+            for (ICoCValue resourceTypes : CoCValues.stoleAbleResource()) {
                 col.add(resourceTypes.name().toLowerCase());
-                data.add("DOUBLE NOT NULL DEFAULT 0.0");
+                data.add("INT NOT NULL DEFAULT 0");
             }
 
             col.add("");
@@ -62,15 +64,14 @@ public class AttackHistoryDatabase {
      * @param defender UUID - the uuid of the defender.
      * @param date OffsetDateTime - the date time.
      * @param stars int - the amount of stars.
-     * @param elo int - the elo the attacker gained.
-     * @param resourcesGathered Map<ResourceTypes, Double> - the resources gathered.
+     * @param resourcesGathered Map<ICoCValue, Double> - the resources gathered.
      * @since 0.0.1
      */
-    public void addNewAttack(UUID attacker, UUID defender, OffsetDateTime date, int stars, int elo, Map<ResourceTypes, Double> resourcesGathered) {
-        List<String> col = new ArrayList<>(Arrays.asList(attacker.toString(), defender.toString(), date.toString(), stars + "", elo + "", "0"));
-        List<String> types = new ArrayList<>(Arrays.asList("string", "string", "string", "", "", ""));
-        for (ResourceTypes resourceTypes : ResourceTypes.allWithoutGems()) {
-            col.add(resourcesGathered.getOrDefault(resourceTypes, 0.0) + "");
+    public void addNewAttack(UUID attacker, UUID defender, OffsetDateTime date, int stars, Map<ICoCValue, Integer> resourcesGathered) {
+        List<String> col = new ArrayList<>(Arrays.asList(attacker.toString(), defender.toString(), date.toString(), stars + "","0"));
+        List<String> types = new ArrayList<>(Arrays.asList("string", "string", "string", "", ""));
+        for (Integer amount : resourcesGathered.values()) {
+            col.add(amount + "");
             types.add("");
         }
 
@@ -103,8 +104,8 @@ public class AttackHistoryDatabase {
      * @return List<AttackHistory> - all attack histories.
      * @since 0.0.1
      */
-    public List<AttackHistory> getBaseAttacks(UUID defender, boolean seen) {
-        return getData("WHERE defender='" + defender + (seen ? "'" : "' AND seen=0"));
+    public List<AttackHistory> getBaseDefends(UUID defender, boolean seen) {
+        return getData("WHERE defender='" + defender + (seen ? "' ORDER BY seen" : "' AND seen=0"));
     }
 
     /**
@@ -114,8 +115,8 @@ public class AttackHistoryDatabase {
      * @return List<AttackHistory> - all attack histories.
      * @since 0.0.1
      */
-    public List<AttackHistory> getBaseDefends(UUID attacker, boolean seen) {
-        return getData("WHERE attacker='" + attacker + (seen ? "'" : "' AND seen=0"));
+    public List<AttackHistory> getMadeAttacks(UUID attacker, boolean seen) {
+        return getData("WHERE attacker='" + attacker + (seen ? "' ORDER BY seen" : "' AND seen=0"));
     }
 
     /**
@@ -128,11 +129,12 @@ public class AttackHistoryDatabase {
         List<AttackHistory> list = new ArrayList<>();
         try (ResultSet set = this.databaseHandler.select(TABLE, Collections.singletonList("*"), where)) {
             while (set != null && set.next()) {
-                Map<ResourceTypes, Double> map = new EnumMap<>(ResourceTypes.class);
-                map.put(ResourceTypes.GOLD, (double) set.getInt("gold"));
-                map.put(ResourceTypes.FOOD, (double) set.getInt("food"));
+                Map<ICoCValue, Integer> map = new HashMap<>();
+                for (ICoCValue type : CoCValues.stoleAbleResource()) {
+                    map.put(type, set.getInt(type.name().toLowerCase()));
+                }
                 list.add(new AttackHistory(UUID.fromString(set.getString("attacker")), UUID.fromString(set.getString("defender")),
-                        OffsetDateTime.parse(set.getString("date")), set.getInt("stars"), set.getInt("elo"),
+                        OffsetDateTime.parse(set.getString("date")), set.getInt("stars"),
                         map, set.getInt("seen") == 1));
             }
         } catch (SQLException exception) {

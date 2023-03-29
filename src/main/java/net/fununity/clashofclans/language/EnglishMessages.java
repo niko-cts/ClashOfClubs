@@ -30,6 +30,15 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_COMMAND_RESET_DESCRIPTION, "&7Resets a users home.");
         add(TranslationKeys.COC_COMMAND_RESET_SUCCESS, "&aSuccessfully reset.");
 
+        // COC
+        add(TranslationKeys.COC_COMMAND_COC_USAGE, "coc");
+        add(TranslationKeys.COC_COMMAND_COC_DESCRIPTION, "&7Sends the help message and commands.");
+
+        // CHEAT
+        add(TranslationKeys.COC_COMMAND_CHEAT_USAGE, "coc cheat <type> <amount>");
+        add(TranslationKeys.COC_COMMAND_CHEAT_DESCRIPTION, "&7Gives you an amount of the given type.");
+
+
         // REBUILD
         add(TranslationKeys.COC_COMMAND_REBUILD_USAGE, "coc rebuild (<User>)");
         add(TranslationKeys.COC_COMMAND_REBUILD_DESCRIPTION, "&7Rebuilds a player base.");
@@ -72,7 +81,9 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_RESOURCE_FOOD, "&dFood");
         add(TranslationKeys.COC_RESOURCE_GOLD, "&6Gold");
         add(TranslationKeys.COC_RESOURCE_ELECTRIC, "&eElectricity");
-        add(TranslationKeys.COC_RESOURCE_GEMS, "&2Gems");
+        add(TranslationKeys.COC_VALUES_GEMS, "&2Gems");
+        add(TranslationKeys.COC_VALUES_ELO, "&eElo");
+        add(TranslationKeys.COC_VALUES_XP, "&aEXP");
 
         // BUILDINGS
         add(TranslationKeys.COC_BUILDING_GENERAL_TOWN_HALL_NAME, "&6Town Hall");
@@ -205,49 +216,52 @@ public class EnglishMessages extends MessageList {
                 "\n" +
                 "You can see your gold filled up in the gold stock for example!");
 
-        add(TranslationKeys.COC_INV_BOOK_CONTENT + "repair_townhall", "Perfect, ${player}&0!\n" +
-                "\n" +
-                "Let's repair the townhall now.\n" +
-                "\n" +
-                "Most buildings can be upgraded through their GUI.\n" +
-                "If you upgrade buildings their attributes improve.\n" +
-                "\n" +
-                "E.g. The &6gold miner&0's storage and mining speed improves");
+        add(TranslationKeys.COC_INV_BOOK_CONTENT + "repair_townhall", """
+                Perfect, ${player}&0!
 
-        add(TranslationKeys.COC_INV_BOOK_CONTENT + "build_farm", "Great work, friend!\n" +
-                "\n" +
-                "Now, it's time to dive into the exciting part of the game.\n" +
-                "\n" +
-                "Open up your inventory and locate the \"Construction menu.\";Here, you can begin constructing new buildings! Keep in mind that any construction requires resources, so plan accordingly.\n" +
-                "To get started, we recommend building a 'Farm' and a 'Barn' to collect food. Navigate to the Construction Menu and select the 'Farm' option.;Once you have selected the 'Farm', you can choose where to place the building by looking at the ground. If you are happy with the placement and no other buildings occupy the area, you can begin construction. " +
-                "So keep building and have fun!;Don't worry if you're not completely satisfied with the placement of your other buildings!\n" +
-                "\n" +
-                "You have the ability to move and rotate them to a new spot.\n" +
-                "Simply select the building you want to adjust, and choose the \"Move\" option.");
-        add(TranslationKeys.COC_INV_BOOK_CONTENT + "defense", "Awesome!\n" +
-                "You can collect and store food now!\n\n" +
-                "" +
-                "&cEnemies &0can attack your base very easily, we need some defense buildings to defend ourself!\n" +
-                ";Go in the \"Construction menu\" and build a &6Cannon&0.");
-        add(TranslationKeys.COC_INV_BOOK_CONTENT + "troops", "Awesome!\n" +
-                "The cannon shoots at attacking enemies.\n\n" +
-                "Let's train some own troops so we can attack bases, shall we?" +
-                ";" +
-                "Build an &6Army camp &0and a &6Barrack&0.\n" +
-                "You can train some troops in the &6Barrack&0.\n" +
-                "Trained troops will move to the &6Army camp&0.");
-        add(TranslationKeys.COC_INV_BOOK_CONTENT + "finished", "Great job, my friend!\n" +
-                "If you attack another base you can:\n" +
-                "- Loot resources\n" +
-                "- Receive elo\n\n" +
-                "But watch out: The enemy has also defenses!\n" +
-                "You can start attacking players at the right corner of your inventory.;" +
-                "&2Attacking system is not yet implemented.;" +
-                "I recommend you to build some &6walls&0, so our &cenemies &0have it harder to get to your resources!\n" +
-                "For building walls the item \"&6Add another building&0\" is very useful!\n" +
-                "It lets you build &6multiple buildings &0at once.\nJust try it out!;" +
-                "The tutorial ends here, but I'll give you my book.\n\n" +
-                "If you have any questions just read through it!");
+                Let's repair the townhall now.
+
+                Most buildings can be upgraded through their GUI.
+                If you upgrade buildings their attributes improve.
+
+                E.g. The &6gold miner&0's storage and mining speed improves""");
+
+        add(TranslationKeys.COC_INV_BOOK_CONTENT + "build_farm", """
+                Great work, friend!
+
+                Now, it's time to dive into the exciting part of the game.
+
+                Open up your inventory and locate the "Construction menu.";Here, you can begin constructing new buildings! Keep in mind that any construction requires resources, so plan accordingly.
+                To get started, we recommend building a 'Farm' and a 'Barn' to collect food. Navigate to the Construction Menu and select the 'Farm' option.;Once you have selected the 'Farm', you can choose where to place the building by looking at the ground. If you are happy with the placement and no other buildings occupy the area, you can begin construction. So keep building and have fun!;Don't worry if you're not completely satisfied with the placement of your other buildings!
+
+                You have the ability to move and rotate them to a new spot.
+                Simply select the building you want to adjust, and choose the "Move" option.""");
+        add(TranslationKeys.COC_INV_BOOK_CONTENT + "defense", """
+                Awesome!
+                You can collect and store food now!
+
+                &cEnemies &0can attack your base very easily, we need some defense buildings to defend ourself!
+                ;Go in the "Construction menu" and build a &6Cannon&0.""");
+        add(TranslationKeys.COC_INV_BOOK_CONTENT + "troops", """
+                Awesome!
+                The cannon shoots at attacking enemies.
+
+                Let's train some own troops so we can attack bases, shall we?;Build an &6Army camp &0and a &6Barrack&0.
+                You can train some troops in the &6Barrack&0.
+                Trained troops will move to the &6Army camp&0.""");
+        add(TranslationKeys.COC_INV_BOOK_CONTENT + "finished", """
+                Great job, my friend!
+                If you attack another base you can:
+                - Loot resources
+                - Receive elo
+
+                But watch out: The enemy has also defenses!
+                You can start attacking players at the right corner of your inventory.;&2Attacking system is not yet implemented.;I recommend you to build some &6walls&0, so our &cenemies &0have it harder to get to your resources!
+                For building walls the item "&6Add another building&0" is very useful!
+                It lets you build &6multiple buildings &0at once.
+                Just try it out!;The tutorial ends here, but I'll give you my book.
+
+                If you have any questions just read through it!""");
         add(TranslationKeys.COC_INV_BOOK_CONTENT + "general", "TODO add normal help book");
 
         // TROOPS

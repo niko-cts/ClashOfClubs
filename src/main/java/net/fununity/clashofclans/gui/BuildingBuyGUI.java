@@ -107,7 +107,7 @@ public class BuildingBuyGUI {
                 lore.addAll(Arrays.asList(lang.getTranslation(
                         TranslationKeys.COC_GUI_CONSTRUCTION_BUILDING_LORE,
                         Arrays.asList("${cost}", "${type}", "${max}", "${amount}", "${level}"),
-                        Arrays.asList(building.getBuildingLevelData()[0].getUpgradeCost() + "", building.getResourceType().getColoredName(lang),
+                        Arrays.asList(building.getBuildingLevelData()[0].getUpgradeCost() + "", building.getBuildingCostType().getColoredName(lang),
                                 ""+buildingsPerLevel, "" + buildingsPlayerHas, townHallLevel + "")).split(";")));
                 if (building instanceof IUpgradeDetails)
                     lore.addAll(((IUpgradeDetails) building).getLoreDetails(building.getBuildingLevelData()[0], lang));

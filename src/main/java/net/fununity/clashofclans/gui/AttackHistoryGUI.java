@@ -1,10 +1,11 @@
 package net.fununity.clashofclans.gui;
 
 import net.fununity.clashofclans.ClashOfClubs;
-import net.fununity.clashofclans.ResourceTypes;
-import net.fununity.clashofclans.attacking.history.AttackHistory;
-import net.fununity.clashofclans.attacking.history.AttackHistoryDatabase;
+import net.fununity.clashofclans.attacking.AttackHistory;
+import net.fununity.clashofclans.database.DatabaseAttackHistory;
 import net.fununity.clashofclans.language.TranslationKeys;
+import net.fununity.clashofclans.values.PlayerValues;
+import net.fununity.clashofclans.values.ResourceTypes;
 import net.fununity.main.api.common.player.PlayerTextures;
 import net.fununity.main.api.inventory.ClickAction;
 import net.fununity.main.api.inventory.CustomInventory;
@@ -50,7 +51,7 @@ public class AttackHistoryGUI {
 
             CustomInventory menu = new CustomInventory(lang.getTranslation(TranslationKeys.COC_GUI_ATTACKHISTORY_TITLE), 9 * 3);
 
-            List<AttackHistory> baseAttacks = AttackHistoryDatabase.getInstance().getBaseAttacks(player.getUniqueId(), false);
+            List<AttackHistory> baseAttacks = DatabaseAttackHistory.getInstance().getBaseDefends(player.getUniqueId(), false);
 
             if (!baseAttacks.isEmpty()) {
                 UUID[] uuids = new UUID[baseAttacks.size()];
@@ -63,8 +64,8 @@ public class AttackHistoryGUI {
                     AttackHistory history = baseAttacks.get(i);
                     lore.add(lang.getTranslation(TranslationKeys.COC_GUI_ATTACKHISTORY_NEW_LORE,
                             Arrays.asList("${name}", "${elo}", "${date}", "${gold}", "{food}", "${stars}"),
-                            Arrays.asList(playerNames[i], history.getElo() + "", DATE_FORMAT.format(history.getDate()),
-                                    history.getResourcesGathered(ResourceTypes.GOLD) + "", history.getResourcesGathered(ResourceTypes.FOOD) + "",
+                            Arrays.asList(playerNames[i], history.getResource(PlayerValues.ELO) + "", DATE_FORMAT.format(history.getDate()),
+                                    history.getResource(ResourceTypes.GOLD) + "", history.getResource(ResourceTypes.FOOD) + "",
                                     history.getStars() + "")));
                 }
 
@@ -72,7 +73,7 @@ public class AttackHistoryGUI {
                         .setName(lang.getTranslation(TranslationKeys.COC_GUI_ATTACKHISTORY_NEW_NAME))
                         .setLore(lore).craft());
 
-                AttackHistoryDatabase.getInstance().seen(baseAttacks);
+                DatabaseAttackHistory.getInstance().seen(baseAttacks);
             }
 
             menu.setItem(9 + 4, new ItemBuilder(Material.IRON_SWORD)
@@ -82,7 +83,7 @@ public class AttackHistoryGUI {
                 @Override
                 public void onClick(APIPlayer apiPlayer, ItemStack itemStack, int i) {
                     Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () ->
-                            openSpecified(player, AttackHistoryDatabase.getInstance().getBaseDefends(player.getUniqueId(), true), true));
+                            openSpecified(player, DatabaseAttackHistory.getInstance().getMadeAttacks(player.getUniqueId(), true), true));
                 }
             });
             menu.setItem(9 + 6, new ItemBuilder(Material.SHIELD)
@@ -91,7 +92,7 @@ public class AttackHistoryGUI {
                 @Override
                 public void onClick(APIPlayer apiPlayer, ItemStack itemStack, int i) {
                     Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () ->
-                            openSpecified(player, AttackHistoryDatabase.getInstance().getBaseAttacks(player.getUniqueId(), true), false));
+                            openSpecified(player, DatabaseAttackHistory.getInstance().getBaseDefends(player.getUniqueId(), true), false));
                 }
             });
 
@@ -128,7 +129,7 @@ public class AttackHistoryGUI {
                 menu.addItem(new ItemBuilder(UsefulItems.PLAYER_HEAD).setSkullOwner(texture).setName(playerNames[i])
                         .setLore(lang.getTranslation(attack ? TranslationKeys.COC_GUI_ATTACKHISTORY_ALL_ATTACK_LORE : TranslationKeys.COC_GUI_ATTACKHISTORY_ALL_DEFENSE_LORE,
                                 Arrays.asList("${name}", "${elo}", "${date}", "${gold}", "${food}", "${stars}"),
-                                Arrays.asList(playerNames[i], history.getElo() + "", DATE_FORMAT.format(history.getDate()), history.getResourcesGathered(ResourceTypes.GOLD) + "", history.getResourcesGathered(ResourceTypes.FOOD) + "", history.getStars() + "")).split(";")).craft());
+                                Arrays.asList(playerNames[i], history.getResource(PlayerValues.ELO) + "", DATE_FORMAT.format(history.getDate()), history.getResource(ResourceTypes.GOLD) + "", history.getResource(ResourceTypes.FOOD) + "", history.getStars() + "")).split(";")).craft());
             }
 
 

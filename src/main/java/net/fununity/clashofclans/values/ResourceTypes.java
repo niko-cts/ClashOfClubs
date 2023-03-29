@@ -1,4 +1,4 @@
-package net.fununity.clashofclans;
+package net.fununity.clashofclans.values;
 
 import net.fununity.clashofclans.buildings.list.ResourceContainerBuildings;
 import net.fununity.clashofclans.language.TranslationKeys;
@@ -8,27 +8,18 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-public enum ResourceTypes {
+import java.util.List;
 
-    GEMS(TranslationKeys.COC_RESOURCE_GEMS, ChatColor.GREEN, UsefulItems.BACKGROUND_GREEN, Material.EMERALD),
+public enum ResourceTypes implements ICoCValue {
+
     FOOD(TranslationKeys.COC_RESOURCE_FOOD, ChatColor.RED, UsefulItems.BACKGROUND_RED, Material.CARROT),
     GOLD(TranslationKeys.COC_RESOURCE_GOLD, ChatColor.YELLOW, UsefulItems.BACKGROUND_YELLOW, Material.GOLD_INGOT),
     ELECTRIC(TranslationKeys.COC_RESOURCE_ELECTRIC, ChatColor.GOLD, UsefulItems.BACKGROUND_ORANGE, Material.END_ROD);
 
-    public static ResourceTypes[] allWithoutGems() {
-        return new ResourceTypes[]{FOOD, GOLD, ELECTRIC};
-    }
-
-    public static ResourceTypes[] canReachWithTownHall(int townHallLevel) {
+    public static List<ResourceTypes> canReachWithTownHall(int townHallLevel) {
         if (townHallLevel < ResourceContainerBuildings.GENERATOR.getBuildingLevelData()[0].getMinTownHall())
-            return new ResourceTypes[]{GEMS, FOOD, GOLD};
-        return values();
-    }
-
-    public static ResourceTypes[] canReachWithTownHallWithoutGems(int townHallLevel) {
-        if (townHallLevel < ResourceContainerBuildings.GENERATOR.getBuildingLevelData()[0].getMinTownHall())
-            return new ResourceTypes[]{FOOD, GOLD};
-        return allWithoutGems();
+            return List.of(FOOD, GOLD);
+        return List.of(values());
     }
 
     private final String nameKey;
@@ -43,23 +34,52 @@ public enum ResourceTypes {
         this.representativeItem = representativeItem;
     }
 
-    public String getNameKey() {
-        return nameKey;
-    }
-
-    public ChatColor getChatColor() {
-        return chatColor;
-    }
-
     public ItemStack getGlass() {
         return glass;
     }
 
+    /**
+     * Return the name translation key of the value.
+     *
+     * @return String - translation name key.
+     * @since 1.0.2
+     */
+    @Override
+    public String getNameKey() {
+        return nameKey;
+    }
+
+    /**
+     * Return the chat color of the value.
+     *
+     * @return ChatColor - the chat color.
+     * @since 1.0.2
+     */
+    @Override
+    public ChatColor getChatColor() {
+        return chatColor;
+    }
+
+    /**
+     * Return the Material of the value.
+     *
+     * @return Material - representative material.
+     * @since 1.0.2
+     */
+    @Override
     public Material getRepresentativeMaterial() {
         return representativeItem;
     }
 
+    /**
+     * Returns the colored name of the value.
+     *
+     * @param language Language - the language to translate.
+     * @return String - colored translated name.
+     * @since 1.0.2
+     */
+    @Override
     public String getColoredName(Language language) {
-        return chatColor + language.getTranslation(nameKey);
+        return this.chatColor + language.getTranslation(this.nameKey);
     }
 }

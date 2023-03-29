@@ -34,11 +34,24 @@ public class Schematics {
     private static final long TICK_PER_PARTITION = 10L;
     private static final Map<String, List<String>> SCHEMATICS = new HashMap<>();
 
+    /**
+     * Removes a building with given coordinate dimensions and rotation.
+     * @param location Location - the location to start.
+     * @param size int[] - the dimension.
+     * @param rotation byte - the rotation of the building.
+     * @since 1.0.1
+     */
     public static void removeBuilding(Location location, int[] size, byte rotation) {
-        List<Location> areaBlocks = BuildingLocationUtil.getAllLocationsOnGround(location,
-                new int[]{size[rotation == 1 || rotation == 3 ? 1 : 0], size[rotation == 1 || rotation == 3 ? 0 : 1]});
+        removeBlocks(BuildingLocationUtil.getAllLocationsOnGround(location,
+                new int[]{size[rotation == 1 || rotation == 3 ? 1 : 0], size[rotation == 1 || rotation == 3 ? 0 : 1]}));
+    }
 
-        Map<Location, Material> blockSettingMap = new HashMap<>();
+    public static void removePlayerBase(Location location) {
+        removeBlocks(BuildingLocationUtil.getAllLocationsOnGround(location, new int[]{ClashOfClubs.getBaseSize() + ClashOfClubs.getBaseBackground(), ClashOfClubs.getBaseSize() + ClashOfClubs.getBaseBackground()}));
+    }
+
+    private static long removeBlocks(List<Location> areaBlocks) {
+        Map<Location, Object[]> blockSettingMap = new HashMap<>();
         for (Location blockLoc : areaBlocks) {
             Location loc = blockLoc.clone();
             for (int y = BuildingLocationUtil.getHighestYCoordinate(blockLoc); y >= ClashOfClubs.getBaseYCoordinate(); y--) {
@@ -51,11 +64,11 @@ public class Schematics {
                     material = Material.STONE;
 
                 if (material != loc.getBlock().getType())
-                    blockSettingMap.put(loc.clone(), material);
+                    blockSettingMap.put(loc.clone(), new Object[] {material.name(), (byte) 0});
             }
         }
 
-        Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () -> blockSettingMap.forEach((key, value) -> key.getBlock().setType(value)));
+        return placeBlocks(blockSettingMap);
     }
 
     /**
@@ -174,7 +187,7 @@ public class Schematics {
                     block.setBlockData(blockData, false);
             }
         });
-        return 0L;
+        return 1L;
     }
 
     /**
@@ -199,17 +212,15 @@ public class Schematics {
      * @since 0.0.1
      */
     public static void cacheAllSchematics() {
-        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
-            File schematics = new File(ClashOfClubs.getInstance().getDataFolder() + "/building-schematics/");
-            if (schematics.exists()) {
-                String[] list = schematics.list();
-                if (list != null) {
-                    for (String s : list)
-                        load(s.replace(".schematic", ""));
-                    ClashOfClubs.getInstance().getLogger().log(Level.INFO, "Cached {0} schematics.", SCHEMATICS.size());
-                }
+        File schematics = new File(ClashOfClubs.getInstance().getDataFolder() + "/building-schematics/");
+        if (schematics.exists()) {
+            String[] list = schematics.list();
+            if (list != null) {
+                for (String s : list)
+                    load(s.replace(".schematic", ""));
+                ClashOfClubs.getInstance().getLogger().log(Level.INFO, "Cached {0} schematics.", SCHEMATICS.size());
             }
-        });
+        }
     }
 
     private static void load(String id) {

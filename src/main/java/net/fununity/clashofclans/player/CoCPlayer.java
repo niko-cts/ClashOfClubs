@@ -1,7 +1,7 @@
 package net.fununity.clashofclans.player;
 
 import net.fununity.clashofclans.ClashOfClubs;
-import net.fununity.clashofclans.ResourceTypes;
+import net.fununity.clashofclans.buildings.Schematics;
 import net.fununity.clashofclans.buildings.instances.ConstructionBuilding;
 import net.fununity.clashofclans.buildings.instances.DefenseBuilding;
 import net.fununity.clashofclans.buildings.instances.GeneralBuilding;
@@ -21,10 +21,15 @@ import net.fununity.clashofclans.troops.ITroop;
 import net.fununity.clashofclans.util.BuildingLocationUtil;
 import net.fununity.clashofclans.util.BuildingsAmountUtil;
 import net.fununity.clashofclans.util.CircleParticleUtil;
+import net.fununity.clashofclans.values.ICoCValue;
+import net.fununity.clashofclans.values.PlayerValues;
+import net.fununity.clashofclans.values.ResourceTypes;
 import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.player.APIPlayer;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -39,9 +44,7 @@ public class CoCPlayer {
 
     private final UUID uuid;
     private final Location baseLocation;
-    private int xp;
-    private int elo;
-    private int gems;
+    private final Map<PlayerValues, Integer> playerValues;
     private final String lastServer;
     private final long lastJoin;
 
@@ -58,20 +61,16 @@ public class CoCPlayer {
      * Instantiates the class.
      * @param uuid UUID - uuid of the player.
      * @param baseLocation Location - player base location.
-     * @param xp int - the players xp
-     * @param elo int - the players elo
-     * @param gems int - the players gems
+     * @param playerValues EnumMap<PlayerValues, Integer> - the player values
      * @param lastJoin long - the last join milli secs.
      * @param lastServer String - the last server.
      * @param allBuildings List<GeneralBuilding> - all buildings the player has.
      * @since 0.0.1
      */
-    public CoCPlayer(UUID uuid, Location baseLocation, int xp, int elo, int gems, String lastServer, long lastJoin, List<GeneralBuilding> allBuildings) {
+    public CoCPlayer(UUID uuid, Location baseLocation, EnumMap<PlayerValues, Integer> playerValues, String lastServer, long lastJoin, List<GeneralBuilding> allBuildings) {
         this.uuid = uuid;
         this.baseLocation = baseLocation;
-        this.xp = xp;
-        this.elo = elo;
-        this.gems = gems;
+        this.playerValues = playerValues;
         this.lastServer = lastServer;
         this.lastJoin = lastJoin;
         this.visitors = new ArrayList<>();
@@ -100,18 +99,17 @@ public class CoCPlayer {
      */
     public void visit(APIPlayer apiPlayer, boolean teleport) {
         this.visitors.add(apiPlayer.getUniqueId());
+        Player player = apiPlayer.getPlayer();
         if (teleport) {
-            Location visitorLoc = getBaseStartLocation().add(ClashOfClubs.getBaseSize() / 2.0, 0, ClashOfClubs.getBaseSize() / 2.0);
-            visitorLoc.setY(BuildingLocationUtil.getHighestYCoordinate(visitorLoc) + 1);
-            apiPlayer.getPlayer().teleport(visitorLoc);
+            player.teleport(getVisitorLocation());
         }
 
-        apiPlayer.getPlayer().setGameMode(GameMode.SURVIVAL);
-        apiPlayer.getPlayer().setAllowFlight(true);
-        apiPlayer.getPlayer().getInventory().clear();
-        apiPlayer.getPlayer().setLevel(0);
-        apiPlayer.getPlayer().setExp(0);
-        apiPlayer.getPlayer().giveExp(getExp());
+        player.setGameMode(GameMode.SURVIVAL);
+        player.setAllowFlight(true);
+        player.getInventory().clear();
+        player.setLevel(0);
+        player.setExp(0);
+        player.giveExp(getExp());
 
         if (apiPlayer.getUniqueId().equals(uuid)) {
             getAllBuildings().stream().filter(b -> b instanceof GeneralHologramBuilding).forEach(b -> ((GeneralHologramBuilding) b).updateHologram(((GeneralHologramBuilding) b).getShowText()));
@@ -120,14 +118,17 @@ public class CoCPlayer {
     }
 
 
+
     /**
      * A player quits the base.
      * @param apiPlayer APIPlayer - the player who leaves.
      * @since 0.0.1
      */
     public void leave(APIPlayer apiPlayer) {
-        this.visitors.remove(apiPlayer.getUniqueId());
-        getAllBuildings().stream().filter(b -> b instanceof GeneralHologramBuilding).forEach(b -> ((GeneralHologramBuilding) b).hideHologram(apiPlayer));
+        if (this.visitors.contains(apiPlayer.getUniqueId())) {
+            this.visitors.remove(apiPlayer.getUniqueId());
+            getAllBuildings().stream().filter(b -> b instanceof GeneralHologramBuilding).forEach(b -> ((GeneralHologramBuilding) b).hideHologram(apiPlayer));
+        }
     }
 
     /**
@@ -164,56 +165,85 @@ public class CoCPlayer {
 
 
     /**
-     * Gets the resource amount the player currently has.
-     * @param type ResourceType - type of resource.
+     * Gets the value amount the player currently has.
+     * @param value {@link ICoCValue} - value of coc data.
      * @return double - amount of resource
+     * @since 0.0.1
      */
-    public double getResourceAmount(ResourceTypes type) {
-        if (type == ResourceTypes.GEMS)
-           return getGems();
+    public double getResourceAmount(ICoCValue value) {
+        if (value instanceof PlayerValues)
+           return this.playerValues.get((PlayerValues) value);
+
         int amount = 0;
-        for (ResourceContainerBuilding building : getResourceContainerBuildings(type)) {
+        for (ResourceContainerBuilding building : getResourceContainerBuildings((ResourceTypes) value)) {
             amount += building.getAmount();
         }
         return amount;
     }
 
+
+
+    /**
+     * Adds resource to the players inventory and updates buildings and the scoreboard.
+     * @param value {@link ICoCValue} - the value to update.
+     * @param amount double - the amount to update.
+     * @return List<GeneralBuilding> - buildings that need an update.
+     * @since 0.0.2
+     */
+    public List<GeneralBuilding> addResourceWithoutUpdate(ICoCValue value, double amount) {
+        if (value instanceof PlayerValues)
+            addPlayerValue((PlayerValues) value, (int) amount);
+        else
+            return fillResourceToContainer((ResourceTypes) value, amount);
+        return new ArrayList<>();
+    }
+
+    /**
+     * Adds resource to the players inventory and updates buildings and the scoreboard.
+     * @param value {@link ICoCValue} - the value to update.
+     * @param amount double - the amount to update.
+     * @since 0.0.2
+     */
+    public void addResourceWithUpdate(ICoCValue value, double amount) {
+        List<GeneralBuilding> needsUpdate = addResourceWithoutUpdate(value, amount);
+        if (!needsUpdate.isEmpty())
+            Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> Schematics.createBuildings(needsUpdate));
+
+        ScoreboardMenu.show(this);
+    }
+
+
     /**
      * Remove resource from the player.
-     * @param type ResourceTypes - the type to remove.
+     * @param type ICoCValue - the type to remove.
      * @param remove int - the amount to remove.
      * @since 0.0.1
      */
-    public void removeResource(ResourceTypes type, int remove) {
-        if (remove == 0) return;
-        List<ResourceContainerBuilding> containerBuildings = getResourceContainerBuildings(type);
-        if (containerBuildings.isEmpty()) return;
+    public void removeResourceWithUpdate(ICoCValue type, int remove) {
+        if (type instanceof PlayerValues) {
+            this.playerValues.put((PlayerValues) type, Math.max(0, this.playerValues.get((PlayerValues) type) - remove));
+        } else {
+            List<GeneralBuilding> needsUpdate = removeResourceWithoutUpdate((ResourceTypes) type, remove);
+            if (!needsUpdate.isEmpty())
+                Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> Schematics.createBuildings(needsUpdate));
 
-        containerBuildings.sort(Comparator.comparingInt(ResourceContainerBuilding::getMaximumResource));
+            ScoreboardMenu.show(this);
+        }
+    }
 
-        int needToRemovePerBuilding = remove / containerBuildings.size();
-
-        for (int i = 0; i < containerBuildings.size(); i++) {
-            if (remove <= 0)
-                break;
-
-            ResourceContainerBuilding resourceContainerBuilding = containerBuildings.get(i);
-            if (resourceContainerBuilding.getMaximumResource() == resourceContainerBuilding.getAmount())
-                continue;
-
-            int newAmount;
-            int summedAmount = (int) resourceContainerBuilding.getAmount() - needToRemovePerBuilding;
-
-            if (summedAmount >= 0) {
-                newAmount = summedAmount;
-                remove -= needToRemovePerBuilding;
-            } else {
-                newAmount = 0;
-                remove -= resourceContainerBuilding.getAmount();
-                needToRemovePerBuilding = remove / (containerBuildings.size() - i);
-            }
-
-            resourceContainerBuilding.setAmount(newAmount);
+    /**
+     * Remove resource from the player without updating anything.
+     * @param type ICoCValue - the type to remove.
+     * @param remove int - the amount to remove.
+     * @return List<GeneralBuilding> - buildings which need an update.
+     * @since 1.0.2
+     */
+    public List<GeneralBuilding> removeResourceWithoutUpdate(ICoCValue type, int remove) {
+        if (type instanceof PlayerValues) {
+            this.playerValues.put((PlayerValues) type, Math.max(0, this.playerValues.get((PlayerValues) type) - remove));
+            return new ArrayList<>();
+        } else {
+            return removeResourceFromContainer((ResourceTypes) type, remove);
         }
     }
 
@@ -221,19 +251,18 @@ public class CoCPlayer {
      * Add resource to the player.
      * @param type ResourceTypes - the resource type.
      * @param add double - the amount of resource
-     * @return List<ResourceContainerBuilding> - buildings that need a rebuild
+     * @return List<GeneralBuilding> - buildings that need a rebuild
      * @since 0.0.1
      */
-    public List<ResourceContainerBuilding> fillResourceToContainer(ResourceTypes type, double add) {
-        List<ResourceContainerBuilding> toRebuildBuildings = new ArrayList<>();
-
+    public List<GeneralBuilding> fillResourceToContainer(ResourceTypes type, double add) {
         List<ResourceContainerBuilding> containerBuildings = getResourceContainerBuildings(type);
-        if (containerBuildings.isEmpty()) return toRebuildBuildings;
+        if (containerBuildings.isEmpty()) return new ArrayList<>();
 
         containerBuildings.sort(Comparator.comparingInt(ResourceContainerBuilding::getMaximumResource));
 
         double needToAddPerBuilding = add / containerBuildings.size();
 
+        List<GeneralBuilding> needsUpdate = new ArrayList<>();
         for (int i = 0; i < containerBuildings.size(); i++) {
             if (add <= 0)
                 break;
@@ -255,13 +284,56 @@ public class CoCPlayer {
             }
 
             if (resourceContainerBuilding.setAmount(newAmount))
-                toRebuildBuildings.add(resourceContainerBuilding);
+                needsUpdate.add(resourceContainerBuilding);
         }
 
-        ScoreboardMenu.show(this);
-        return toRebuildBuildings;
+        return needsUpdate;
     }
 
+    /**
+     * Remove resource from the player.
+     * @param type ResourceTypes - the type to remove.
+     * @param remove int - the amount to remove.
+     * @return List<GeneralBuilding> - buildings which need an update.
+     * @since 0.0.1
+     */
+    public List<GeneralBuilding> removeResourceFromContainer(ResourceTypes type, int remove) {
+        if (remove == 0) return new ArrayList<>();
+        List<ResourceContainerBuilding> containerBuildings = getResourceContainerBuildings(type);
+        if (containerBuildings.isEmpty()) return new ArrayList<>();
+
+        containerBuildings.sort(Comparator.comparingInt(ResourceContainerBuilding::getMaximumResource));
+
+        int needToRemovePerBuilding = remove / containerBuildings.size();
+
+        List<GeneralBuilding> needsUpdate = new ArrayList<>();
+
+        for (int i = 0; i < containerBuildings.size(); i++) {
+            if (remove <= 0)
+                break;
+
+            ResourceContainerBuilding resourceContainerBuilding = containerBuildings.get(i);
+            if (resourceContainerBuilding.getMaximumResource() == resourceContainerBuilding.getAmount())
+                continue;
+
+            int newAmount;
+            int summedAmount = (int) resourceContainerBuilding.getAmount() - needToRemovePerBuilding;
+
+            if (summedAmount >= 0) {
+                newAmount = summedAmount;
+                remove -= needToRemovePerBuilding;
+            } else {
+                newAmount = 0;
+                remove -= resourceContainerBuilding.getAmount();
+                needToRemovePerBuilding = remove / (containerBuildings.size() - i);
+            }
+
+            if (resourceContainerBuilding.setAmount(newAmount))
+                needsUpdate.add(resourceContainerBuilding);
+        }
+
+        return needsUpdate;
+    }
 
     /**
      * All container buildings from a type.
@@ -270,7 +342,7 @@ public class CoCPlayer {
      * @since 0.0.1
      */
     public List<ResourceContainerBuilding> getResourceContainerBuildings(ResourceTypes type) {
-        return resourceBuildings.get(type).stream().filter(r -> !(r instanceof ResourceGatherBuilding)).collect(Collectors.toList());
+        return resourceBuildings.get(type).stream().filter(r -> !(r instanceof ResourceGatherBuilding)).toList();
     }
 
     /**
@@ -280,7 +352,7 @@ public class CoCPlayer {
      * @since 0.0.1
      */
     public List<ResourceGatherBuilding> getResourceGatherBuildings(ResourceTypes type) {
-        return resourceBuildings.get(type).stream().filter(r -> (r instanceof ResourceGatherBuilding)).map(r -> (ResourceGatherBuilding) r).collect(Collectors.toList());
+        return resourceBuildings.get(type).stream().filter(r -> r instanceof ResourceGatherBuilding).map(r -> (ResourceGatherBuilding) r).toList();
     }
 
     /**
@@ -380,10 +452,20 @@ public class CoCPlayer {
             normalBuildings.add(generalBuilding);
     }
 
+    /**
+     * Removes a list of construction buildings from the player.
+     * @param constructions List<ConstructionBuilding> - the list of constructions.
+     * @since 0.0.1
+     */
     public void removeConstructions(List<ConstructionBuilding> constructions) {
         constructionBuildings.removeAll(constructions);
     }
 
+    /**
+     * Adds a list of construction buildings to the player.
+     * @param constructions List<ConstructionBuilding> - the list of constructions.
+     * @since 0.0.1
+     */
     public void addConstructions(List<ConstructionBuilding> constructions) {
         constructionBuildings.addAll(constructions);
     }
@@ -416,6 +498,29 @@ public class CoCPlayer {
         return troopsAmount;
     }
 
+    /**
+     * Removes the troop from a camp building.
+     * @param troop ITroop - the troop.
+     * @param amount int - the amount to remove.
+     * @since 1.0.1
+     */
+    public void removeTroop(ITroop troop, int amount) {
+        for (TroopsBuilding troopsCampBuilding : getTroopsCampBuildings()) {
+            if (amount <= 0) {
+                return;
+            }
+            int troopAmount = troopsCampBuilding.getTroopAmount(troop);
+            if (troopAmount >= amount) {
+                troopsCampBuilding.removeTroopAmount(troop, amount);
+                return;
+            }
+            if (troopAmount > 0) {
+                troopsCampBuilding.removeTroopAmount(troop, troopAmount);
+                amount -= troopAmount;
+            }
+        }
+    }
+
 
     /**
      * Get the player base location.
@@ -426,15 +531,24 @@ public class CoCPlayer {
         return baseLocation.clone();
     }
 
+    public Location getBaseCenterLocation() {
+        return getBaseStartLocation().add(ClashOfClubs.getBaseSize() / 2.0 + ClashOfClubs.getBaseBackground(), 0, ClashOfClubs.getBaseSize() / 2.0 + ClashOfClubs.getBaseBackground());
+    }
+
     /**
-     * Get the player base location.
+     * Get the player base end location WITHOUT the background.
      * @return Location - the player base location.
      * @since 0.0.1
      */
     public Location getBaseEndLocation() {
-        return getBaseStartLocation().add(ClashOfClubs.getBaseSize(), 300, ClashOfClubs.getBaseSize());
+        return getBaseStartLocation().add(ClashOfClubs.getBaseSize(), ClashOfClubs.getBaseYCoordinate() + 100, ClashOfClubs.getBaseSize());
     }
 
+    public Location getVisitorLocation() {
+        Location visitorLoc = getBaseCenterLocation();
+        visitorLoc.setY(BuildingLocationUtil.getHighestYCoordinate(visitorLoc) + 1);
+        return visitorLoc;
+    }
 
 
     /**
@@ -443,7 +557,7 @@ public class CoCPlayer {
      * @since 0.0.1
      */
     public void setGems(int gems) {
-        this.gems = gems;
+        this.playerValues.put(PlayerValues.GEMS, gems);
     }
 
     /**
@@ -452,7 +566,7 @@ public class CoCPlayer {
      * @since 0.0.1
      */
     public int getGems() {
-        return gems;
+        return this.playerValues.get(PlayerValues.GEMS);
     }
 
     /**
@@ -462,7 +576,7 @@ public class CoCPlayer {
      * @since 0.0.1
      */
     public int addExp(int xp) {
-        return this.xp += xp;
+        return addPlayerValue(PlayerValues.XP, xp);
     }
 
     /**
@@ -471,7 +585,7 @@ public class CoCPlayer {
      * @since 0.0.1
      */
     public int getExp() {
-        return xp;
+        return this.playerValues.get(PlayerValues.XP);
     }
 
     /**
@@ -481,7 +595,20 @@ public class CoCPlayer {
      * @since 0.0.1
      */
     public int addElo(int elo) {
-        return this.elo += elo;
+        return addPlayerValue(PlayerValues.ELO, elo);
+    }
+
+    /**
+     * Adds a specific amount to the player.
+     * @param value PlayerValues - the player value.
+     * @param amount int - amount to add.
+     * @return int - new amount
+     * @since 1.0.2
+     */
+    public int addPlayerValue(PlayerValues value, int amount) {
+        int newAmount = this.playerValues.get(value) + amount;
+        this.playerValues.put(value, newAmount);
+        return newAmount;
     }
 
     /**
@@ -490,7 +617,7 @@ public class CoCPlayer {
      * @since 0.0.1
      */
     public int getElo() {
-        return elo;
+        return this.playerValues.get(PlayerValues.ELO);
     }
 
 
