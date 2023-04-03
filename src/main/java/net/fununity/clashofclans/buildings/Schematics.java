@@ -64,7 +64,7 @@ public class Schematics {
                     material = Material.STONE;
 
                 if (material != loc.getBlock().getType())
-                    blockSettingMap.put(loc.clone(), new Object[] {material.name(), (byte) 0});
+                    blockSettingMap.put(loc.clone(), new Object[] {"minecraft:" + material.name(), (byte) 0});
             }
         }
 

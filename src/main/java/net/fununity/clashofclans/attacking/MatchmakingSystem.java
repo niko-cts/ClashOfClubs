@@ -1,7 +1,11 @@
 package net.fununity.clashofclans.attacking;
 
+import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.database.DatabaseAttackBots;
+import net.fununity.clashofclans.database.DatabaseBuildings;
+import net.fununity.clashofclans.database.DatabasePlayer;
 import net.fununity.clashofclans.language.TranslationKeys;
+import net.fununity.clashofclans.player.CoCPlayer;
 import net.fununity.cloud.client.CloudClient;
 import net.fununity.cloud.common.events.cloud.CloudEvent;
 import net.fununity.cloud.common.server.ServerType;
@@ -9,11 +13,9 @@ import net.fununity.main.api.FunUnityAPI;
 import net.fununity.main.api.cloud.CloudManager;
 import net.fununity.main.api.messages.MessagePrefix;
 import net.fununity.main.api.player.APIPlayer;
+import org.bukkit.Bukkit;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * The matchmaking system.
@@ -88,15 +90,20 @@ public class MatchmakingSystem {
         this.waitingForAttackServer.remove(attacker);
 
         APIPlayer player = FunUnityAPI.getInstance().getPlayerHandler().getPlayer(attacker);
-        if (player == null || !this.attackerDefender.containsKey(attacker)) {
+        CoCPlayer coCPlayer = ClashOfClubs.getInstance().getPlayerManager().getPlayer(attacker);
+        if (player == null || coCPlayer == null || !this.attackerDefender.containsKey(attacker)) {
             cancelAttackRequest(attacker, serverId);
             return;
         }
 
-        player.sendMessage(MessagePrefix.INFO, TranslationKeys.COC_ATTACK_START_FOUND);
+        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
+            DatabasePlayer.getInstance().updateCompletePlayerData(List.of(coCPlayer));
 
-        CloudClient.getInstance().forwardToServer(serverId, new CloudEvent(CloudEvent.COC_REQUEST_LOAD).addData(attacker).addData(attackerDefender.get(attacker)).addData(CloudClient.getInstance().getClientId()),
-                answer -> serverLoadedBase(attacker, serverId));
+            player.sendMessage(MessagePrefix.SUCCESS, TranslationKeys.COC_ATTACK_START_FOUND);
+            Bukkit.getScheduler().runTask(ClashOfClubs.getInstance(), () ->
+                    CloudClient.getInstance().forwardToServer(serverId, new CloudEvent(CloudEvent.COC_REQUEST_LOAD).addData(attacker).addData(attackerDefender.get(attacker)).addData(CloudClient.getInstance().getClientId()),
+                            answer -> serverLoadedBase(attacker, serverId)));
+        });
     }
 
     /**

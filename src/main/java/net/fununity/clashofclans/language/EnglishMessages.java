@@ -332,9 +332,9 @@ public class EnglishMessages extends MessageList {
         add(TranslationKeys.COC_CONSTRUCTION_BUILD, "&aBuilding will be constructed!");
 
         // ATTACKING
-        add(TranslationKeys.COC_ATTACK_START_REQUEST, "&aWe are looking for an attack server!");
-        add(TranslationKeys.COC_ATTACK_START_SERVER_CREATE, "&7We are starting a new attack server for you! &7Please wait a moment...");
-        add(TranslationKeys.COC_ATTACK_START_FOUND, "&aServer found! You will be send over... Good luck!");
+        add(TranslationKeys.COC_ATTACK_START_REQUEST, "&7Looking for a server...");
+        add(TranslationKeys.COC_ATTACK_START_SERVER_CREATE, "&7Starting a new attack server. Please wait a moment...");
+        add(TranslationKeys.COC_ATTACK_START_FOUND, "&aServer found! &7The base will be generated and you will be send over in some seconds...");
         add(TranslationKeys.COC_ATTACK_REQUEST_SEND, "&aAttacking base set! You will be send to it in a few moments.");
         add(TranslationKeys.COC_ATTACK_NO_BASES_FOUND, "&cThere was no base found.");
         add(TranslationKeys.COC_ATTACK_BASE_FOUND, "&aA new base was found...");

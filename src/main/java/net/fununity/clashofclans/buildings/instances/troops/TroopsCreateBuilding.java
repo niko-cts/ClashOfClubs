@@ -80,10 +80,9 @@ public class TroopsCreateBuilding extends TroopsBuilding implements IDifferentVe
                         .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                         .setName(language.getTranslation(TranslationKeys.COC_GUI_TROOPS_TRAIN_NAME))
                         .setLore(language.getTranslation(TranslationKeys.COC_GUI_TROOPS_TRAIN_LORE).split(";")).craft(),
-                new ClickAction() {
+                new ClickAction(true) {
                     @Override
                     public void onClick(APIPlayer apiPlayer, ItemStack itemStack, int i) {
-                        apiPlayer.getPlayer().closeInventory();
                         Bukkit.getScheduler().runTaskLater(ClashOfClubs.getInstance(), () ->
                                 TroopsGUI.openTraining(apiPlayer, TroopsCreateBuilding.this), 1L);
                     }

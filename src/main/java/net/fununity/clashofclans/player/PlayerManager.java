@@ -126,10 +126,8 @@ public class PlayerManager {
             player.teleport(coCPlayer.getVisitorLocation());
         }
         playersMap.remove(uuid);
-        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> {
-            DatabasePlayer.getInstance().updatePlayer(Collections.singletonList(coCPlayer));
-            DatabaseBuildings.getInstance().updateBuildings(Collections.singletonList(coCPlayer));
-        });
+        Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () ->
+                DatabasePlayer.getInstance().updateCompletePlayerData(Collections.singletonList(coCPlayer)));
     }
 
     /**
@@ -189,66 +187,94 @@ public class PlayerManager {
      * Loads the player out of the database.
      *
      * @param uuid UUID - the player who joins.
+     * @param playerBase Location - location of the player base.
      * @return CoCPlayer - loaded coc player.
+     * @since 1.0.2
      */
-    public CoCPlayer loadPlayer(UUID uuid) {
+    public CoCPlayer loadPlayer(UUID uuid, Location playerBase) {
         try (ResultSet data = DatabasePlayer.getInstance().getPlayerData(uuid)) {
             if (data != null && data.next()) {
-
-                int playerX = data.getInt("x");
-                int playerZ = data.getInt("z");
-
-                EnumMap<PlayerValues, Integer> playerValues = new EnumMap<>(PlayerValues.class);
-                for (PlayerValues value : PlayerValues.values())
-                    playerValues.put(value, data.getInt(value.name().toLowerCase()));
-
-                long lastJoin = data.getLong("last_login");
-                String lastServer = data.getString("last_server");
-
-                try (ResultSet set = DatabaseBuildings.getInstance().getBuildings(uuid)) {
-                    List<GeneralBuilding> buildings = new ArrayList<>();
-
-                    Location playerBase = new Location(ClashOfClubs.getInstance().getWorld(), playerX, ClashOfClubs.getBaseYCoordinate(), playerZ);
-
-                    while (set != null && set.next()) {
-                        UUID buildingUUID = UUID.fromString(set.getString(DatabaseBuildings.TABLE + ".building_uuid"));
-                        IBuilding buildingID = BuildingsManager.getInstance().getBuildingById(set.getString("building_id"));
-                        byte rotation = set.getByte("rotation");
-                        int level = set.getInt("level");
-                        int[] baseRelatives = new int[]{set.getInt("x"), set.getInt("z")};
-
-                        GeneralBuilding building;
-
-                        if (buildingID instanceof IResourceContainerBuilding)
-                            building = BuildingsManager.getInstance().getBuildingInstance(uuid, buildingUUID, buildingID, playerBase, baseRelatives, rotation, level, set.getDouble("amount"));
-                        else if (buildingID instanceof ITroopBuilding) {
-                            ConcurrentHashMap<ITroop, Integer> troops = new ConcurrentHashMap<>();
-                            for (Troops troop : Troops.values())
-                                troops.put(troop, set.getInt(troop.name().toLowerCase()));
-                            building = BuildingsManager.getInstance().getBuildingInstance(uuid, buildingUUID, buildingID, playerBase, baseRelatives,rotation, level, troops);
-
-                            if (building instanceof TroopsCreateBuilding)
-                                ((TroopsCreateBuilding) building).insertQueue(set.getString("queue"));
-                        } else
-                            building = BuildingsManager.getInstance().getBuildingInstance(uuid, buildingUUID, buildingID, playerBase, baseRelatives,rotation, level);
-
-                        if (set.getLong("finish_time") != 0)
-                            building = new ConstructionBuilding(building, playerBase, set.getLong("finish_time"));
-
-                        buildings.add(building);
-                    }
-
-                    return new CoCPlayer(uuid, playerBase, playerValues, lastServer, lastJoin, buildings);
-
-                } catch (SQLException exception) {
-                    ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
-                }
+                return loadPlayer(uuid, playerBase, data);
             }
         } catch (SQLException exception) {
             ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
         }
         return null;
     }
+
+
+
+    /**
+     * Loads the player out of the database.
+     *
+     * @param uuid UUID - the player who joins.
+     * @return CoCPlayer - loaded coc player.
+     * @since 1.0.2
+     */
+    public CoCPlayer loadPlayer(UUID uuid) {
+        try (ResultSet data = DatabasePlayer.getInstance().getPlayerData(uuid)) {
+            if (data != null && data.next()) {
+                return loadPlayer(uuid,
+                        new Location(ClashOfClubs.getInstance().getWorld(), data.getInt("x"), ClashOfClubs.getBaseYCoordinate(), data.getInt("z")),
+                        data);
+            }
+        } catch (SQLException exception) {
+            ClashOfClubs.getInstance().getLogger().warning(exception.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Loads the player data from the given base location and player result set.
+     * @param uuid UUID - uuid of the player
+     * @param playerBase Location - the player base start location.
+     * @param data ResultSet - the players data set
+     * @return CoCPlayer - Player instance
+     * @throws SQLException - Caused from result set methods
+     * @since 1.0.2
+     */
+    private CoCPlayer loadPlayer(UUID uuid, Location playerBase, ResultSet data) throws SQLException {
+        EnumMap<PlayerValues, Integer> playerValues = new EnumMap<>(PlayerValues.class);
+        for (PlayerValues value : PlayerValues.values())
+            playerValues.put(value, data.getInt(value.name().toLowerCase()));
+
+        long lastJoin = data.getLong("last_login");
+        String lastServer = data.getString("last_server");
+
+        ResultSet buildingSet = DatabaseBuildings.getInstance().getBuildings(uuid);
+        List<GeneralBuilding> buildings = new ArrayList<>();
+
+        while (buildingSet != null && buildingSet.next()) {
+            UUID buildingUUID = UUID.fromString(buildingSet.getString(DatabaseBuildings.TABLE + ".building_uuid"));
+            IBuilding buildingID = BuildingsManager.getInstance().getBuildingById(buildingSet.getString("building_id"));
+            byte rotation = buildingSet.getByte("rotation");
+            int level = buildingSet.getInt("level");
+            int[] baseRelatives = new int[]{buildingSet.getInt("x"), buildingSet.getInt("z")};
+
+            GeneralBuilding building;
+
+            if (buildingID instanceof IResourceContainerBuilding)
+                building = BuildingsManager.getInstance().getBuildingInstance(uuid, buildingUUID, buildingID, playerBase, baseRelatives, rotation, level, buildingSet.getDouble("amount"));
+            else if (buildingID instanceof ITroopBuilding) {
+                ConcurrentHashMap<ITroop, Integer> troops = new ConcurrentHashMap<>();
+                for (Troops troop : Troops.values())
+                    troops.put(troop, buildingSet.getInt(troop.name().toLowerCase()));
+                building = BuildingsManager.getInstance().getBuildingInstance(uuid, buildingUUID, buildingID, playerBase, baseRelatives, rotation, level, troops);
+
+                if (building instanceof TroopsCreateBuilding)
+                    ((TroopsCreateBuilding) building).insertQueue(buildingSet.getString("queue"));
+            } else
+                building = BuildingsManager.getInstance().getBuildingInstance(uuid, buildingUUID, buildingID, playerBase, baseRelatives, rotation, level);
+
+            if (buildingSet.getLong("finish_time") != 0)
+                building = new ConstructionBuilding(building, playerBase, buildingSet.getLong("finish_time"));
+
+            buildings.add(building);
+        }
+
+        return new CoCPlayer(uuid, playerBase, playerValues, lastServer, lastJoin, buildings);
+    }
+
 
     public void giveDefaultItems(CoCPlayer coCPlayer) {
         giveDefaultItems(coCPlayer, coCPlayer.getOwner());

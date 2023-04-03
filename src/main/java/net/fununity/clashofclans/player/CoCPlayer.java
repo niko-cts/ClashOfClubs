@@ -223,7 +223,7 @@ public class CoCPlayer {
         if (type instanceof PlayerValues) {
             this.playerValues.put((PlayerValues) type, Math.max(0, this.playerValues.get((PlayerValues) type) - remove));
         } else {
-            List<GeneralBuilding> needsUpdate = removeResourceWithoutUpdate((ResourceTypes) type, remove);
+            List<GeneralBuilding> needsUpdate = removeResourceFromContainer((ResourceTypes) type, remove);
             if (!needsUpdate.isEmpty())
                 Bukkit.getScheduler().runTaskAsynchronously(ClashOfClubs.getInstance(), () -> Schematics.createBuildings(needsUpdate));
 
@@ -302,8 +302,6 @@ public class CoCPlayer {
         List<ResourceContainerBuilding> containerBuildings = getResourceContainerBuildings(type);
         if (containerBuildings.isEmpty()) return new ArrayList<>();
 
-        containerBuildings.sort(Comparator.comparingInt(ResourceContainerBuilding::getMaximumResource));
-
         int needToRemovePerBuilding = remove / containerBuildings.size();
 
         List<GeneralBuilding> needsUpdate = new ArrayList<>();
@@ -342,7 +340,7 @@ public class CoCPlayer {
      * @since 0.0.1
      */
     public List<ResourceContainerBuilding> getResourceContainerBuildings(ResourceTypes type) {
-        return resourceBuildings.get(type).stream().filter(r -> !(r instanceof ResourceGatherBuilding)).toList();
+        return resourceBuildings.get(type).stream().filter(r -> !(r instanceof ResourceGatherBuilding)).sorted(Comparator.comparingInt(ResourceContainerBuilding::getMaximumResource)).toList();
     }
 
     /**

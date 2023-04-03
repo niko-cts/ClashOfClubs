@@ -1,5 +1,6 @@
 package net.fununity.clashofclans.gui;
 
+import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.buildings.TroopsBuildingManager;
 import net.fununity.clashofclans.buildings.instances.troops.TroopsCreateBuilding;
 import net.fununity.clashofclans.language.TranslationKeys;
@@ -12,6 +13,7 @@ import net.fununity.main.api.item.UsefulItems;
 import net.fununity.main.api.player.APIPlayer;
 import net.fununity.main.api.util.Utils;
 import net.fununity.misc.translationhandler.translations.Language;
+import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
@@ -43,11 +45,12 @@ public class TroopsGUI {
                         Troops.values().length + 18));
         menu.setSpecialHolder(building.getBuildingUUID() + "-training");
 
-        ITroop topTroop = building.getTroopsQueue().peek();
+        boolean first = true;
         for (ITroop troop : building.getTroopsQueue()) {
             List<String> lore = new ArrayList<>(Arrays.asList(troop.getDescription(lang)));
 
-            int timeLeft = troop.equals(topTroop) ? building.getTrainSecondsLeft() : troop.getTrainDuration();
+            int timeLeft = first ? building.getTrainSecondsLeft() : troop.getTrainDuration();
+
 
             lore.addAll(Arrays.asList(lang.getTranslation(TranslationKeys.COC_GUI_TRAIN_QUEUE_LORE,
                     Arrays.asList("${duration}", "${max}"),
@@ -57,19 +60,20 @@ public class TroopsGUI {
                     .setName(troop.getName(lang))
                     .setLore(lore)
                     .setDamage((int) (troop.getRepresentativeItem().getMaxDurability() * Math.max(1.0, timeLeft) / troop.getTrainDuration()))
-                    .craft(), new ClickAction() {
+                    .craft(), new ClickAction(true) {
                 @Override
                 public void onRightClick(APIPlayer apiPlayer, ItemStack itemStack, int slot) {
                     building.removeTroop(troop);
-                    openTraining(apiPlayer, building);
+                    Bukkit.getScheduler().runTaskLater(ClashOfClubs.getInstance(), ()->openTraining(apiPlayer, building), 1);
                 }
 
                 @Override
                 public void onClick(APIPlayer apiPlayer, ItemStack itemStack, int i) {
                     building.removeTroop(troop);
-                    openTraining(apiPlayer, building);
+                    Bukkit.getScheduler().runTaskLater(ClashOfClubs.getInstance(), ()->openTraining(apiPlayer, building), 1);
                 }
             });
+            first = false;
         }
 
         int i = building.getTroopsQueue().size() + 9 - building.getTroopsQueue().size();
@@ -93,16 +97,18 @@ public class TroopsGUI {
                     .setLore(lore).craft(), new ClickAction() {
                 @Override
                 public void onClick(APIPlayer apiPlayer, ItemStack itemStack, int i) {
-                    if (TroopsBuildingManager.getInstance().startEducation(apiPlayer, building, troop))
-                        openTraining(apiPlayer, building);
+                    if (TroopsBuildingManager.getInstance().startEducation(apiPlayer, building, troop)) {
+                        setCloseInventory(true);
+                        Bukkit.getScheduler().runTaskLater(ClashOfClubs.getInstance(), ()->openTraining(apiPlayer, building), 1);
+                    }
                 }
             });
         }
 
-        menu.setItem(menu.getInventory().getSize() - 9, UsefulItems.LEFT_ARROW, new ClickAction() {
+        menu.setItem(menu.getInventory().getSize() - 9, UsefulItems.LEFT_ARROW, new ClickAction(true) {
             @Override
             public void onClick(APIPlayer apiPlayer, ItemStack itemStack, int i) {
-                building.getInventory(lang).open(apiPlayer);
+                Bukkit.getScheduler().runTaskLater(ClashOfClubs.getInstance(), () -> building.getInventory(lang).open(apiPlayer), 1L);
             }
         });
 

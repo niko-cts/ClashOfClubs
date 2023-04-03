@@ -2,6 +2,7 @@ package net.fununity.clashofclans.database;
 
 import net.fununity.clashofclans.ClashOfClubs;
 import net.fununity.clashofclans.player.CoCPlayer;
+import net.fununity.clashofclans.values.PlayerValues;
 import net.fununity.cloud.client.CloudClient;
 import net.fununity.misc.databasehandler.DatabaseHandler;
 import org.bukkit.Location;
@@ -83,12 +84,11 @@ public class DatabasePlayer {
     }
 
     /**
-     * Updates player data.
-     * Should be executed when quitting
+     * Updates player data and the building data.
      * @param players Collection<CoCPlayer> - all player to update.
      * @since 0.0.2
      */
-    public void updatePlayer(Collection<CoCPlayer> players) {
+    public void updateCompletePlayerData(Collection<CoCPlayer> players) {
         List<String> tableNames = new ArrayList<>();
         List<List<String>> allColumns = new ArrayList<>();
         List<List<String>> allValues = new ArrayList<>();
@@ -97,11 +97,21 @@ public class DatabasePlayer {
 
         for (CoCPlayer player : players) {
             tableNames.add(TABLE_DATA);
-            allColumns.add(Arrays.asList("elo", "gems", "xp", "last_login", "last_server"));
-            allValues.add(Arrays.asList(player.getElo()+"", player.getGems()+"", player.getExp()+"", System.currentTimeMillis()+"", CloudClient.getInstance().getClientId()));
-            allDataTypes.add(Arrays.asList("", "", "", "string", "string"));
+            List<String> columns = new ArrayList<>(Arrays.asList("last_login", "last_server"));
+            List<String> values = new ArrayList<>(Arrays.asList(System.currentTimeMillis()+"", CloudClient.getInstance().getClientId()));
+            List<String> types = new ArrayList<>(Arrays.asList("string", "string"));
+            for (PlayerValues value : PlayerValues.values()) {
+                columns.add(value.name().toLowerCase());
+                values.add(((int)player.getResourceAmount(value))+"");
+                types.add("");
+            }
             whereClauses.add("WHERE uuid='" + player.getUniqueId() + "' LIMIT 1");
+            allColumns.add(columns);
+            allValues.add(values);
+            allDataTypes.add(types);
         }
+
+        DatabaseBuildings.getInstance().addBuildingUpdates(players, tableNames, allColumns, allValues, allDataTypes, whereClauses);
 
         this.databaseHandler.update(tableNames, allColumns, allValues, allDataTypes, whereClauses);
     }

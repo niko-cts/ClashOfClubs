@@ -72,7 +72,9 @@ public class DatabaseAttackResources {
      * @since 1.0.2
      */
     public void insertNewResourceChange(UUID attacker, UUID defender, Map<String, Integer> resourcesGathered) {
-        List<String> col = new ArrayList<>(Arrays.asList("", attacker.toString()));
+        if (resourcesGathered.values().stream().noneMatch(v -> v > 0)) return;
+
+        List<String> col = new ArrayList<>(Arrays.asList("null", attacker.toString()));
         List<String> types = new ArrayList<>(Arrays.asList("", "string"));
         for (Integer amount : resourcesGathered.values()) {
             col.add(amount + "");

@@ -156,16 +156,16 @@ public class DatabaseBuildings {
     }
 
     /**
-     * Updates every special building data
+     * Adds the building update data to the list.
      * @param coCPlayers Collection<CoCPlayer> - all players to update the buildings.
+     * @param tableNames List<String> - the list of the table name
+     * @param allColumns List<String> - the list of all columns
+     * @param allValues List<String> - the list of the all values
+     * @param allDataTypes List<String> - the list of the all data types
+     * @param whereClauses List<String> - the list of the where clauses.
+     * @since 1.0.2
      */
-    public void updateBuildings(Collection<CoCPlayer> coCPlayers) {
-        List<String> tableNames = new ArrayList<>();
-        List<List<String>> allColumns = new ArrayList<>();
-        List<List<String>> allValues = new ArrayList<>();
-        List<List<String>> allDataTypes = new ArrayList<>();
-        List<String> whereClauses = new ArrayList<>();
-
+    protected void addBuildingUpdates(Collection<CoCPlayer> coCPlayers, List<String> tableNames, List<List<String>> allColumns, List<List<String>> allValues, List<List<String>> allDataTypes, List<String> whereClauses) {
         for (CoCPlayer coCPlayer : coCPlayers) {
             for (ResourceTypes type : ResourceTypes.values()) {
                 List<ResourceContainerBuilding> resourceBuildings = new ArrayList<>();
@@ -210,8 +210,6 @@ public class DatabaseBuildings {
                 whereClauses.add("WHERE building_uuid='" + troopsCampBuilding.getBuildingUUID() + "' LIMIT 1");
             }
         }
-
-        this.databaseHandler.update(tableNames, allColumns, allValues, allDataTypes, whereClauses);
     }
 
     /**

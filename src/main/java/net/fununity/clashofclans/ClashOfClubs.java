@@ -6,7 +6,6 @@ import net.fununity.clashofclans.commands.CoCCommand;
 import net.fununity.clashofclans.commands.HomeCommand;
 import net.fununity.clashofclans.commands.ResetCommand;
 import net.fununity.clashofclans.commands.VisitCommand;
-import net.fununity.clashofclans.database.DatabaseBuildings;
 import net.fununity.clashofclans.database.DatabasePlayer;
 import net.fununity.clashofclans.language.EnglishMessages;
 import net.fununity.clashofclans.language.GermanMessages;
@@ -100,8 +99,7 @@ public class ClashOfClubs extends JavaPlugin {
         Collection<CoCPlayer> players = getPlayerManager().getPlayers().values();
         if (!players.isEmpty()) {
             getLogger().log(Level.INFO, "Saving data of {0} players", players.size());
-            DatabasePlayer.getInstance().updatePlayer(players);
-            DatabaseBuildings.getInstance().updateBuildings(players);
+            DatabasePlayer.getInstance().updateCompletePlayerData(players);
         }
     }
 
