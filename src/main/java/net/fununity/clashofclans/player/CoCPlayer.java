@@ -340,7 +340,7 @@ public class CoCPlayer {
      * @since 0.0.1
      */
     public List<ResourceContainerBuilding> getResourceContainerBuildings(ResourceTypes type) {
-        return resourceBuildings.get(type).stream().filter(r -> !(r instanceof ResourceGatherBuilding)).sorted(Comparator.comparingInt(ResourceContainerBuilding::getMaximumResource)).toList();
+        return resourceBuildings.get(type).stream().filter(r -> !(r instanceof ResourceGatherBuilding)).sorted(Comparator.comparingInt(ResourceContainerBuilding::getMaximumResource)).collect(Collectors.toList());
     }
 
     /**
@@ -350,7 +350,7 @@ public class CoCPlayer {
      * @since 0.0.1
      */
     public List<ResourceGatherBuilding> getResourceGatherBuildings(ResourceTypes type) {
-        return resourceBuildings.get(type).stream().filter(r -> r instanceof ResourceGatherBuilding).map(r -> (ResourceGatherBuilding) r).toList();
+        return resourceBuildings.get(type).stream().filter(r -> r instanceof ResourceGatherBuilding).map(r -> (ResourceGatherBuilding) r).collect(Collectors.toList());
     }
 
     /**

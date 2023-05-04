@@ -339,8 +339,7 @@ public class BuildingsManager {
      * @return boolean - close inventory
      */
     public boolean emptyGatherer(List<ResourceGatherBuilding> emptyGatherer) {
-        emptyGatherer.removeIf(g -> g.getAmount() < 1);
-        if (emptyGatherer.isEmpty()) return false;
+        if (emptyGatherer.stream().noneMatch(b -> b.getAmount() >= 1)) return false;
 
         UUID uuid = emptyGatherer.get(0).getOwnerUUID();
         CoCPlayer player = ClashOfClubs.getInstance().getPlayerManager().getPlayer(uuid);
