@@ -5,7 +5,15 @@ Features
 
 ## ClashOfClubs includes the following features:
 
-- Base building and defense
+- Base building with multiple level of buildings
 - Resource management (gold, food, electricty and dark elixir)
 - Troop training and deployment
 - Multiplayer battles with other players (planned)
+
+
+## Note
+This plugin depends on other (not published) plugins. It will not work on it's own.
+
+# License
+This project is licensed under the MIT License. See the LICENSE file for details.
+⚠️ Important: This project is intended solely for demonstration and presentation purposes. It is not designed for actual gameplay or production use. ⚠️
